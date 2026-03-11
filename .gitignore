@@ -1,0 +1,88 @@
+# ============================================
+# PYTHON
+# ============================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# ============================================
+# БАЗЫ ДАННЫХ
+# ============================================
+# SQLite
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# ЧУВСТВИТЕЛЬНЫЕ ДАННЫЕ
+# ============================================
+# Environment variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# API keys, passwords
+config.py
+settings_local.py
+secrets.py
+
+# ============================================
+# IDE
+# ============================================
+# PyCharm / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Other editors
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ============================================
+# ЛОГИ И ВРЕМЕННЫЕ ФАЙЛЫ
+# ============================================
+*.log
+logs/
+*.tmp
+*.temp
+
+# ============================================
+# ALEMBIC (опционально)
+# ============================================
+# НЕ добавляй alembic/versions/ - там миграции!
+# Алеambic.ini можно добавить, если там нет паролей
