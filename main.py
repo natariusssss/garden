@@ -85,7 +85,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     return user
 
 
-app = FastAPI(title="Garden of Knowledge API")
+app = FastAPI(title="Garden")
 
 
 @app.post("/register", response_model=UserResponse)
