@@ -46,20 +46,10 @@ export default function DashboardPage() {
   return (
     <div className="page">
       <div className="card">
-        <div className="tabs">
-          <Link to="/dashboard">
-            <button>Dashboard</button>
-          </Link>
-          <Link to="/profile">
-            <button>Профиль</button>
-          </Link>
-        </div>
 
         <h1 className="title">Mind Garden</h1>
 
-        <button className="secondary-button" onClick={handleLogout}>
-          Выйти
-        </button>
+      
 
         <div style={{ marginTop: "24px" }}>
           <h2>Добавить новую тему</h2>

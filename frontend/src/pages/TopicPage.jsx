@@ -65,14 +65,7 @@ export default function TopicPage() {
   return (
     <div className="page">
       <div className="card topic-card">
-        <div className="tabs">
-          <Link to="/dashboard">
-            <button>Dashboard</button>
-          </Link>
-          <Link to="/profile">
-            <button>Профиль</button>
-          </Link>
-        </div>
+        
 
         <h1 className="title">{topic.name}</h1>
 
