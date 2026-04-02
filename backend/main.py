@@ -269,6 +269,24 @@ def get_topic(
 
     return topic
 
+@app.delete("/topics/{topic_id}")
+def delete_topic(
+    topic_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    topic = db.query(Topic).filter(
+        Topic.id == topic_id,
+        Topic.user_id == current_user.id
+    ).first()
+
+    if not topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    db.delete(topic)
+    db.commit()
+
+    return {"message": "Topic deleted successfully"}
 
 
 
