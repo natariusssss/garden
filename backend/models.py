@@ -14,14 +14,19 @@ class User(Base):
     user_topics=relationship("UserTopic", back_populates="user")
     review_history=relationship("ReviewHistory", back_populates="user")
     topics=relationship("Topic", back_populates="user")
-    categories=relationship("Category", back_populates="user")
+    categories = relationship("Category", back_populates="user")
+
+
 class Category(Base):
     __tablename__ = 'categories'
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)
     name=Column(String(50), nullable=False, unique=True)
     description=Column(Text)
-    user=relationship("User", back_populates="category")
+    user = relationship("User", back_populates="categories")
     topics=relationship("Topic", back_populates="category")
+
+
 class Topic(Base):
     __tablename__ = 'topics'
     id = Column(Integer, primary_key=True)
@@ -33,7 +38,8 @@ class Topic(Base):
     category=relationship("Category", back_populates="topics")
     user_topics=relationship("UserTopic", back_populates="topics")
     review_history=relationship("ReviewHistory", back_populates="topics")
-    user_id=relationship("User", back_populates="topics")
+
+
 class UserTopic(Base):
     __tablename__ = 'user_topics'
     id = Column(Integer, primary_key=True)
@@ -45,6 +51,8 @@ class UserTopic(Base):
     next_review_date = Column(DateTime, default=datetime.now)
     user=relationship("User", back_populates="user_topics")
     topic=relationship("Topic", back_populates="user_topics")
+
+
 class ReviewHistory(Base):
     __tablename__ = 'review_history'
     id = Column(Integer, primary_key=True)
