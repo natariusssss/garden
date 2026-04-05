@@ -9,10 +9,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 import os
+from models import Base, User, Category, Topic, UserTopic, ReviewHistory
+import schemas
 
-from models import Topic
-
-from typing import Optional
+from typing import Optional, List
 
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
@@ -21,86 +21,9 @@ DATABASE_URL = "sqlite:///./garden.db"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-
-class User(Base):
-    __tablename__ = "users"
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True, nullable=False)
-    email = Column(String, unique=True, index=True, nullable=False)
-    password_hash = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-
-
-
-
-
-
-class UserCreate(BaseModel):
-    username: str
-    email: EmailStr
-    password: str
-
-
-class UserResponse(BaseModel):
-    id: int
-    username: str
-    email: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-
-
-class Topic(Base):
-    __tablename__ = "topics"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    name = Column(String, nullable=False)
-    description = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    xp = Column(Integer, default=0)
-    level = Column(Integer, default=1)
-    last_review = Column(DateTime, nullable=True)
-
-class TopicResponse(BaseModel):
-    id: int
-    user_id: int
-    name: str
-    description: Optional[str] = None
-    xp: int
-    level: int
-    last_review: Optional[datetime] = None
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-
-class TopicCreate(BaseModel):
-    name: str
-    description: Optional[str] = None
-
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
-
-
-
-
-Base.metadata.create_all(bind=engine)
-
-
 
 def get_db():
     db = SessionLocal()
@@ -163,8 +86,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.post("/register", response_model=UserResponse)
-def register(user: UserCreate, db: Session = Depends(get_db)):
+@app.post("/register", response_model=schemas.UserResponse)
+def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     existing = db.query(User).filter(
         (User.username == user.username) | (User.email == user.email)
     ).first()
@@ -181,8 +104,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-
-@app.post("/token", response_model=Token)
+@app.post("/token", response_model=schemas.Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -191,28 +113,55 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/topics", response_model=TopicResponse)
+
+@app.post("/topics", response_model=schemas.TopicResponse, status_code=status.HTTP_201_CREATED)
 def create_topic(
-    topic: TopicCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+        topic: schemas.TopicCreate,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
 ):
-    new_topic = Topic(
+
+    category = db.query(Category).filter(
+        Category.id == topic.category_id,
+        Category.user_id == current_user.id
+    ).first()
+
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    db_topic = Topic(
         user_id=current_user.id,
+        category_id=topic.category_id,
         name=topic.name,
         description=topic.description
     )
-    db.add(new_topic)
+    db.add(db_topic)
     db.commit()
-    db.refresh(new_topic)
-    return new_topic
+    db.refresh(db_topic)
+    return db_topic
 
 
-@app.post("/topics/{topic_id}/add-xp", response_model=TopicResponse)
-def add_xp_to_topic(
-    topic_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+
+@app.get("/topics", response_model=List[schemas.TopicResponse])
+def get_my_topics(
+        category_id: Optional[int] = None,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    query = db.query(Topic).filter(Topic.user_id == current_user.id)
+
+
+    if category_id:
+        query = query.filter(Topic.category_id == category_id)
+
+    return query.all()
+
+
+@app.get("/topics/{topic_id}", response_model=schemas.TopicResponse)
+def get_topic(
+        topic_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
 ):
     topic = db.query(Topic).filter(
         Topic.id == topic_id,
@@ -222,18 +171,60 @@ def add_xp_to_topic(
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
-    topic.xp += 10
-
-    if topic.xp >= topic.level * 100:
-        topic.level += 1
-
-    db.commit()
-    db.refresh(topic)
-
     return topic
 
+@app.put("/topics/{topic_id}", response_model=schemas.TopicResponse)
+def update_topic(
+        topic_id: int,
+        topic: schemas.TopicUpdate,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    db_topic = db.query(Topic).filter(
+        Topic.id == topic_id,
+        Topic.user_id == current_user.id
+    ).first()
 
-@app.get("/me", response_model=UserResponse)
+    if not db_topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    if topic.name is not None:
+        db_topic.name = topic.name
+    if topic.description is not None:
+        db_topic.description = topic.description
+    if topic.category_id is not None:
+        new_category = db.query(Category).filter(
+            Category.id == topic.category_id,
+            Category.user_id == current_user.id
+        ).first()
+        if not new_category:
+            raise HTTPException(status_code=404, detail="Category not found")
+        db_topic.category_id = topic.category_id
+
+    db.commit()
+    db.refresh(db_topic)
+    return db_topic
+
+@app.delete("/topics/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_topic(
+        topic_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    db_topic = db.query(Topic).filter(
+        Topic.id == topic_id,
+        Topic.user_id == current_user.id
+    ).first()
+
+    if not db_topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    db.delete(db_topic)
+    db.commit()
+    return None
+
+
+@app.get("/me", response_model=schemas.UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
@@ -243,50 +234,92 @@ def get_me(current_user: User = Depends(get_current_user)):
 def root():
     return {"message": "Garden is running"}
 
-
-
-@app.get("/topics", response_model=list[TopicResponse])
-def get_topics(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+@app.post("/categories", response_model=schemas.CategoryResponse, status_code=status.HTTP_201_CREATED)
+def create_category(
+        category: schemas.CategoryCreate,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
 ):
-    topics = db.query(Topic).filter(Topic.user_id == current_user.id).all()
-    return topics
 
-@app.get("/topics/{topic_id}", response_model=TopicResponse)
-def get_topic(
-    topic_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    topic = db.query(Topic).filter(
-        Topic.id == topic_id,
-        Topic.user_id == current_user.id
-    ).first()
-
-    if not topic:
-        raise HTTPException(status_code=404, detail="Topic not found")
-
-    return topic
-
-@app.delete("/topics/{topic_id}")
-def delete_topic(
-    topic_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    topic = db.query(Topic).filter(
-        Topic.id == topic_id,
-        Topic.user_id == current_user.id
-    ).first()
-
-    if not topic:
-        raise HTTPException(status_code=404, detail="Topic not found")
-
-    db.delete(topic)
+    db_category = Category(
+        user_id=current_user.id,
+        name=category.name,
+        description=category.description
+    )
+    db.add(db_category)
     db.commit()
+    db.refresh(db_category)
+    return db_category
 
-    return {"message": "Topic deleted successfully"}
+
+
+@app.get("/categories", response_model=List[schemas.CategoryResponse])
+def get_my_categories(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    return db.query(Category).filter(Category.user_id == current_user.id).all()
+
+
+
+@app.get("/categories/{category_id}", response_model=schemas.CategoryResponse)
+def get_category(
+        category_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    category = db.query(Category).filter(
+        Category.id == category_id,
+        Category.user_id == current_user.id
+    ).first()
+
+    if not category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    return category
+
+
+@app.put("/categories/{category_id}", response_model=schemas.CategoryResponse)
+def update_category(
+        category_id: int,
+        category: schemas.CategoryUpdate,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    db_category = db.query(Category).filter(
+        Category.id == category_id,
+        Category.user_id == current_user.id
+    ).first()
+
+    if not db_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    if category.name is not None:
+        db_category.name = category.name
+    if category.description is not None:
+        db_category.description = category.description
+
+    db.commit()
+    db.refresh(db_category)
+    return db_category
+
+@app.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_category(
+        category_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    db_category = db.query(Category).filter(
+        Category.id == category_id,
+        Category.user_id == current_user.id
+    ).first()
+
+    if not db_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+
+    db.delete(db_category)
+    db.commit()
+    return None
 
 
 
