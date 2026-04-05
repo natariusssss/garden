@@ -51,7 +51,7 @@ env/
 *.env
 
 # API keys, passwords
-config.py
+backend/config.py
 settings_local.py
 secrets.py
 
