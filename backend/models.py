@@ -12,6 +12,7 @@ class User(Base):
     email = Column(String(100), nullable=False, unique=True)
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.now)
+    total_xp=Column(Integer, default=0)
 
     user_topics = relationship("UserTopic", back_populates="user")
     review_history = relationship("ReviewHistory", back_populates="user")
@@ -53,6 +54,7 @@ class UserTopic(Base):
     last_reviewed = Column(DateTime, default=datetime.now)
     review_count = Column(Integer, default=0, nullable=False)
     next_review_date = Column(DateTime, default=datetime.now)
+    xp=Column(Integer, default=0)
 
     user = relationship("User", back_populates="user_topics")
     topic = relationship("Topic", back_populates="user_topics")
@@ -68,3 +70,4 @@ class ReviewHistory(Base):
 
     user = relationship("User", back_populates="review_history")
     topic = relationship("Topic", back_populates="review_history")
+

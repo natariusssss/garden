@@ -8,9 +8,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from models import User, Category, Topic
 import schemas
-
+import crud
 from typing import Optional, List
-
 from config import settings
 
 engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
@@ -315,9 +314,41 @@ def delete_category(
     db.commit()
     return None
 
+@app.post("/reviews/{user_topic_id}", response_model=schemas.ReviewResponse)
+def create_review_endpoint(
+        user_topic_id: int,
+        review: schemas.ReviewCreate,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    result = crud.create_review(
+        db=db,
+        user_id=current_user.id,
+        user_topic_id=user_topic_id,
+        success=review.success
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="UserTopic not found")
+    return result
 
 
+@app.get("/reviews/due", response_model=List[schemas.UserTopicResponse])
+def get_due_topics_endpoint(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    due_topics = crud.get_due_topics(
+        db=db,
+        user_id=current_user.id
+    )
+    return due_topics
 
+@app.get("/users/me/stats", response_model=schemas.UserStats)
+def get_user_stats_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    pass
 
 if __name__ == "__main__":
     import uvicorn

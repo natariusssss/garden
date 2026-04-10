@@ -68,6 +68,14 @@ class ReviewHistoryResponse(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+class UserStats(BaseModel):
+    total_xp: int
+    level: int
+    reviews_count: int
+    topics_count: int
+    streak: int
+    class Config:
+        from_attributes=True
 
 
 
