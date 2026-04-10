@@ -61,6 +61,8 @@ class ReviewHistoryResponse(BaseModel):
     topic_id: int
     reviewed_at: datetime
     success: bool
+    xp_earned: int
+    next_level: int
     class Config:
         from_attributes=True
 class Token(BaseModel):
