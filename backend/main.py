@@ -11,6 +11,15 @@ import schemas
 import crud
 from typing import Optional, List
 from config import settings
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi import Request
+
+limiter = Limiter(key_func=get_remote_address)
+app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -82,7 +91,8 @@ app.add_middleware(
 )
 
 @app.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("10/hour")
+def register(user: schemas.UserCreate,request: Request, db: Session = Depends(get_db)):
     existing = db.query(User).filter(
         (User.username == user.username) | (User.email == user.email)
     ).first()
@@ -101,7 +111,8 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 
 @app.post("/token", response_model=schemas.Token)
-def login(login_data: schemas.LoginForm, db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(login_data: schemas.LoginForm,request: Request, db: Session = Depends(get_db)):
     user = db.query(User).filter(
         (User.username == login_data.login) | (User.email == login_data.login)
     ).first()
