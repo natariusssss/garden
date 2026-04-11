@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from setconf import settings
+
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import create_engine
@@ -10,7 +15,19 @@ from models import User, Category, Topic
 import schemas
 import crud
 from typing import Optional, List
-from config import settings
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from fastapi import Request
+from sqlalchemy import text
+
+
+
+
+limiter = Limiter(key_func=get_remote_address)
+app = FastAPI()
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -34,8 +51,10 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(db, username: str, password: str):
-    user = db.query(User).filter(User.username == username).first()
+def authenticate_user(db, login: str, password: str):
+    user = db.query(User).filter(
+        (User.username == login) | (User.email == login)
+    ).first()
     if not user or not verify_password(password, user.password_hash):
         return False
     return user
@@ -63,7 +82,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
-app = FastAPI()
 
 
 app.add_middleware(
@@ -80,7 +98,10 @@ app.add_middleware(
 )
 
 @app.post("/register", response_model=schemas.UserResponse)
-def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("10/hour")
+def register(user: schemas.UserCreate,request: Request, db: Session = Depends(get_db)):
+    if not user.username or not user.email or not user.password:
+        raise HTTPException(status_code=400, detail="All fields are required")
     existing = db.query(User).filter(
         (User.username == user.username) | (User.email == user.email)
     ).first()
@@ -98,16 +119,19 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     return new_user
 
 @app.post("/token", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Wrong username or password")
+@limiter.limit("5/minute")
+def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Request = None, db: Session = Depends(get_db)):
+    user = db.query(User).filter(
+        (User.username == form_data.username) | (User.email == form_data.username)
+    ).first()
+
+    if not user or not verify_password(form_data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Wrong login or password")
 
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
-
-@app.post("/topics", response_model=schemas.TopicResponse, status_code=status.HTTP_201_CREATED)
+@app.post("/topics/create", response_model=schemas.TopicResponse, status_code=status.HTTP_201_CREATED)
 def create_topic(
         topic: schemas.TopicCreate,
         current_user: User = Depends(get_current_user),
@@ -135,7 +159,7 @@ def create_topic(
 
 
 
-@app.get("/topics", response_model=List[schemas.TopicResponse])
+@app.get("/topics/list", response_model=List[schemas.TopicResponse])
 def get_my_topics(
         category_id: Optional[int] = None,
         current_user: User = Depends(get_current_user),
@@ -150,7 +174,7 @@ def get_my_topics(
     return query.all()
 
 
-@app.get("/topics/{topic_id}", response_model=schemas.TopicResponse)
+@app.get("/topics/item/{topic_id}", response_model=schemas.TopicResponse)
 def get_topic(
         topic_id: int,
         current_user: User = Depends(get_current_user),
@@ -166,7 +190,7 @@ def get_topic(
 
     return topic
 
-@app.put("/topics/{topic_id}", response_model=schemas.TopicResponse)
+@app.put("/topics/update/{topic_id}", response_model=schemas.TopicResponse)
 def update_topic(
         topic_id: int,
         topic: schemas.TopicUpdate,
@@ -198,7 +222,7 @@ def update_topic(
     db.refresh(db_topic)
     return db_topic
 
-@app.delete("/topics/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/topics/delete/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_topic(
         topic_id: int,
         current_user: User = Depends(get_current_user),
@@ -217,7 +241,7 @@ def delete_topic(
     return None
 
 
-@app.get("/me", response_model=schemas.UserResponse)
+@app.get("/my_profile", response_model=schemas.UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
@@ -227,7 +251,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 def root():
     return {"message": "Garden is running"}
 
-@app.post("/categories", response_model=schemas.CategoryResponse, status_code=status.HTTP_201_CREATED)
+@app.post("/categories/create", response_model=schemas.CategoryResponse, status_code=status.HTTP_201_CREATED)
 def create_category(
         category: schemas.CategoryCreate,
         current_user: User = Depends(get_current_user),
@@ -246,7 +270,7 @@ def create_category(
 
 
 
-@app.get("/categories", response_model=List[schemas.CategoryResponse])
+@app.get("/categories/list", response_model=List[schemas.CategoryResponse])
 def get_my_categories(
         current_user: User = Depends(get_current_user),
         db: Session = Depends(get_db)
@@ -255,7 +279,7 @@ def get_my_categories(
 
 
 
-@app.get("/categories/{category_id}", response_model=schemas.CategoryResponse)
+@app.get("/categories/item/{category_id}", response_model=schemas.CategoryResponse)
 def get_category(
         category_id: int,
         current_user: User = Depends(get_current_user),
@@ -272,7 +296,7 @@ def get_category(
     return category
 
 
-@app.put("/categories/{category_id}", response_model=schemas.CategoryResponse)
+@app.put("/categories/update/{category_id}", response_model=schemas.CategoryResponse)
 def update_category(
         category_id: int,
         category: schemas.CategoryUpdate,
@@ -296,7 +320,7 @@ def update_category(
     db.refresh(db_category)
     return db_category
 
-@app.delete("/categories/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
+@app.delete("/categories/delete/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_category(
         category_id: int,
         current_user: User = Depends(get_current_user),
@@ -348,7 +372,37 @@ def get_user_stats_endpoint(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    pass
+    stats=crud.get_user_stats(
+        db=db,
+        user_id=current_user.id
+    )
+    if not stats:
+        raise HTTPException(status_code=404, detail="UserStats not found")
+    return stats
+
+
+@app.get("/reviews/history", response_model=List[schemas.ReviewHistoryResponse])
+def get_review_history_endpoint(
+        limit: int = 50,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    history = crud.get_review_history(db=db, limit=limit, user_id=current_user.id)
+    return history
+
+from sqlalchemy import text
+
+@app.get("/health")
+def health_check(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "message": "API is running"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Database error: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

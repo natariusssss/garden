@@ -1,10 +1,25 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional, List
+from pydantic import BaseModel, EmailStr, Field, field_validator
+import re
+
 class UserCreate(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
+
+    @field_validator("username")
+    def validate_username(cls, v):
+        if not re.match(r"^[a-zA-Z0-9_]+$", v):
+            raise ValueError("Username must contain only letters, numbers and underscore")
+        return v
+
+    @field_validator("password")
+    def validate_password(cls, v):
+        if len(v) < 6:
+            raise ValueError("Password must be at least 6 characters")
+        return v
 class UserResponse(BaseModel):
     id: int
     username: str
@@ -76,6 +91,36 @@ class UserStats(BaseModel):
     streak: int
     class Config:
         from_attributes=True
+
+
+class ReviewCreate(BaseModel):
+    success: bool
+
+
+class ReviewResponse(BaseModel):
+    id: int
+    user_id: int
+    topic_id: int
+    reviewed_at: datetime
+    success: bool
+
+    class Config:
+        from_attributes = True
+
+
+class UserStats(BaseModel):
+    total_xp: int
+    total_level: int
+    topics_in_progress: int
+    topics_mastered: int
+    streak_days: int
+    total_reviews: int
+    success_rate: float
+
+class LoginForm(BaseModel):
+    login: str
+    password: str
+
 
 
 
