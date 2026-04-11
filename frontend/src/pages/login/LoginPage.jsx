@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../api/auth";
+import "./login.css";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../../api/auth";
 
-export default function LoginPage() {
+const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -21,42 +22,39 @@ export default function LoginPage() {
     }
   };
 
+  
   return (
-    <div style={{ padding: "24px" }}>
-      <div style={{ marginBottom: "16px" }}>
-        <Link to="/login">
-          <button>Логин</button>
-        </Link>
-        <Link to="/register">
-          <button style={{ marginLeft: "8px" }}>Регистрация</button>
-        </Link>
-      </div>
+    <section className="login-page">
+      <div className="login-card">
+        <h1 className="title-login">Вход в свой профиль</h1>
 
-      <h1>Логин</h1>
-
-      <form onSubmit={handleSubmit}>
-        <div>
+        <form className="form-login" onSubmit={handleSubmit}>
           <input
+            className="mail-username"
             type="text"
-            placeholder="Имя пользователя"
+            placeholder="Почта или имя пользователя"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-        </div>
 
-        <div>
           <input
+            className="login-password"
             type="password"
             placeholder="Пароль"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-        </div>
 
-        <button type="submit">Войти</button>
-      </form>
-
-      {message && <p>{message}</p>}
-    </div>
+          <button className="login-button" type="submit">
+            ВОЙТИ
+          </button>
+          <button className="auth" type="button" onClick={() => navigate("/register")}>
+            ЗАРЕГЕСТРИРОВАТЬСЯ
+          </button>
+        </form>
+      </div>
+    </section>
   );
-}
+};
+
+export default LoginPage;
