@@ -15,6 +15,8 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi import Request
+from sqlalchemy import text
+
 
 
 limiter = Limiter(key_func=get_remote_address)
@@ -369,6 +371,20 @@ def get_user_stats_endpoint(
     db: Session = Depends(get_db)
 ):
     pass
+
+from sqlalchemy import text
+
+@app.get("/health")
+def health_check(db: Session = Depends(get_db)):
+    try:
+        db.execute(text("SELECT 1"))
+        return {
+            "status": "healthy",
+            "database": "connected",
+            "message": "API is running"
+        }
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Database error: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
