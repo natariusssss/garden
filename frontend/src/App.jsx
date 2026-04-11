@@ -4,8 +4,9 @@ import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/DashboardPage";
 import TopicPage from "./pages/TopicPage";
 import ProfilePage from "./pages/ProfilePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import LoginPage from "./pages/login/LoginPage";
+import RegisterPage from "./pages/regist/RegisterPage"
+import Home from "./pages/home/Home";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -17,7 +18,7 @@ export default function App() {
   return (
     <Routes>
       {/* публичные страницы */}
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 

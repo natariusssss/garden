@@ -38,6 +38,7 @@ export async function loginUser({ username, password }) {
   }
 
   return data;
+
 }
 
 export async function getMe(token) {
