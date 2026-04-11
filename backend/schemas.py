@@ -1,6 +1,8 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional, List
+
+
 class UserCreate(BaseModel):
     username: str
     email: str
@@ -76,6 +78,31 @@ class UserStats(BaseModel):
     streak: int
     class Config:
         from_attributes=True
+
+
+class ReviewCreate(BaseModel):
+    success: bool
+
+
+class ReviewResponse(BaseModel):
+    id: int
+    user_id: int
+    topic_id: int
+    reviewed_at: datetime
+    success: bool
+
+    class Config:
+        from_attributes = True
+
+
+class UserStats(BaseModel):
+    total_xp: int
+    total_level: int
+    topics_in_progress: int
+    topics_mastered: int
+    streak_days: int
+    total_reviews: int
+    success_rate: float
 
 
 
