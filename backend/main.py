@@ -16,6 +16,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 
+
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 app.state.limiter = limiter
@@ -93,6 +94,8 @@ app.add_middleware(
 @app.post("/register", response_model=schemas.UserResponse)
 @limiter.limit("10/hour")
 def register(user: schemas.UserCreate,request: Request, db: Session = Depends(get_db)):
+    if not user.username or not user.email or not user.password:
+        raise HTTPException(status_code=400, detail="All fields are required")
     existing = db.query(User).filter(
         (User.username == user.username) | (User.email == user.email)
     ).first()

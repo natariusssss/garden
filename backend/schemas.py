@@ -1,12 +1,25 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional, List
-
+from pydantic import BaseModel, EmailStr, Field, field_validator
+import re
 
 class UserCreate(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     password: str
+
+    @field_validator("username")
+    def validate_username(cls, v):
+        if not re.match(r"^[a-zA-Z0-9_]+$", v):
+            raise ValueError("Username must contain only letters, numbers and underscore")
+        return v
+
+    @field_validator("password")
+    def validate_password(cls, v):
+        if len(v) < 6:
+            raise ValueError("Password must be at least 6 characters")
+        return v
 class UserResponse(BaseModel):
     id: int
     username: str
