@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from setconf import settings
+
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import create_engine
@@ -10,12 +15,12 @@ from models import User, Category, Topic
 import schemas
 import crud
 from typing import Optional, List
-from config import settings
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 from sqlalchemy import text
+
 
 
 
@@ -77,7 +82,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
-app = FastAPI()
 
 
 app.add_middleware(
@@ -114,20 +118,18 @@ def register(user: schemas.UserCreate,request: Request, db: Session = Depends(ge
     db.refresh(new_user)
     return new_user
 
-
 @app.post("/token", response_model=schemas.Token)
 @limiter.limit("5/minute")
-def login(login_data: schemas.LoginForm,request: Request, db: Session = Depends(get_db)):
+def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Request = None, db: Session = Depends(get_db)):
     user = db.query(User).filter(
-        (User.username == login_data.login) | (User.email == login_data.login)
+        (User.username == form_data.username) | (User.email == form_data.username)
     ).first()
 
-    if not user or not verify_password(login_data.password, user.password_hash):
+    if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Wrong login or password")
 
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
-
 
 @app.post("/topics/create", response_model=schemas.TopicResponse, status_code=status.HTTP_201_CREATED)
 def create_topic(
