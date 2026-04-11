@@ -104,6 +104,10 @@ class UserStats(BaseModel):
     total_reviews: int
     success_rate: float
 
+class LoginForm(BaseModel):
+    login: str
+    password: str
+
 
 
 

@@ -34,8 +34,10 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def authenticate_user(db, username: str, password: str):
-    user = db.query(User).filter(User.username == username).first()
+def authenticate_user(db, login: str, password: str):
+    user = db.query(User).filter(
+        (User.username == login) | (User.email == login)
+    ).first()
     if not user or not verify_password(password, user.password_hash):
         return False
     return user
@@ -97,11 +99,15 @@ def register(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
+
 @app.post("/token", response_model=schemas.Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = authenticate_user(db, form_data.username, form_data.password)
-    if not user:
-        raise HTTPException(status_code=401, detail="Wrong username or password")
+def login(login_data: schemas.LoginForm, db: Session = Depends(get_db)):
+    user = db.query(User).filter(
+        (User.username == login_data.login) | (User.email == login_data.login)
+    ).first()
+
+    if not user or not verify_password(login_data.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Wrong login or password")
 
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
