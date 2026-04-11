@@ -46,6 +46,18 @@ def get_user_stats(db: Session, user_id: int):
     level=calculate_user_level(user.total_xp)
     return {'total_xp': user.total_xp, 'streak': streak, 'level': level, 'topics_count': topics_count,
             'reviews_count': reviews_count}
+def get_review_history(db: Session, user_id: int, limit=50):
+    review_his=db.query(ReviewHistory).filter(ReviewHistory.user_id==user_id).order_by(ReviewHistory.reviewed_at.desc()).limit(limit).all()
+    return review_his
+def count_reviews(db: Session, user_id: int):
+    repetitions=db.query(ReviewHistory).filter(ReviewHistory.user_id==user_id).count()
+    return repetitions
+
+
+
+
+
+
 
 
 

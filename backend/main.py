@@ -368,7 +368,23 @@ def get_user_stats_endpoint(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    pass
+    stats=crud.get_user_stats(
+        db=db,
+        user_id=current_user.id
+    )
+    if not stats:
+        raise HTTPException(status_code=404, detail="UserStats not found")
+    return stats
+
+
+@app.get("/reviews/history", response_model=List[schemas.ReviewHistoryResponse])
+def get_review_history_endpoint(
+        limit: int = 50,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    history = crud.get_review_history(db=db, limit=limit, user_id=current_user.id)
+    return history
 
 if __name__ == "__main__":
     import uvicorn
