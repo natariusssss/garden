@@ -31,13 +31,15 @@ def calculate_user_level(xp: int) -> int:
     return level
 def get_user_stats(db: Session, user_id: int):
     user=db.query(User).get(user_id)
+    if not user:
+        return None
     topics_count=db.query(UserTopic).filter(UserTopic.user_id==user_id).count()
     reviews_count=db.query(ReviewHistory).filter(ReviewHistory.user_id==user_id).count()
     last_review=db.query(ReviewHistory).filter(ReviewHistory.user_id==user_id).order_by(ReviewHistory.reviewed_at.desc()).first()
     streak=0
     if last_review:
         today=datetime.now().date()
-        if last_review.reviewed_at==today:
+        if last_review.reviewed_at.date()==today:
             streak=1
         elif last_review.reviewed_at==today-timedelta(days=1):
             streak=1
