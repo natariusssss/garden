@@ -338,7 +338,7 @@ def delete_category(
     db.commit()
     return None
 
-@app.post("/reviews/{user_topic_id}", response_model=schemas.ReviewResponse)
+@app.post("/reviews/{user_topic_id}", response_model=schemas.ReviewResultResponse)
 def create_review_endpoint(
         user_topic_id: int,
         review: schemas.ReviewCreate,

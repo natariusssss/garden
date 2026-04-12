@@ -1,7 +1,6 @@
-from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from typing import Optional, List
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from typing import Optional
+from pydantic import BaseModel, EmailStr, field_validator
 import re
 
 class UserCreate(BaseModel):
@@ -20,124 +19,114 @@ class UserCreate(BaseModel):
         if len(v) < 6:
             raise ValueError("Password must be at least 6 characters")
         return v
+
+
 class UserResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
     created_at: datetime
     class Config:
-        from_attributes=True
+        from_attributes = True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class LoginForm(BaseModel):
+    login: str
+    password: str
+
 class CategoryBase(BaseModel):
     name: str
-    description: Optional[str]=None
+    description: Optional[str] = None
+
 class CategoryCreate(CategoryBase):
     pass
-class CategoryUpdate(CategoryBase):
-    name: Optional[str]=None
+
+class CategoryUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+
 class CategoryResponse(CategoryBase):
-    user_id: int
     id: int
+    user_id: int
     class Config:
-        from_attributes=True
+        from_attributes = True
+
 class TopicBase(BaseModel):
     name: str
-    description: Optional[str]=None
+    description: Optional[str] = None
     category_id: int
-class TopicResponse(TopicBase):
-    id: int
-    user_id: int
-    category: Optional[CategoryResponse]=None
-    class Config:
-        from_attributes=True
+
 class TopicCreate(TopicBase):
     pass
-class TopicUpdate(TopicBase):
-    name: Optional[str]=None
-    description: Optional[str]=None
-    category_id: Optional[int]=None
+
+class TopicUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    category_id: Optional[int] = None
+
+class TopicResponse(BaseModel):
+    id: int
+    user_id: int
+    name: str
+    description: Optional[str] = None
+    category_id: Optional[int] = None
+    category: Optional[CategoryResponse] = None
+    class Config:
+        from_attributes = True
+
 class UserTopicCreate(BaseModel):
     topic_id: int
-    level: Optional[int]=0
+    level: Optional[int] = 0
+
 class UserTopicResponse(BaseModel):
     id: int
     user_id: int
     topic_id: int
     level: int
     review_count: int
-    last_reviewed: Optional[datetime]=None
-    next_review_date: Optional[datetime]=None
+    last_reviewed: Optional[datetime] = None
+    next_review_date: Optional[datetime] = None
+    xp: int
     class Config:
-        from_attributes=True
-class ReviewHistoryCreate(BaseModel):
-    topic_id: int
+        from_attributes = True
+
+class ReviewCreate(BaseModel):
     success: bool
+
 class ReviewHistoryResponse(BaseModel):
     id: int
+    user_id: int
     topic_id: int
     reviewed_at: datetime
     success: bool
-    xp_earned: int
-    next_level: int
     class Config:
-        from_attributes=True
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+        from_attributes = True
+
+class ReviewResultResponse(BaseModel):
+    review: ReviewHistoryResponse
+    xp_earned: int
+    new_level: int
+
 class UserStats(BaseModel):
     total_xp: int
     level: int
     reviews_count: int
     topics_count: int
     streak: int
-    class Config:
-        from_attributes=True
 
-
-class ReviewCreate(BaseModel):
-    success: bool
-
-
-class ReviewResponse(BaseModel):
-    id: int
-    user_id: int
-    topic_id: int
-    reviewed_at: datetime
-    success: bool
-
-    class Config:
-        from_attributes = True
-
-
-class UserStats(BaseModel):
-    total_xp: int
-    total_level: int
-    topics_in_progress: int
-    topics_mastered: int
-    streak_days: int
-    total_reviews: int
-    success_rate: float
-
-class LoginForm(BaseModel):
-    login: str
-    password: str
-
-class  FriendRequest(BaseModel):
+class FriendRequest(BaseModel):
     friend_id: int
-    class Config:
-        from_attributes=True
 
 class FriendResponse(BaseModel):
     id: int
     username: str
-    level: int
     total_xp: int
-    class Config:
-        from_attributes=True
 
 class FriendStatus(BaseModel):
     status: str
-    class Config:
-        from_attributes=True
 
 
 
