@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models import User, Category, Topic
+from models import Base, User, Category, Topic
 import schemas
 import crud
 from typing import Optional, List
@@ -32,6 +32,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+Base.metadata.create_all(bind=engine)
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
 
@@ -47,7 +49,7 @@ def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
 
-def get_password_hash(password):
+def get_password(password):
     return pwd_context.hash(password)
 
 
@@ -55,7 +57,7 @@ def authenticate_user(db, login: str, password: str):
     user = db.query(User).filter(
         (User.username == login) | (User.email == login)
     ).first()
-    if not user or not verify_password(password, user.password_hash):
+    if not user or not verify_password(password, user.password):
         return False
     return user
 
@@ -111,7 +113,7 @@ def register(user: schemas.UserCreate,request: Request, db: Session = Depends(ge
     new_user = User(
         username=user.username,
         email=user.email,
-        password_hash=get_password_hash(user.password)
+        password=get_password(user.password)
     )
     db.add(new_user)
     db.commit()
@@ -125,7 +127,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Request = N
         (User.username == form_data.username) | (User.email == form_data.username)
     ).first()
 
-    if not user or not verify_password(form_data.password, user.password_hash):
+    if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(status_code=401, detail="Wrong login or password")
 
     access_token = create_access_token(data={"sub": user.username})
@@ -338,7 +340,7 @@ def delete_category(
     db.commit()
     return None
 
-@app.post("/reviews/{user_topic_id}", response_model=schemas.ReviewResponse)
+@app.post("/reviews/{user_topic_id}", response_model=schemas.ReviewResultResponse)
 def create_review_endpoint(
         user_topic_id: int,
         review: schemas.ReviewCreate,

@@ -11,8 +11,8 @@ export default function RegisterPage() {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setMessage("");
 
     try {
@@ -34,7 +34,7 @@ export default function RegisterPage() {
             type="text"
             placeholder="Имя пользователя"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(event) => setUsername(event.target.value)}
           />
 
           <input
@@ -42,7 +42,7 @@ export default function RegisterPage() {
             type="text"
             placeholder="Почта"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(event) => setEmail(event.target.value)}
           />
 
           <input
@@ -50,7 +50,7 @@ export default function RegisterPage() {
             type="password"
             placeholder="Пароль"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(event) => setPassword(event.target.value)}
           />
 
           <button className="auth-button" type="submit">
