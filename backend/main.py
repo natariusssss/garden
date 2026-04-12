@@ -47,7 +47,7 @@ def verify_password(plain, hashed):
     return pwd_context.verify(plain, hashed)
 
 
-def get_password_hash(password):
+def get_password(password):
     return pwd_context.hash(password)
 
 
@@ -55,7 +55,7 @@ def authenticate_user(db, login: str, password: str):
     user = db.query(User).filter(
         (User.username == login) | (User.email == login)
     ).first()
-    if not user or not verify_password(password, user.password_hash):
+    if not user or not verify_password(password, user.password):
         return False
     return user
 
@@ -111,7 +111,7 @@ def register(user: schemas.UserCreate,request: Request, db: Session = Depends(ge
     new_user = User(
         username=user.username,
         email=user.email,
-        password_hash=get_password_hash(user.password)
+        password=get_password(user.password)
     )
     db.add(new_user)
     db.commit()
@@ -125,7 +125,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Request = N
         (User.username == form_data.username) | (User.email == form_data.username)
     ).first()
 
-    if not user or not verify_password(form_data.password, user.password_hash):
+    if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(status_code=401, detail="Wrong login or password")
 
     access_token = create_access_token(data={"sub": user.username})

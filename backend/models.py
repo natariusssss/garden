@@ -6,11 +6,11 @@ Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(50), nullable=False, unique=True)
     email = Column(String(100), nullable=False, unique=True)
-    password_hash = Column(String(255), nullable=False)
+    password = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.now)
     total_xp=Column(Integer, default=0)
 
@@ -18,6 +18,9 @@ class User(Base):
     review_history = relationship("ReviewHistory", back_populates="user")
     topics = relationship("Topic", back_populates="user")
     categories = relationship("Category", back_populates="user")
+    friendships=relationship("Frienship", back_populates="user")
+    friendships_recieved=relationship("Frienship", back_populates="friend")
+
 
 
 class Category(Base):
@@ -70,4 +73,16 @@ class ReviewHistory(Base):
 
     user = relationship("User", back_populates="review_history")
     topic = relationship("Topic", back_populates="review_history")
+
+
+class Friendship(Base):
+    __tablename__ = 'friendship'
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    friend_id=Column(Integer, ForeignKey('user.id'))
+    status=Column(String(20), default='pending')
+    created_at = Column(DateTime, default=datetime.now)
+
+    user = relationship("User", back_populates="friends")
+    friend = relationship("User", back_populates="friends")
 

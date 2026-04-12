@@ -121,6 +121,26 @@ class LoginForm(BaseModel):
     login: str
     password: str
 
+class  FriendRequest(BaseModel):
+    friend_id: int
+    class Config:
+        from_attributes=True
+
+class FriendResponse(BaseModel):
+    id: int
+    username: str
+    level: int
+    total_xp: int
+    class Config:
+        from_attributes=True
+
+class FriendStatus(BaseModel):
+    status: str
+    class Config:
+        from_attributes=True
+
+
+
 
 
 

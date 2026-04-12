@@ -1,4 +1,4 @@
-from models import UserTopic, ReviewHistory, User
+from models import UserTopic, ReviewHistory, User, Friendship
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from datetime import datetime, timedelta
@@ -52,6 +52,30 @@ def get_review_history(db: Session, user_id: int, limit=50):
 def count_reviews(db: Session, user_id: int):
     repetitions=db.query(ReviewHistory).filter(ReviewHistory.user_id==user_id).count()
     return repetitions
+def send_friend_requests(db: Session, user_id: int, friend_id: int):
+    if user_id == friend_id:
+        return None
+    existing = db.query(Friendship).filter(
+        ((Friendship.user_id == user_id) & (Friendship.friend_id == friend_id)) |
+        ((Friendship.user_id == friend_id) & (Friendship.friend_id == user_id))
+    ).first()
+    if existing:
+        return None
+    friendship=Friendship(user_id=user_id, friend_id=friend_id, status='pending')
+    db.add(friendship)
+    db.commit()
+    db.refresh(friendship)
+    return friendship
+def get_friends(db: Session, user_id: int):
+    friendships=db.query(Friendship).filter(((Friendship.user_id == user_id)|(Friendship.friend_id == user_id))&(Friendship.status == 'accepted')).all()
+
+
+
+
+
+
+
+                                   
 
 
 
