@@ -52,6 +52,7 @@ const LoginPage = () => {
             ЗАРЕГЕСТРИРОВАТЬСЯ
           </button>
         </form>
+        {message && <p>{message}</p>}
       </div>
     </section>
   );

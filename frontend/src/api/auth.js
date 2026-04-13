@@ -12,7 +12,7 @@ export async function registerUser(payload) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.detail || "Registrationф failed");
+      throw new Error(getErrorMessage(data, "Registration failed"));
   }
 
   return data;
@@ -42,7 +42,7 @@ export async function loginUser({ username, password }) {
 }
 
 export async function getMe(token) {
-  const response = await fetch(`${API_URL}/me`, {
+  const response = await fetch(`${API_URL}/users/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -129,4 +129,20 @@ export async function getTopicById(topicId) {
   }
 
   return data;
+}
+
+function getErrorMessage(data, fallback) {
+  if (!data) return fallback;
+
+  if (typeof data.detail === "string") return data.detail;
+
+  if (Array.isArray(data.detail)) {
+    return data.detail.map((item) => item.msg || JSON.stringify(item)).join(", ");
+  }
+
+  if (typeof data.detail === "object") {
+    return JSON.stringify(data.detail);
+  }
+
+  return fallback;
 }

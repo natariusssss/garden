@@ -4,6 +4,8 @@ import TopicPage from "./pages/TopicPage";
 import LoginPage from "./pages/login/LoginPage";
 import RegisterPage from "./pages/regist/RegisterPage"
 import Home from "./pages/home/Home";
+import AchievePage from "./pages/achievements/Achieve";
+import ProfilePage from "./pages/profile/ProfilePage"
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -18,11 +20,13 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/achieve" element={<AchievePage />} />
 
       {/* защищённая часть приложения */}
       <Route>
         <Route path="/topicPage" element={<TopicsPage />} />
         <Route path="/topics/:id" element={<TopicPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
