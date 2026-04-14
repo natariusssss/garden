@@ -12,7 +12,7 @@ export async function registerUser(payload) {
   const data = await response.json();
 
   if (!response.ok) {
-      throw new Error(getErrorMessage(data, "Registration failed"));
+    throw new Error(getErrorMessage(data, "Registration failed"));
   }
 
   return data;
@@ -38,11 +38,10 @@ export async function loginUser({ username, password }) {
   }
 
   return data;
-
 }
 
 export async function getMe(token) {
-  const response = await fetch(`${API_URL}/users/me`, {
+  const response = await fetch(`${API_URL}/my_profile`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -60,7 +59,7 @@ export async function getMe(token) {
 export async function getTopics() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_URL}/topics`, {
+  const response = await fetch(`${API_URL}/topics/list`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -78,18 +77,17 @@ export async function getTopics() {
 export async function createTopic({ name, description, category_id }) {
   const token = localStorage.getItem("token");
 
-  const payload = { name, description };
-  if (category_id !== undefined && category_id !== null) {
-    payload.category_id = category_id;
-  }
-
-  const response = await fetch(`${API_URL}/topics`, {
+  const response = await fetch(`${API_URL}/topics/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({
+      name,
+      description,
+      category_id,
+    }),
   });
 
   const data = await response.json();
@@ -101,29 +99,10 @@ export async function createTopic({ name, description, category_id }) {
   return data;
 }
 
-
-export async function addXpToTopic(topicId) {
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`${API_URL}/topics/${topicId}/add-xp`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Failed to add xp");
-  }
-
-  return data;
-}
 export async function getTopicById(topicId) {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_URL}/topics/${topicId}`, {
+  const response = await fetch(`${API_URL}/topics/item/${topicId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

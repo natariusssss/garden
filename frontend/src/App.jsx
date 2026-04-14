@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import TopicsPage from "./pages/topics/TopicsPage";
-import TopicPage from "./pages/TopicPage";
 import LoginPage from "./pages/login/LoginPage";
 import RegisterPage from "./pages/regist/RegisterPage";
 import Home from "./pages/home/Home";
@@ -9,7 +8,7 @@ import ProfilePage from "./pages/profile/ProfilePage";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
-  if (!token) return <Navigate to="/register" replace />;
+  if (!token) return <Navigate to="/login" replace />;
   return children;
 }
 
@@ -34,7 +33,7 @@ export default function App() {
         path="/topics/:id"
         element={
           <ProtectedRoute>
-            <TopicPage />
+            <TopicsPage />
           </ProtectedRoute>
         }
       />

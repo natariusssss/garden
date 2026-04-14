@@ -1,9 +1,9 @@
 import { useState } from "react";
-import "./login.css";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../api/auth";
+import "./login.css";
 
-const LoginPage = () => {
+export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -18,11 +18,10 @@ const LoginPage = () => {
       localStorage.setItem("token", data.access_token);
       navigate("/topicPage");
     } catch (error) {
-      setMessage(error.message || "Ошибка логина");
+      setMessage(error.message || "Ошибка входа");
     }
   };
 
-  
   return (
     <section className="login-page">
       <div className="login-card">
@@ -32,7 +31,7 @@ const LoginPage = () => {
           <input
             className="mail-username"
             type="text"
-            placeholder="Почта или имя пользователя"
+            placeholder="Введите логин или почту"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
           />
@@ -40,7 +39,7 @@ const LoginPage = () => {
           <input
             className="login-password"
             type="password"
-            placeholder="Пароль"
+            placeholder="Введите пароль"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
@@ -48,14 +47,10 @@ const LoginPage = () => {
           <button className="login-button" type="submit">
             ВОЙТИ
           </button>
-          <button className="auth" type="button" onClick={() => navigate("/register")}>
-            ЗАРЕГЕСТРИРОВАТЬСЯ
-          </button>
+
+          {message && <p>{message}</p>}
         </form>
-        {message && <p>{message}</p>}
       </div>
     </section>
   );
-};
-
-export default LoginPage;
+}

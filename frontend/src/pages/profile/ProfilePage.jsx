@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMe } from "../../api/auth";
 
-
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState("Загрузка профиля...");
@@ -29,13 +28,11 @@ export default function ProfilePage() {
     navigate("/");
   };
 
-  if (message) {
-    return <p>{message}</p>;
-  }
-
   return (
     <div style={{ padding: "24px" }}>
       <h1>Профиль</h1>
+
+      {message && <p>{message}</p>}
 
       {user && (
         <>

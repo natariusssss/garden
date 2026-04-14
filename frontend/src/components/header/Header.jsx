@@ -12,13 +12,18 @@ const Header = () => {
 
           <nav className="nav nav--topics">
             <Link to="/">О нас</Link>
-            <Link to="/topicPage" className="is-active">Мой сад</Link>
+            <Link className="is-active" to="/topicPage">Мой сад</Link>
             <Link to="/achieve">Достижения</Link>
             <Link to="/login">Друзья</Link>
           </nav>
 
-          <Link to={token ? "/profile" : "/login"} className="cabinet-btn">
-            <span><strong>{token ? "Профиль" : "Войти"}</strong></span>
+          <Link
+            to={token ? "/profile" : "/login"}
+            className="cabinet-btn"
+          >
+            <span>
+              <strong>{token ? "Профиль" : "Войти"}</strong>
+            </span>
             <svg
               width="15"
               height="15"
