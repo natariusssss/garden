@@ -10,6 +10,7 @@ const ModalAddTopic = ({onClose}) => {
     const [message, setMessage] = useState("");
 
     const handleSubmit = async (event) => {
+        event.preventDefault();
         setMessage("");
     
         try {

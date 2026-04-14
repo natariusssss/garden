@@ -16,7 +16,7 @@ const LoginPage = () => {
     try {
       const data = await loginUser({ username, password });
       localStorage.setItem("token", data.access_token);
-      navigate("/dashboard");
+      navigate("/topicPage");
     } catch (error) {
       setMessage(error.message || "Ошибка логина");
     }

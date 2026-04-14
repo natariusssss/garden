@@ -75,8 +75,13 @@ export async function getTopics() {
   return data;
 }
 
-export async function createTopic({ name, description }) {
+export async function createTopic({ name, description, category_id }) {
   const token = localStorage.getItem("token");
+
+  const payload = { name, description };
+  if (category_id !== undefined && category_id !== null) {
+    payload.category_id = category_id;
+  }
 
   const response = await fetch(`${API_URL}/topics`, {
     method: "POST",
@@ -84,7 +89,7 @@ export async function createTopic({ name, description }) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ name, description }),
+    body: JSON.stringify(payload),
   });
 
   const data = await response.json();
@@ -95,6 +100,8 @@ export async function createTopic({ name, description }) {
 
   return data;
 }
+
+
 export async function addXpToTopic(topicId) {
   const token = localStorage.getItem("token");
 
