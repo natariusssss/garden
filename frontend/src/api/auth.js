@@ -132,3 +132,43 @@ function getErrorMessage(data, fallback) {
 
   return fallback;
 }
+
+
+export async function getCategories() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/categories/list`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Не удалось получить категории");
+  }
+
+  return data;
+}
+
+export async function createCategory({ name, description }) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/categories/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ name, description }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Не удалось создать категорию");
+  }
+
+  return data;
+}

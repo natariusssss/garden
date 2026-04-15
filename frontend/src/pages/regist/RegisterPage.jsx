@@ -18,15 +18,14 @@ export default function RegisterPage() {
     try {
       await registerUser({ username, email, password });
       navigate("/login");
-    } 
-    catch (error) {
-  const message =
-    typeof error?.message === "string"
-      ? error.message
-      : "Ошибка регистрации";
+    } catch (error) {
+      const message =
+        typeof error?.message === "string"
+          ? error.message
+          : "Ошибка регистрации";
 
-  setMessage(message);
-}
+      setMessage(message);
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
 import "./style.css";
+import img from "./tree.png"
 
-const ListCard = ({ title, img }) => {
+const ListCard = ({ name }) => {
   return (
     <article className="topic-card">
       <div className="topic-card__top">
@@ -31,7 +32,7 @@ const ListCard = ({ title, img }) => {
       </div>
 
       <div className="topic-card__image-wrap">
-        <img src={img} alt={title} className="topic-card__image" />
+        <img src={img} alt={name} className="topic-card__image" />
       </div>
 
       <div className="topic-card__bottom">
@@ -40,7 +41,7 @@ const ListCard = ({ title, img }) => {
           <span className="topic-card__level-text">LVL</span>
         </div>
 
-        <h2 className="topic-card__name">{title}</h2>
+        <h2 className="topic-card__name">{name}</h2>
       </div>
     </article>
   );
