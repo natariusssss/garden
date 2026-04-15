@@ -1,9 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import "./style.css";
 import img from "./tree.png"
 
-const ListCard = ({ name }) => {
+const ListCard = ({ name, onClick }) => {
   return (
-    <article className="topic-card">
+    <article className="topic-card" onClick={onClick}>
       <div className="topic-card__top">
         <p className="topic-card__xp">
           432 / 560 <span>XP</span>

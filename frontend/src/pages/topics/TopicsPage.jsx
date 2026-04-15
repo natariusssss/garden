@@ -4,11 +4,13 @@ import "./style.css";
 import { useEffect, useState } from "react";
 import { getTopics } from "../../api/auth";
 import ListCard from "../../components/card/ListCard";
+import { useNavigate } from "react-router-dom";
 
 const TopicsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [topics, setTopics] = useState([]);
   const [message, setMessage] = useState("Загрузка...");
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadTopics() {
@@ -21,7 +23,7 @@ const TopicsPage = () => {
       }
     }
     loadTopics();
-  }, [topics]);
+  }, []);
 
   return (
     <>
@@ -32,6 +34,17 @@ const TopicsPage = () => {
             <h1 className="topics-section__title">Ваши темы и связи</h1>
 
             <div className="topics-grid">
+              {topics.map((topic, index) => {
+                return (
+                  <ListCard
+                    key={topic.id}
+                    name={topic.name}
+                    description={topic.description}
+                    index={topic.id}
+                    onClick = {()=>navigate(`/topics/${topic.id}`)}
+                  />
+                );
+              })}
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="add-topic-card"
@@ -43,18 +56,7 @@ const TopicsPage = () => {
                   Нажмите, чтобы добавить тему
                 </span>
               </button>
-              {topics.map((topic, index) => {
-              return (
-                <ListCard
-                  key={topic.id}
-                  name={topic.name}
-                  description={topic.description}
-                  index={topic.id}
-                />
-              );
-            })}
             </div>
-            
           </div>
         </section>
       </main>

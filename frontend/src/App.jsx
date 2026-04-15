@@ -5,6 +5,7 @@ import RegisterPage from "./pages/regist/RegisterPage";
 import Home from "./pages/home/Home";
 import AchievePage from "./pages/achievements/Achieve";
 import ProfilePage from "./pages/profile/ProfilePage";
+import Card from "./pages/card/Card";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -33,7 +34,7 @@ export default function App() {
         path="/topics/:id"
         element={
           <ProtectedRoute>
-            <TopicsPage />
+            <Card />
           </ProtectedRoute>
         }
       />
