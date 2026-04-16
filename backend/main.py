@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models import Base, User, Category, Topic
+from models import Base, User, Category, Topic, UserTopic
 import schemas
 import crud
 from typing import Optional, List
@@ -135,11 +135,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Request = N
 
 @app.post("/topics/create", response_model=schemas.TopicResponse, status_code=status.HTTP_201_CREATED)
 def create_topic(
-        topic: schemas.TopicCreate,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    topic: schemas.TopicCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
-
     category = db.query(Category).filter(
         Category.id == topic.category_id,
         Category.user_id == current_user.id
@@ -152,35 +151,81 @@ def create_topic(
         user_id=current_user.id,
         category_id=topic.category_id,
         name=topic.name,
-        description=topic.description
+        description=topic.description,
+        tree_type=topic.tree_type,
+        rarity=topic.rarity,
+        image_url=topic.image_url,
     )
     db.add(db_topic)
     db.commit()
     db.refresh(db_topic)
-    return db_topic
+
+    db_user_topic = UserTopic(
+        user_id=current_user.id,
+        topic_id=db_topic.id,
+        tree_state="seed",
+        level=0,
+        xp=0,
+        review_count=0,
+    )
+    db.add(db_user_topic)
+    db.commit()
+    db.refresh(db_user_topic)
+
+    return {
+        "id": db_topic.id,
+        "user_id": db_topic.user_id,
+        "name": db_topic.name,
+        "description": db_topic.description,
+        "category_id": db_topic.category_id,
+        "tree_type": db_topic.tree_type,
+        "rarity": db_topic.rarity,
+        "image_url": db_topic.image_url,
+        "tree_state": db_user_topic.tree_state,
+        "level": db_user_topic.level,
+        "xp": db_user_topic.xp,
+        "review_count": db_user_topic.review_count,
+        "category": db_topic.category,
+    }
 
 
 
 @app.get("/topics/list", response_model=List[schemas.TopicResponse])
 def get_my_topics(
-        category_id: Optional[int] = None,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    category_id: Optional[int] = None,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     query = db.query(Topic).filter(Topic.user_id == current_user.id)
-
-
     if category_id:
         query = query.filter(Topic.category_id == category_id)
+    topics = query.all()
+    result = []
+    for topic in topics:
+        user_topic = db.query(UserTopic).filter(
+            UserTopic.user_id == current_user.id,
+            UserTopic.topic_id == topic.id
+        ).first()
+        result.append({
+            "id": topic.id,
+            "user_id": topic.user_id,
+            "name": topic.name,
+            "description": topic.description,
+            "category_id": topic.category_id,
+            "image_url": topic.image_url,
+            "level": user_topic.level if user_topic else 0,
+            "xp": user_topic.xp if user_topic else 0,
+            "category": topic.category,
+        })
 
-    return query.all()
+    return result
 
 
 @app.get("/topics/item/{topic_id}", response_model=schemas.TopicResponse)
 def get_topic(
-        topic_id: int,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    topic_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     topic = db.query(Topic).filter(
         Topic.id == topic_id,
@@ -190,7 +235,26 @@ def get_topic(
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
-    return topic
+    user_topic = db.query(UserTopic).filter(
+        UserTopic.user_id == current_user.id,
+        UserTopic.topic_id == topic.id
+    ).first()
+
+    return {
+        "id": topic.id,
+        "user_id": topic.user_id,
+        "name": topic.name,
+        "description": topic.description,
+        "category_id": topic.category_id,
+        "tree_type": topic.tree_type,
+        "rarity": topic.rarity,
+        "image_url": topic.image_url,
+        "tree_state": user_topic.tree_state if user_topic else "seed",
+        "level": user_topic.level if user_topic else 0,
+        "xp": user_topic.xp if user_topic else 0,
+        "review_count": user_topic.review_count if user_topic else 0,
+        "category": topic.category,
+    }
 
 @app.put("/topics/update/{topic_id}", response_model=schemas.TopicResponse)
 def update_topic(
@@ -206,6 +270,12 @@ def update_topic(
 
     if not db_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
+    if topic.tree_type is not None:
+        db_topic.tree_type = topic.tree_type
+    if topic.rarity is not None:
+        db_topic.rarity = topic.rarity
+    if topic.image_url is not None:
+        db_topic.image_url = topic.image_url
 
     if topic.name is not None:
         db_topic.name = topic.name
