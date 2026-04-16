@@ -50,6 +50,9 @@ class Topic(Base):
     category_id = Column(Integer, ForeignKey("categories.id"))
     name = Column(String(50), nullable=False)
     description = Column(Text)
+    tree_type=Column(String(50), nullable=False)
+    rarity=Column(String(50), nullable=False)
+    image_url=Column(Text, nullable=False)
 
     user = relationship("User", back_populates="topics")
     category = relationship("Category", back_populates="topics")
@@ -68,6 +71,7 @@ class UserTopic(Base):
     review_count = Column(Integer, default=0, nullable=False)
     next_review_date = Column(DateTime, default=datetime.now)
     xp = Column(Integer, default=0)
+    tree_state=Column(String(50), nullable=False, default="seed")
 
     user = relationship("User", back_populates="user_topics")
     topic = relationship("Topic", back_populates="user_topics")
