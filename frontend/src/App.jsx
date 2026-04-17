@@ -1,38 +1,52 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import Layout from "./components/Layout";
-import HomePage from "./pages/HomePage";
-import DashboardPage from "./pages/DashboardPage";
-import TopicPage from "./pages/TopicPage";
-import ProfilePage from "./pages/ProfilePage";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
+import TopicsPage from "./pages/topics/TopicsPage";
+import LoginPage from "./pages/login/LoginPage";
+import RegisterPage from "./pages/regist/RegisterPage";
+import Home from "./pages/home/Home";
+import AchievePage from "./pages/achievements/Achieve";
+import ProfilePage from "./pages/profile/ProfilePage";
+import Card from "./pages/card/Card";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
-  if (!token) return <Navigate to="/register" replace />;
+  if (!token) return <Navigate to="/login" replace />;
   return children;
 }
 
 export default function App() {
   return (
     <Routes>
-      {/* публичные страницы */}
-      <Route path="/" element={<HomePage />} />
+      <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/achieve" element={<AchievePage />} />
 
-      {/* защищённая часть приложения */}
       <Route
+        path="/topicPage"
         element={
           <ProtectedRoute>
-            <Layout />
+            <TopicsPage />
           </ProtectedRoute>
         }
-      >
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/topics/:id" element={<TopicPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-      </Route>
+      />
+
+      <Route
+        path="/topics/:id"
+        element={
+          <ProtectedRoute>
+            <Card />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

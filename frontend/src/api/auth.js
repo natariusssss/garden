@@ -12,7 +12,7 @@ export async function registerUser(payload) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.detail || "Registration failed");
+    throw new Error(getErrorMessage(data, "Registration failed"));
   }
 
   return data;
@@ -41,7 +41,7 @@ export async function loginUser({ username, password }) {
 }
 
 export async function getMe(token) {
-  const response = await fetch(`${API_URL}/me`, {
+  const response = await fetch(`${API_URL}/my_profile`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -59,7 +59,7 @@ export async function getMe(token) {
 export async function getTopics() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_URL}/topics`, {
+  const response = await fetch(`${API_URL}/topics/list`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -74,10 +74,88 @@ export async function getTopics() {
   return data;
 }
 
-export async function createTopic({ name, description }) {
+export async function createTopic({ name, description, category_id }) {
   const token = localStorage.getItem("token");
 
-  const response = await fetch(`${API_URL}/topics`, {
+  const response = await fetch(`${API_URL}/topics/create`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      name,
+      description,
+      category_id,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to create topic");
+  }
+
+  return data;
+}
+
+export async function getTopicById(topicId) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/topics/item/${topicId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to fetch topic");
+  }
+
+  return data;
+}
+
+function getErrorMessage(data, fallback) {
+  if (!data) return fallback;
+
+  if (typeof data.detail === "string") return data.detail;
+
+  if (Array.isArray(data.detail)) {
+    return data.detail.map((item) => item.msg || JSON.stringify(item)).join(", ");
+  }
+
+  if (typeof data.detail === "object") {
+    return JSON.stringify(data.detail);
+  }
+
+  return fallback;
+}
+
+
+export async function getCategories() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/categories/list`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Не удалось получить категории");
+  }
+
+  return data;
+}
+
+export async function createCategory({ name, description }) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/categories/create`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -89,42 +167,7 @@ export async function createTopic({ name, description }) {
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.detail || "Failed to create topic");
-  }
-
-  return data;
-}
-export async function addXpToTopic(topicId) {
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`${API_URL}/topics/${topicId}/add-xp`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Failed to add xp");
-  }
-
-  return data;
-}
-export async function getTopicById(topicId) {
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`${API_URL}/topics/${topicId}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Failed to fetch topic");
+    throw new Error(data.detail || "Не удалось создать категорию");
   }
 
   return data;

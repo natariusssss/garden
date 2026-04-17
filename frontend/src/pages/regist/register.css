@@ -1,0 +1,117 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@200;700;800&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  background: #2c2421;
+}
+
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-image: url("./back.png");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-attachment: fixed;
+}
+
+.register-card {
+  width: 857px;
+  min-height: 691px;
+  background: #36302e;
+  border-radius: 55px;
+  padding: 64px 64px 64px;
+}
+
+.title-register {
+  margin: 0 0 54px;
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 59px;
+  color: rgba(255, 255, 255, 0.8);
+  font-variant: small-caps;
+}
+
+.form-register {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.username,
+.register-password, .mail {
+  width: 100%;
+  height: 87px;
+  border: none;
+  outline: none;
+  background: #463f3d;
+  border-radius: 13px;
+  padding: 0 24px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 200;
+  font-size: 20px;
+  line-height: 24px;
+  color: #ffffff;
+  
+}
+
+.username:-webkit-autofill,
+.username:-webkit-autofill:hover,
+.username:-webkit-autofill:focus,
+.register-password:-webkit-autofill,
+.register-password:-webkit-autofill:hover,
+.register-password:-webkit-autofill:focus,
+.mail:-webkit-autofill,
+.mail:-webkit-autofill:hover,
+.mail:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff;
+  -webkit-box-shadow: 0 0 0px 1000px #463f3d inset;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.username::placeholder, .mail::placeholder,
+.register-password::placeholder {
+  color: rgba(255, 255, 255, 0.48);
+}
+
+.register-button,
+.auth-button {
+  width: 100%;
+  height: 87px;
+  border: none;
+  border-radius: 13px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 29px;
+  text-transform: uppercase;
+  color: #202020;
+  cursor: pointer;
+}
+
+.register-button {
+  margin-top: 27px;
+  background: #b1ca7e;
+}
+
+.auth-button {
+  background: #939393;
+}
+
+.register-button:hover,
+.auth-button:hover {
+  opacity: 0.95;
+}
+
+.auth-button {
+  margin-top: 27px;
+  background: #b1ca7e;
+}
