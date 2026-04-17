@@ -41,6 +41,8 @@ const TopicsPage = () => {
                     name={topic.name}
                     description={topic.description}
                     index={topic.id}
+                    level={topic.level}
+                    xp={topic.xp}
                     onClick = {()=>navigate(`/topics/${topic.id}`)}
                   />
                 );

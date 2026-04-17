@@ -1,8 +1,30 @@
 import Header from "../../components/header/Header";
 import "./style.css";
 import treeImg from "./tree.png";
+import { getTopicById } from "../../api/auth";
+import { useParams } from "react-router-dom";
+import { useState } from "react";
+import { useEffect } from "react";
 
 const Card = () => {
+
+const [topicInfo, setTopicInfo] = useState([]);
+const {id} = useParams();
+
+    useEffect(() => {
+      async function loadTopic() {
+        try {
+          const data = await getTopicById(id);
+          setTopicInfo(data);
+          setMessage("");
+        } catch (error) {
+          setMessage(error.message);
+        }
+      }
+      loadTopic();
+    }, []);
+
+
   return (
     <>
       <Header />
@@ -10,7 +32,7 @@ const Card = () => {
       <main className="topic-detail-page">
         <section className="topic-detail">
           <div className="topic-detail__container">
-            <h1 className="topic-detail__title">Мой сад / Алгебра</h1>
+            <h1 className="topic-detail__title">Мой сад / {topicInfo.name}</h1>
 
             <div className="topic-detail__layout">
               <article className="topic-preview-card">
@@ -29,13 +51,13 @@ const Card = () => {
 
                 <div className="topic-preview-card__progress">
                   <div className="topic-preview-card__level">
-                    <span className="topic-preview-card__level-number">28</span>
+                    <span className="topic-preview-card__level-number">{topicInfo.level}</span>
                     <span className="topic-preview-card__level-text">LVL</span>
                   </div>
 
                   <div className="topic-preview-card__progress-main">
                     <p className="topic-preview-card__xp">
-                      432 / 560 <span>XP</span>
+                      {topicInfo.xp} / 560 <span>XP</span>
                     </p>
 
                     <div className="topic-preview-card__bar">
@@ -125,9 +147,7 @@ const Card = () => {
                   <h2 className="topic-workspace__label">Описание</h2>
 
                   <div className="topic-workspace__description">
-                    Алгоритм интервального повторения и наглядная визуализация
-                    прогресса. Вы видите, какие темы закреплены, какие увядают и
-                    что требует внимания.
+                    {topicInfo.description}
                   </div>
                 </section>
               </article>

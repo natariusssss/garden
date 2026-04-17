@@ -47,6 +47,13 @@ export default function LoginPage() {
           <button className="login-button" type="submit">
             ВОЙТИ
           </button>
+          <button
+            className="auth"
+            type="button"
+            onClick={() => navigate("/register")}
+          >
+            РЕГИСТРАЦИЯ
+          </button>
 
           {message && <p>{message}</p>}
         </form>

@@ -58,14 +58,14 @@ const ModalAddTopic = ({ onClose }) => {
             className="input-modal"
             type="text"
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(event) => setTitle(event.target.value)}
           />
 
           <h3 className="text-modal">Описание темы</h3>
           <textarea
             className="input-modal input-modal-description"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(event) => setDescription(event.target.value)}
           />
 
           <button className="button-create" type="submit">

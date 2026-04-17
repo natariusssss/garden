@@ -58,9 +58,9 @@ class TopicBase(BaseModel):
     name: str
     description: Optional[str] = None
     category_id: int
-    tree_type: str
-    rarity: str
-    image_url: str
+    tree_type: Optional[str] = "default"
+    rarity: Optional[str] = "common"
+    image_url: Optional[str] = ""
 
 class TopicCreate(TopicBase):
     pass
@@ -69,9 +69,9 @@ class TopicUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     category_id: Optional[int] = None
-    tree_type: str
-    rarity: str
-    image_url: str
+    tree_type: Optional[str] = None
+    rarity: Optional[str] = None
+    image_url: Optional[str] = None
 
 class TopicResponse(BaseModel):
     id: int
@@ -80,14 +80,14 @@ class TopicResponse(BaseModel):
     description: Optional[str] = None
     category_id: Optional[int] = None
     category: Optional[CategoryResponse] = None
-    level: int
-    xp: int
-    review_count: int
-    tree_state: str
-    tree_type: str
-    rarity: str
-    image_url: str
-    tree_state: str="seed"
+    level: int = 0
+    xp: int = 0
+    review_count: int = 0
+    tree_state: str = "seed"
+    tree_type: Optional[str] = None
+    rarity: Optional[str] = None
+    image_url: Optional[str] = None
+
     class Config:
         from_attributes = True
 

@@ -2,12 +2,12 @@ import { useNavigate } from "react-router-dom";
 import "./style.css";
 import img from "./tree.png"
 
-const ListCard = ({ name, onClick }) => {
+const ListCard = ({ name, xp, level, onClick }) => {
   return (
     <article className="topic-card" onClick={onClick}>
       <div className="topic-card__top">
         <p className="topic-card__xp">
-          432 / 560 <span>XP</span>
+          {xp} / 200 <span>XP</span>
         </p>
 
         <div className="topic-card__badges">
@@ -38,7 +38,7 @@ const ListCard = ({ name, onClick }) => {
 
       <div className="topic-card__bottom">
         <div className="topic-card__level">
-          <span className="topic-card__level-number">28</span>
+          <span className="topic-card__level-number">{level}</span>
           <span className="topic-card__level-text">LVL</span>
         </div>
 
