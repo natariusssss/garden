@@ -31,7 +31,7 @@ const TopicsPage = () => {
       <main className="topics-page">
         <section className="topics-section">
           <div className="topics-section__container">
-            <h1 className="topics-section__title">Ваши темы и связи</h1>
+            <h1 className="topics-section__title">Ваши темы</h1>
 
             <div className="topics-grid">
               {topics.map((topic, index) => {

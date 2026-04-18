@@ -1,9 +1,9 @@
 import { useState } from "react";
 import "./style.css";
 import { createPortal } from "react-dom";
-import { createTopic, getCategories, createCategory } from "../../api/auth";
+import { createTopic } from "../../api/auth";
 
-const ModalAddTopic = ({ onClose }) => {
+const ModalAddTopic = ({ onClose, onCreated  }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
@@ -13,24 +13,17 @@ const ModalAddTopic = ({ onClose }) => {
     setMessage("");
 
     try {
-      let categories = await getCategories();
-      let categoryId;
-
-      if (categories.length > 0) {
-        categoryId = categories[0].id;
-      } else {
-        const newCategory = await createCategory({
-          name: "Мои темы",
-          description: "Категория по умолчанию",
-        });
-        categoryId = newCategory.id;
-      }
-
-      await createTopic({
+      const newTopic = await createTopic({
         name: title,
         description,
-        category_id: categoryId,
+        tree_type: "default",
+        rarity: "common",
+        image_url: "",
       });
+
+      if (onCreated) {
+        onCreated(newTopic);
+      }
 
       onClose();
     } catch (error) {

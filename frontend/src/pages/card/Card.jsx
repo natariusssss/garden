@@ -7,24 +7,22 @@ import { useState } from "react";
 import { useEffect } from "react";
 
 const Card = () => {
+  const [topicInfo, setTopicInfo] = useState([]);
+  const { id } = useParams();
+  const [setButtonTimer, ButtonTimer] = useState();
 
-const [topicInfo, setTopicInfo] = useState([]);
-const {id} = useParams();
-const [setButtonTimer, ButtonTimer] = useState();
-
-    useEffect(() => {
-      async function loadTopic() {
-        try {
-          const data = await getTopicById(id);
-          setTopicInfo(data);
-          setMessage("");
-        } catch (error) {
-          setMessage(error.message);
-        }
+  useEffect(() => {
+    async function loadTopic() {
+      try {
+        const data = await getTopicById(id);
+        setTopicInfo(data);
+        setMessage("");
+      } catch (error) {
+        setMessage(error.message);
       }
-      loadTopic();
-    }, []);
-
+    }
+    loadTopic();
+  }, []);
 
   return (
     <>
@@ -36,34 +34,70 @@ const [setButtonTimer, ButtonTimer] = useState();
             <h1 className="topic-detail__title">Мой сад / {topicInfo.name}</h1>
 
             <div className="topic-detail__layout">
-              <article className="topic-preview-card">
-                <div className="topic-preview-card__head">
-                  <h2 className="topic-preview-card__name">Секвойя</h2>
-                  <span className="topic-preview-card__rarity">редкое</span>
+              <article className="topic-card topic-card--detail">
+                <div className="topic-card__head">
+                  <div className="topic-card__chips">
+                    <span className="topic-card__chip topic-card__chip--tree">
+                      Сакура
+                    </span>
+                    <span className="topic-card__chip topic-card__chip--rarity">
+                      Легендарная
+                    </span>
+                  </div>
+
+                  <div className="topic-card__badges">
+                    <div
+                      className="topic-card__badge topic-card__badge--success"
+                      aria-label="Тема завершена на сегодня"
+                    >
+                      ✓
+                    </div>
+
+                    <div
+                      className="topic-card__badge topic-card__badge--time"
+                      aria-label="Время до повтора"
+                    >
+                      <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="8"></circle>
+                        <path d="M12 8v4l3 2"></path>
+                      </svg>
+                      <span className="topic-card__time">17ч</span>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="topic-preview-card__image-wrap">
+                <div className="topic-card__image-wrap">
                   <img
                     src={treeImg}
-                    alt="Секвойя"
-                    className="topic-preview-card__image"
+                    alt={topicInfo.name}
+                    className="topic-card__image"
                   />
                 </div>
 
-                <div className="topic-preview-card__progress">
-                  <div className="topic-preview-card__level">
-                    <span className="topic-preview-card__level-number">{topicInfo.level}</span>
-                    <span className="topic-preview-card__level-text">LVL</span>
+                <div className="topic-card__bottom">
+                  <div className="topic-card__bottom-top">
+                    <div className="topic-card__level">
+                      <span className="topic-card__level-number">
+                        {topicInfo.level}
+                      </span>
+                      <span className="topic-card__level-text">LVL</span>
+                    </div>
+
+                    <div className="topic-card__divider"></div>
+
+                    <h2 className="topic-card__name">{topicInfo.name}</h2>
                   </div>
 
-                  <div className="topic-preview-card__progress-main">
-                    <p className="topic-preview-card__xp">
-                      {topicInfo.xp} / 560 <span>XP</span>
-                    </p>
-
-                    <div className="topic-preview-card__bar">
-                      <span className="topic-preview-card__bar-fill"></span>
-                    </div>
+                  <div className="topic-card__progress">
+                    <div
+                      className="topic-card__progress-fill"
+                      style={{
+                        width: `${Math.min(((topicInfo.xp || 0) / 560) * 100, 100)}%`,
+                      }}
+                    ></div>
+                    <span className="topic-card__progress-text">
+                      {topicInfo.xp || 0} / 560 XP
+                    </span>
                   </div>
                 </div>
               </article>
@@ -84,7 +118,7 @@ const [setButtonTimer, ButtonTimer] = useState();
                       className="topic-workspace__icon-btn"
                       type="button"
                       aria-label="Запустить таймер"
-                      onClick={()=>setButtonTimer()}
+                      onClick={() => setButtonTimer()}
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path

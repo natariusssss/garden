@@ -17,7 +17,7 @@ main, .site-header { position:relative; z-index:1; }
 }
 .nav { display:flex; align-items:center; gap:clamp(20px, 2.6vw, 74px); margin-left:auto; margin-right:auto; }
 .nav a {
-  font-family:'Montserrat', sans-serif; font-size:13px; line-height:16px; font-weight:700; text-transform:uppercase; white-space:nowrap;
+  font-family:'Montserrat', sans-serif; font-size:17px; line-height:16px; font-weight:700; text-transform:uppercase; white-space:nowrap;
   color:rgba(255,255,255,.8); transition:color .2s ease;
 }
 .nav a:hover, .nav a.is-active { color:#fff; }

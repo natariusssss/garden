@@ -196,15 +196,18 @@ def get_my_topics(
             UserTopic.topic_id == topic.id
         ).first()
         result.append({
-            "id": topic.id,
-            "user_id": topic.user_id,
-            "name": topic.name,
-            "description": topic.description,
-            "image_url": topic.image_url,
-            "level": user_topic.level if user_topic else 0,
-            "xp": user_topic.xp if user_topic else 0,
-            "category": topic.category,
-        })
+    "id": topic.id,
+    "user_id": topic.user_id,
+    "name": topic.name,
+    "description": topic.description,
+    "tree_type": topic.tree_type,
+    "rarity": topic.rarity,
+    "image_url": topic.image_url,
+    "tree_state": user_topic.tree_state if user_topic else "seed",
+    "level": user_topic.level if user_topic else 0,
+    "xp": user_topic.xp if user_topic else 0,
+    "review_count": user_topic.review_count if user_topic else 0,
+})
 
     return result
 
@@ -451,7 +454,7 @@ def get_friends(
         friend_id = f.friend_id if f.user_id == current_user.id else f.user_id
         friend = db.query(User).filter(User.id == friend_id).first()
 
-        total_xp = db.query(func.sum(Topic.xp)).filter(Topic.user_id == friend.id).scalar() or 0
+        total_xp = db.query(func.sum(UserTopic.xp)).filter(UserTopic.user_id == friend.id).scalar() or 0
         level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
 
         result.append({
@@ -511,7 +514,7 @@ def friends_leaderboard(
     result = []
     for uid in friends_ids:
         user = db.query(User).filter(User.id == uid).first()
-        total_xp = db.query(func.sum(Topic.xp)).filter(Topic.user_id == uid).scalar() or 0
+        total_xp = db.query(func.sum(UserTopic.xp)).filter(UserTopic.user_id == uid).scalar() or 0
         level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
 
         result.append({
@@ -550,7 +553,7 @@ def get_friend_progress(
 
     topics = db.query(Topic).filter(Topic.user_id == friend_id).all()
 
-    total_xp = db.query(func.sum(Topic.xp)).filter(Topic.user_id == friend_id).scalar() or 0
+    total_xp = db.query(func.sum(UserTopic.xp)).filter(UserTopic.user_id == friend_id).scalar() or 0
     total_level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
 
     topics_progress = []
@@ -563,7 +566,7 @@ def get_friend_progress(
         topics_progress.append({
             "id": topic.id,
             "name": topic.name,
-            "xp": topic.xp or 0,
+            "xp": user_topic.xp if user_topic else 0,
             "level": user_topic.level if user_topic else 1,
             "review_count": user_topic.review_count if user_topic else 0
         })

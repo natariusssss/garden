@@ -74,7 +74,13 @@ export async function getTopics() {
   return data;
 }
 
-export async function createTopic({ name, description, category_id }) {
+export async function createTopic({
+  name,
+  description,
+  tree_type = "default",
+  rarity = "common",
+  image_url = "",
+}) {
   const token = localStorage.getItem("token");
 
   const response = await fetch(`${API_URL}/topics/create`, {
@@ -86,7 +92,9 @@ export async function createTopic({ name, description, category_id }) {
     body: JSON.stringify({
       name,
       description,
-      category_id,
+      tree_type,
+      rarity,
+      image_url,
     }),
   });
 
@@ -134,41 +142,3 @@ function getErrorMessage(data, fallback) {
 }
 
 
-export async function getCategories() {
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`${API_URL}/categories/list`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Не удалось получить категории");
-  }
-
-  return data;
-}
-
-export async function createCategory({ name, description }) {
-  const token = localStorage.getItem("token");
-
-  const response = await fetch(`${API_URL}/categories/create`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({ name, description }),
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.detail || "Не удалось создать категорию");
-  }
-
-  return data;
-}

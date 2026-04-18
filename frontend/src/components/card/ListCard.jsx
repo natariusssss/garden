@@ -1,16 +1,21 @@
 import "./style.css";
-import img from "./tree.png";
+import basic_plant from "./../../assets/basic_plant.png";
 
 const ListCard = ({ name, xp, level, onClick }) => {
   const maxXp = 560;
   const progress = Math.min((xp / maxXp) * 100, 100);
+  
 
   return (
     <article className="topic-card" onClick={onClick}>
       <div className="topic-card__head">
         <div className="topic-card__chips">
-          <span className="topic-card__chip topic-card__chip--tree">Дерево</span>
-          <span className="topic-card__chip topic-card__chip--rarity">Обычная</span>
+          <span className="topic-card__chip topic-card__chip--tree">
+            Саженец
+          </span>
+          <span className="topic-card__chip topic-card__chip--rarity">
+            Обычная
+          </span>
         </div>
 
         <div className="topic-card__badges">
@@ -35,7 +40,8 @@ const ListCard = ({ name, xp, level, onClick }) => {
       </div>
 
       <div className="topic-card__image-wrap">
-        <img src={img} alt={name} className="topic-card__image" />
+        <span className="topic-card__text">Вы еще не выбрали растение</span>
+        <img src={basic_plant} alt={name} className="topic-card__image" />
       </div>
 
       <div className="topic-card__bottom">
@@ -55,7 +61,9 @@ const ListCard = ({ name, xp, level, onClick }) => {
             className="topic-card__progress-fill"
             style={{ width: `${progress}%` }}
           ></div>
-          <span className="topic-card__progress-text">{xp} / {maxXp} XP</span>
+          <span className="topic-card__progress-text">
+            {xp} / {maxXp} XP
+          </span>
         </div>
       </div>
     </article>
