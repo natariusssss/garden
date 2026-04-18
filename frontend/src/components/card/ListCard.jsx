@@ -1,14 +1,17 @@
-import { useNavigate } from "react-router-dom";
 import "./style.css";
-import img from "./tree.png"
+import img from "./tree.png";
 
 const ListCard = ({ name, xp, level, onClick }) => {
+  const maxXp = 560;
+  const progress = Math.min((xp / maxXp) * 100, 100);
+
   return (
     <article className="topic-card" onClick={onClick}>
-      <div className="topic-card__top">
-        <p className="topic-card__xp">
-          {xp} / 200 <span>XP</span>
-        </p>
+      <div className="topic-card__head">
+        <div className="topic-card__chips">
+          <span className="topic-card__chip topic-card__chip--tree">Дерево</span>
+          <span className="topic-card__chip topic-card__chip--rarity">Обычная</span>
+        </div>
 
         <div className="topic-card__badges">
           <div
@@ -26,9 +29,8 @@ const ListCard = ({ name, xp, level, onClick }) => {
               <circle cx="12" cy="12" r="8"></circle>
               <path d="M12 8v4l3 2"></path>
             </svg>
+            <span className="topic-card__time">17ч</span>
           </div>
-
-          <span className="topic-card__time">17ч</span>
         </div>
       </div>
 
@@ -37,12 +39,24 @@ const ListCard = ({ name, xp, level, onClick }) => {
       </div>
 
       <div className="topic-card__bottom">
-        <div className="topic-card__level">
-          <span className="topic-card__level-number">{level}</span>
-          <span className="topic-card__level-text">LVL</span>
+        <div className="topic-card__bottom-top">
+          <div className="topic-card__level">
+            <span className="topic-card__level-number">{level}</span>
+            <span className="topic-card__level-text">LVL</span>
+          </div>
+
+          <div className="topic-card__divider"></div>
+
+          <h2 className="topic-card__name">{name}</h2>
         </div>
 
-        <h2 className="topic-card__name">{name}</h2>
+        <div className="topic-card__progress">
+          <div
+            className="topic-card__progress-fill"
+            style={{ width: `${progress}%` }}
+          ></div>
+          <span className="topic-card__progress-text">{xp} / {maxXp} XP</span>
+        </div>
       </div>
     </article>
   );

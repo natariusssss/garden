@@ -10,6 +10,7 @@ const Card = () => {
 
 const [topicInfo, setTopicInfo] = useState([]);
 const {id} = useParams();
+const [setButtonTimer, ButtonTimer] = useState();
 
     useEffect(() => {
       async function loadTopic() {
@@ -77,12 +78,13 @@ const {id} = useParams();
                   <h2 className="topic-workspace__label">Таймер</h2>
 
                   <div className="topic-workspace__timer-row">
-                    <div className="topic-workspace__timer-box">45 : 42</div>
+                    <div className="topic-workspace__timer-box">00 : 00</div>
 
                     <button
                       className="topic-workspace__icon-btn"
                       type="button"
                       aria-label="Запустить таймер"
+                      onClick={()=>setButtonTimer()}
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path
@@ -95,7 +97,7 @@ const {id} = useParams();
                     <button
                       className="topic-workspace__icon-btn"
                       type="button"
-                      aria-label="Пауза"
+                      aria-label="Пауза-Старт"
                     >
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <rect
