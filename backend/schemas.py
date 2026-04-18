@@ -131,13 +131,20 @@ class UserStats(BaseModel):
     topics_count: int
     streak: int
 
-class FriendRequest(BaseModel):
-    friend_id: int
+class FriendshipRequestCreate(BaseModel):
+    friend_username: str
 
-class FriendResponse(BaseModel):
+class FriendshipResponse(BaseModel):
     id: int
-    username: str
-    total_xp: int
+    user_id: int
+    friend_id: int
+    status: str
+    created_at: datetime
+    friend_username: str
+    friend_email: str
+
+    class Config:
+        from_attributes = True
 
 class FriendStatus(BaseModel):
     status: str

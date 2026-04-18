@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models import Base, User, Category, Topic, UserTopic
+from models import Base, User, Category, Topic, UserTopic, Friendship
 import schemas
 import crud
 from typing import Optional, List
@@ -461,6 +461,89 @@ def get_review_history_endpoint(
 ):
     history = crud.get_review_history(db=db, limit=limit, user_id=current_user.id)
     return history
+
+
+@app.post("/friendships/request", status_code=status.HTTP_201_CREATED)
+def send_friend_request(
+        request: schemas.FriendshipRequestCreate,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    friend = db.query(User).filter(User.username == request.friend_username).first()
+    if not friend:
+        raise HTTPException(status_code=404, detail="User not found")
+    if friend.id == current_user.id:
+        raise HTTPException(status_code=400, detail="Cannot add yourself")
+
+    existing = db.query(Friendship).filter(
+        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend.id)) |
+        ((Friendship.user_id == friend.id) & (Friendship.friend_id == current_user.id))
+    ).first()
+
+    if existing:
+        if existing.status == 'pending':
+            raise HTTPException(status_code=400, detail="Request already pending")
+        elif existing.status == 'accepted':
+            raise HTTPException(status_code=400, detail="Already friends")
+
+    new_request = Friendship(user_id=current_user.id, friend_id=friend.id, status="pending")
+    db.add(new_request)
+    db.commit()
+    return {"message": f"Friend request sent to {friend.username}"}
+
+
+@app.get("/friendships/pending")
+def get_pending_requests(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    requests = db.query(Friendship, User).join(User, Friendship.user_id == User.id).filter(
+        Friendship.friend_id == current_user.id,
+        Friendship.status == "pending"
+    ).all()
+
+    return [
+        {"id": req.id, "user_id": user.id, "username": user.username, "email": user.email, "created_at": req.created_at}
+        for req, user in requests]
+
+
+@app.put("/friendships/accept/{request_id}")
+def accept_friend_request(
+        request_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    friendship = db.query(Friendship).filter(
+        Friendship.id == request_id,
+        Friendship.friend_id == current_user.id,
+        Friendship.status == "pending"
+    ).first()
+    if not friendship:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    friendship.status = "accepted"
+    db.commit()
+    return {"message": "Friend request accepted"}
+
+
+@app.put("/friendships/reject/{request_id}")
+def reject_friend_request(
+        request_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    friendship = db.query(Friendship).filter(
+        Friendship.id == request_id,
+        Friendship.friend_id == current_user.id,
+        Friendship.status == "pending"
+    ).first()
+    if not friendship:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    friendship.status = "rejected"
+    db.commit()
+    return {"message": "Friend request rejected"}
+
 
 from sqlalchemy import text
 
