@@ -44,6 +44,7 @@ class Topic(Base):
     user = relationship("User", back_populates="topics")
     user_topics = relationship("UserTopic", back_populates="topic")
     review_history = relationship("ReviewHistory", back_populates="topic")
+    xp = Column(Integer, default=0)
 
 
 class UserTopic(Base):

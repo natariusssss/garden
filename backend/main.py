@@ -19,6 +19,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi import Request
+from sqlalchemy import func
 from sqlalchemy import text
 
 
@@ -435,7 +436,149 @@ def reject_friend_request(
     return {"message": "Friend request rejected"}
 
 
-from sqlalchemy import text
+@app.get("/friends")
+def get_friends(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    friendships = db.query(Friendship).filter(
+        ((Friendship.user_id == current_user.id) | (Friendship.friend_id == current_user.id)),
+        Friendship.status == "accepted"
+    ).all()
+
+    result = []
+    for f in friendships:
+        friend_id = f.friend_id if f.user_id == current_user.id else f.user_id
+        friend = db.query(User).filter(User.id == friend_id).first()
+
+        total_xp = db.query(func.sum(Topic.xp)).filter(Topic.user_id == friend.id).scalar() or 0
+        level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
+
+        result.append({
+            "id": friend.id,
+            "username": friend.username,
+            "email": friend.email,
+            "total_xp": total_xp,
+            "level": level,
+            "joined_at": friend.created_at
+        })
+
+    return result
+
+
+@app.delete("/friends/{friend_id}")
+def remove_friend(
+        friend_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+
+    friendship = db.query(Friendship).filter(
+        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend_id)) |
+        ((Friendship.friend_id == current_user.id) & (Friendship.user_id == friend_id)),
+        Friendship.status == "accepted"
+    ).first()
+
+    if not friendship:
+        raise HTTPException(status_code=404, detail="Friendship not found")
+
+    db.delete(friendship)
+    db.commit()
+
+    return {"message": "Friend removed successfully"}
+
+
+@app.get("/friends/leaderboard")
+def friends_leaderboard(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+
+
+    friendships = db.query(Friendship).filter(
+        ((Friendship.user_id == current_user.id) | (Friendship.friend_id == current_user.id)),
+        Friendship.status == "accepted"
+    ).all()
+
+    friends_ids = []
+    for f in friendships:
+        friend_id = f.friend_id if f.user_id == current_user.id else f.user_id
+        friends_ids.append(friend_id)
+
+
+    friends_ids.append(current_user.id)
+
+    result = []
+    for uid in friends_ids:
+        user = db.query(User).filter(User.id == uid).first()
+        total_xp = db.query(func.sum(Topic.xp)).filter(Topic.user_id == uid).scalar() or 0
+        level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
+
+        result.append({
+            "user_id": uid,
+            "username": user.username,
+            "total_xp": total_xp,
+            "level": level,
+            "is_me": uid == current_user.id
+        })
+
+    result.sort(key=lambda x: x["total_xp"], reverse=True)
+
+    for i, item in enumerate(result):
+        item["rank"] = i + 1
+
+    return result
+
+
+@app.get("/friends/{friend_id}/progress")
+def get_friend_progress(
+        friend_id: int,
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+
+    friendship = db.query(Friendship).filter(
+        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend_id)) |
+        ((Friendship.friend_id == current_user.id) & (Friendship.user_id == friend_id)),
+        Friendship.status == "accepted"
+    ).first()
+
+    if not friendship:
+        raise HTTPException(status_code=403, detail="You are not friends with this user")
+
+    friend = db.query(User).filter(User.id == friend_id).first()
+
+    topics = db.query(Topic).filter(Topic.user_id == friend_id).all()
+
+    total_xp = db.query(func.sum(Topic.xp)).filter(Topic.user_id == friend_id).scalar() or 0
+    total_level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
+
+    topics_progress = []
+    for topic in topics:
+        user_topic = db.query(UserTopic).filter(
+            UserTopic.user_id == friend_id,
+            UserTopic.topic_id == topic.id
+        ).first()
+
+        topics_progress.append({
+            "id": topic.id,
+            "name": topic.name,
+            "xp": topic.xp or 0,
+            "level": user_topic.level if user_topic else 1,
+            "review_count": user_topic.review_count if user_topic else 0
+        })
+
+    return {
+        "friend_id": friend_id,
+        "username": friend.username,
+        "total_xp": total_xp,
+        "total_level": total_level,
+        "topics_count": len(topics),
+        "topics": topics_progress
+    }
+
+
+
 
 @app.get("/health")
 def health_check(db: Session = Depends(get_db)):
