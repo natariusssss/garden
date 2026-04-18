@@ -17,7 +17,6 @@ class User(Base):
     user_topics = relationship("UserTopic", back_populates="user")
     review_history = relationship("ReviewHistory", back_populates="user")
     topics = relationship("Topic", back_populates="user")
-    categories = relationship("Category", back_populates="user")
 
     friendships_sent = relationship("Friendship",
         foreign_keys="Friendship.user_id",
@@ -30,24 +29,12 @@ class User(Base):
     )
 
 
-class Category(Base):
-    __tablename__ = "categories"
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    name = Column(String(50), nullable=False, unique=True)
-    description = Column(Text)
-
-    user = relationship("User", back_populates="categories")
-    topics = relationship("Topic", back_populates="category")
-
 
 class Topic(Base):
     __tablename__ = "topics"
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    category_id = Column(Integer, ForeignKey("categories.id"))
     name = Column(String(50), nullable=False)
     description = Column(Text)
     tree_type=Column(String(50), nullable=False)
@@ -55,7 +42,6 @@ class Topic(Base):
     image_url=Column(Text, nullable=False)
 
     user = relationship("User", back_populates="topics")
-    category = relationship("Category", back_populates="topics")
     user_topics = relationship("UserTopic", back_populates="topic")
     review_history = relationship("ReviewHistory", back_populates="topic")
 

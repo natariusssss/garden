@@ -37,27 +37,10 @@ class LoginForm(BaseModel):
     login: str
     password: str
 
-class CategoryBase(BaseModel):
-    name: str
-    description: Optional[str] = None
-
-class CategoryCreate(CategoryBase):
-    pass
-
-class CategoryUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-
-class CategoryResponse(CategoryBase):
-    id: int
-    user_id: int
-    class Config:
-        from_attributes = True
 
 class TopicBase(BaseModel):
     name: str
     description: Optional[str] = None
-    category_id: int
     tree_type: Optional[str] = "default"
     rarity: Optional[str] = "common"
     image_url: Optional[str] = ""
@@ -68,7 +51,6 @@ class TopicCreate(TopicBase):
 class TopicUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
-    category_id: Optional[int] = None
     tree_type: Optional[str] = None
     rarity: Optional[str] = None
     image_url: Optional[str] = None
@@ -78,8 +60,6 @@ class TopicResponse(BaseModel):
     user_id: int
     name: str
     description: Optional[str] = None
-    category_id: Optional[int] = None
-    category: Optional[CategoryResponse] = None
     level: int = 0
     xp: int = 0
     review_count: int = 0
