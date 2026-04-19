@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from setconf import settings
-
+from achievements_service import check_and_unlock_achievements, get_achievements_progress
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import create_engine
@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models import Base, User, Topic, UserTopic, Friendship
+from models import Base, User, Topic, UserTopic, Friendship, UserAchievement, Achievement
 import schemas
 import crud
 from typing import Optional, List
@@ -164,6 +164,7 @@ def create_topic(
     db.add(db_user_topic)
     db.commit()
     db.refresh(db_user_topic)
+    new_achievements = check_and_unlock_achievements(db, current_user.id)
 
     return {
         "id": db_topic.id,
@@ -177,6 +178,7 @@ def create_topic(
         "level": db_user_topic.level,
         "xp": db_user_topic.xp,
         "review_count": db_user_topic.review_count,
+        "new_achievements": new_achievements
     }
 
 
@@ -594,6 +596,25 @@ def health_check(db: Session = Depends(get_db)):
         }
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Database error: {str(e)}")
+
+
+@app.get("/users/me/achievements", response_model=List[schemas.UserAchievementResponse])
+def get_my_achievements(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    achievements=db.query(UserAchievement).filter(UserAchievement.user_id == current_user.id).all()
+    return achievements
+
+
+@app.get("/achievements", response_model=List[schemas.AchievementResponse])
+def get_all_achievements(db: Session = Depends(get_db)):
+    achievements=db.query(Achievement).all()
+    return achievements
+
+@app.get("/users/me/achievements/progress", response_model=List[schemas.AchievementProgressResponse])
+def get_my_achievements_progress(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return get_achievements_progress(db, current_user.id)
 
 if __name__ == "__main__":
     import uvicorn

@@ -17,6 +17,7 @@ class User(Base):
     user_topics = relationship("UserTopic", back_populates="user")
     review_history = relationship("ReviewHistory", back_populates="user")
     topics = relationship("Topic", back_populates="user")
+    user_achievements = relationship("UserAchievement", back_populates="user")
 
     friendships_sent = relationship("Friendship",
         foreign_keys="Friendship.user_id",
@@ -27,8 +28,6 @@ class User(Base):
         foreign_keys="Friendship.friend_id",
         back_populates="friend",
     )
-
-
 
 class Topic(Base):
     __tablename__ = "topics"
@@ -44,7 +43,6 @@ class Topic(Base):
     user = relationship("User", back_populates="topics")
     user_topics = relationship("UserTopic", back_populates="topic")
     review_history = relationship("ReviewHistory", back_populates="topic")
-   
 
 
 class UserTopic(Base):
@@ -96,4 +94,40 @@ class Friendship(Base):
         foreign_keys=[friend_id],
         back_populates="friendships_received",
     )
+
+
+class Achievement(Base):
+    __tablename__ = "achievements"
+    id = Column(Integer, primary_key=True)
+    title = Column(String(50), nullable=False)
+    description = Column(Text, nullable=True)
+    icon_url=Column(Text, nullable=False)
+    condition_type=Column(String(50), nullable=False)
+    condition_value=Column(Integer, nullable=False)
+    code=Column(String(50), unique=True, nullable=False)
+
+    user_achievements = relationship("UserAchievement", back_populates="achievement")
+    rewards = relationship("AchievementReward", back_populates="achievement")
+
+class UserAchievement(Base):
+    __tablename__ = "user_achievements"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=False)
+    unlocked_at = Column(DateTime, default=datetime.now)
+
+    user = relationship("User", back_populates="user_achievements")
+    achievement = relationship("Achievement", back_populates="user_achievements")
+
+
+class AchievementReward(Base):
+    __tablename__ = "achievement_rewards"
+    id = Column(Integer, primary_key=True)
+    achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=False)
+    reward_type = Column(String(50), nullable=False)
+    reward_value = Column(String(100), nullable=False)
+
+    achievement = relationship("Achievement", back_populates="rewards")
+
+
 
