@@ -249,6 +249,7 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  
 }
 
 .topic-workspace__icon-btn svg {
@@ -269,6 +270,20 @@
   line-height: 24px;
   color: #202020;
 }
+
+.topic-workspace__decline-btn {
+  width: 165px;
+  height: 77px;
+  border: none;
+  border-radius: 26px;
+  background: #ffa297;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 24px;
+  color: #202020;
+}
+
 
 .topic-workspace__request-row {
   display: grid;
@@ -321,7 +336,13 @@
   color: rgba(255, 255, 255, 0.36);
 }
 
-/* АДАПТИВ */
+button {
+  cursor: pointer;
+}
+button:hover {
+  opacity: 0.8;
+}
+
 
 @media (max-width: 1800px) {
   .topic-detail__container {

@@ -5,11 +5,15 @@ import { getTopicById } from "../../api/auth";
 import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
+import { matchPath } from "react-router-dom";
 
 const Card = () => {
   const [topicInfo, setTopicInfo] = useState([]);
   const { id } = useParams();
-  const [setButtonTimer, ButtonTimer] = useState();
+  const [buttonTimer, setButtonTimer] = useState("disabled");
+  const [time, setTime] = useState(0);
+  const [saveTime, setSaveTime] = useState(0);
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     async function loadTopic() {
@@ -22,7 +26,20 @@ const Card = () => {
       }
     }
     loadTopic();
-  }, []);
+  }, [id]);
+
+  useEffect(() => {
+    if (buttonTimer !== "active") return;
+
+    const startTime = Date.now();
+    const timerId = setInterval(() => {
+      setTime((Date.now() - startTime) / 1000 + saveTime);
+    }, 1000);
+
+    return () => {
+      clearInterval(timerId);
+    };
+  }, [buttonTimer]);
 
   return (
     <>
@@ -112,52 +129,72 @@ const Card = () => {
                   <h2 className="topic-workspace__label">Таймер</h2>
 
                   <div className="topic-workspace__timer-row">
-                    <div className="topic-workspace__timer-box">00 : 00</div>
+                    <div className="topic-workspace__timer-box">
+                      {String(Math.floor(time / 60)).padStart(2, "0")}:
+                      {String(Math.floor(time % 60)).padStart(2, "0")}
+                    </div>
+
+                    {buttonTimer === "pause" || buttonTimer === "disabled" ? (
+                      <button
+                        className="topic-workspace__icon-btn"
+                        type="button"
+                        aria-label="Запустить таймер"
+                        onClick={() => setButtonTimer("active")}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <path
+                            d="M8 6.5L18 12L8 17.5V6.5Z"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </button>
+                    ) : (
+                      <button
+                        className="topic-workspace__icon-btn"
+                        type="button"
+                        aria-label="Пауза-Старт"
+                        onClick={() => {
+                          setSaveTime(time);
+                          setButtonTimer("pause");
+                        }}
+                      >
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                          <rect
+                            x="6"
+                            y="5"
+                            width="4"
+                            height="14"
+                            rx="1.5"
+                            fill="currentColor"
+                          />
+                          <rect
+                            x="14"
+                            y="5"
+                            width="4"
+                            height="14"
+                            rx="1.5"
+                            fill="currentColor"
+                          />
+                        </svg>
+                      </button>
+                    )}
 
                     <button
-                      className="topic-workspace__icon-btn"
+                      className="topic-workspace__decline-btn"
                       type="button"
-                      aria-label="Запустить таймер"
-                      onClick={() => setButtonTimer()}
+                      onClick={() => {
+                        setButtonTimer("disabled");
+                        setTime(0);
+                        setSaveTime(0);
+                      }}
                     >
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <path
-                          d="M8 6.5L18 12L8 17.5V6.5Z"
-                          fill="currentColor"
-                        />
-                      </svg>
+                      Cбросить
                     </button>
-
-                    <button
-                      className="topic-workspace__icon-btn"
-                      type="button"
-                      aria-label="Пауза-Старт"
-                    >
-                      <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <rect
-                          x="6"
-                          y="5"
-                          width="4"
-                          height="14"
-                          rx="1.5"
-                          fill="currentColor"
-                        />
-                        <rect
-                          x="14"
-                          y="5"
-                          width="4"
-                          height="14"
-                          rx="1.5"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-
                     <button
                       className="topic-workspace__accept-btn"
                       type="button"
                     >
-                      Принять
+                      Отправить время
                     </button>
                   </div>
                 </section>
