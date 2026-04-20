@@ -1,0 +1,59 @@
+.topic-modal__plant-card {
+  position: relative;
+  width: 161.91px;
+  height: 240.63px;
+  border-radius: 24px;
+  background: #463f3c;
+  overflow: hidden;
+  cursor: pointer;
+}
+.topic-modal__plant-card:hover {
+  opacity: 0.8;
+}
+
+
+.topic-modal__plant-card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 39px;
+  width: 88px;
+  height: 115px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(186, 180, 139, 0.22);
+  filter: blur(32px);
+}
+
+.topic-modal__plant-card--selected {
+  border: 2px solid #b1ca7e;
+}
+
+.topic-modal__badge--small {
+  position: absolute;
+  left: 50%;
+  bottom: 19px;
+  transform: translateX(-50%);
+  height: 20.56px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 15px;
+  color: #ffffff;
+}
+
+.topic-modal__badge--common {
+  min-width: 76px;
+  background: #6a9c02;
+}
+
+.topic-modal__badge--rare {
+  min-width: 64px;
+  background: #9567e0;
+}
+
+.topic-modal__badge--legendary-small {
+  min-width: 104px;
+  background: #ae5aab;
+}

@@ -44,6 +44,9 @@ const TopicsPage = () => {
                     level={topic.level}
                     xp={topic.xp}
                     onClick = {()=>navigate(`/topics/${topic.id}`)}
+                    image={topic.image_url}
+                    plant_name={topic.tree_type}
+                    rarity={topic.rarity}
                   />
                 );
               })}

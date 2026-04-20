@@ -1,7 +1,7 @@
 import "./style.css";
 import basic_plant from "./../../assets/basic_plant.png";
 
-const ListCard = ({ name, xp, level, onClick }) => {
+const ListCard = ({ name, xp, level,image,plant_name,rarity, onClick }) => {
   const maxXp = 560;
   const progress = Math.min((xp / maxXp) * 100, 100);
   
@@ -11,10 +11,10 @@ const ListCard = ({ name, xp, level, onClick }) => {
       <div className="topic-card__head">
         <div className="topic-card__chips">
           <span className="topic-card__chip topic-card__chip--tree">
-            Саженец
+            {plant_name}
           </span>
           <span className="topic-card__chip topic-card__chip--rarity">
-            Обычная
+            {rarity}
           </span>
         </div>
 
@@ -41,7 +41,7 @@ const ListCard = ({ name, xp, level, onClick }) => {
 
       <div className="topic-card__image-wrap">
         <span className="topic-card__text">Вы еще не выбрали растение</span>
-        <img src={basic_plant} alt={name} className="topic-card__image" />
+        <img src={image} alt={name} className="topic-card__image" />
       </div>
 
       <div className="topic-card__bottom">
