@@ -212,6 +212,14 @@
   overflow: hidden;
 }
 
+.add-topic-card:hover {
+  transform: translateY(-6px);
+  transition:
+    transform 0.7s ease,
+    background 0.7s ease,
+    border-color 0.7s ease;
+}
+
 .add-topic-card__plus {
   position: absolute;
   width: 163px;
@@ -370,4 +378,6 @@
     font-size: 11px;
     line-height: 14px;
   }
-} 
+
+
+}

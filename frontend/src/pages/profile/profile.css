@@ -3,6 +3,9 @@
 * {
   box-sizing: border-box;
 }
+:root {
+  --profile-gap: 40px;
+}
 
 .profile-page {
   min-height: 100vh;
@@ -39,15 +42,16 @@
 
 .profile-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 400px;
-  gap: 40px;
+  grid-template-columns: minmax(0, 1fr) 467px;
+  gap: var(--profile-gap);
   align-items: start;
 }
+
 
 .profile-left {
   display: flex;
   flex-direction: column;
-  gap: 43px;
+  gap: var(--profile-gap);
 }
 
 .profile-card {
@@ -60,7 +64,7 @@
 .profile-achievements-card {
   background: #352e2b;
   border-radius: 24px;
-  min-height: 405px;
+  min-height: 483px;
   padding: 36px;
   display: flex;
   flex-direction: column;
@@ -88,6 +92,9 @@
   max-height: 320px;
   width: 100%;
   height: auto;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .profile-name {
@@ -161,7 +168,8 @@
   max-height: 161px;
 }
 
-/* FRIENDS */
+
+
 
 .profile-friends-card {
   background: #352e2b;
@@ -173,10 +181,11 @@
 }
 
 .profile-friends-header {
-  margin: 0;
-  font-size: 36px;
+  margin-top: 5px;
+  font-size: 32px;
   font-weight: 800;
   line-height: 1.1;
+
 }
 
 .profile-friends-header::after {
@@ -204,6 +213,9 @@
   padding: 10px 4px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+
+
 
 .profile-friends-rank {
   font-size: 24px;
@@ -240,12 +252,19 @@
 
 
 @media (max-width: 1200px) {
-  .profile-layout {
+  :root {
+    --profile-gap: 24px;
+  }
+
+    .profile-layout {
     grid-template-columns: 1fr;
-    gap: 24px;
   }
 
   .profile-friends-card {
+    min-height: auto;
+  }
+
+  .profile-friends-list {
     min-height: auto;
   }
 
