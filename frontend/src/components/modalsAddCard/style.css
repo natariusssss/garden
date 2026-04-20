@@ -473,7 +473,7 @@
 
 .topic-modal__filter--common {
   width: 102px;
-} 
+}
 .topic-modal__filter--rare {
   width: 95px;
 }
@@ -574,7 +574,8 @@
   line-height: 16px;
   color: #ffffff;
 }
-textarea:focus,input:focus {
+textarea:focus,
+input:focus {
   outline: none;
   border: 2px solid #b1ca7e;
 }
@@ -663,9 +664,6 @@ textarea:focus,input:focus {
   outline-offset: 4px;
   border-radius: 12px;
 }
-
-
-
 
 .dialog {
   overflow: auto;
@@ -922,6 +920,8 @@ textarea:focus,input:focus {
     grid-template-columns: repeat(4, minmax(130px, 1fr));
     gap: 12px;
   }
+
+  
 
   .topic-modal__plant-card {
     width: 100%;

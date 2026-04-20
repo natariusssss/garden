@@ -9,14 +9,14 @@
   overflow: hidden;
   cursor: pointer;
   padding: 20px 20px 19px 20px;
-}
-
-.topic-card:hover {
-  transform: translateY(-6px);
   transition:
     transform 0.7s ease,
     background 0.7s ease,
     border-color 0.7s ease;
+}
+
+.topic-card:hover {
+  transform: translateY(-6px);
 }
 
 .topic-card__head {
@@ -282,7 +282,6 @@
   border-bottom: 2px solid #9265c5;
 
   border-top: 2px solid #9265c5;
-  
 }
 
 .topic-card--epic {
