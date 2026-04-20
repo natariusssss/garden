@@ -291,10 +291,11 @@
 }
 
 .topic-card--legendary {
-  border-width: 2px 2px 6px 2px;
-  border-style: solid;
-  border-color: #b67ab4;
-  box-shadow: 0px 0px 40.4px rgba(182, 122, 180, 0.21);
+  border: none;
+  box-shadow:
+  0 0 0 2px #b67ab4,    
+  0 6px 0 0 #b67ab4,      
+  0 0 40.4px rgba(182, 122, 180, 0.21);
 }
 .topic-card__chip--rarity-common {
   background: #6a9c02;
