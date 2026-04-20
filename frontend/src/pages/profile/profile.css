@@ -1,0 +1,343 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800&family=Raleway:wght@800&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+.profile-page {
+  min-height: 100vh;
+  background: #2c2421;
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.profile-page__bg {
+  position: fixed;
+  inset: 0;
+  background:
+    linear-gradient(rgba(44, 36, 33, 0.93), rgba(44, 36, 33, 0.93)),
+    radial-gradient(circle at 15% 10%, rgba(126, 101, 93, 0.16), transparent 26%),
+    radial-gradient(circle at 85% 15%, rgba(126, 101, 93, 0.12), transparent 24%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.profile-container {
+  position: relative;
+  z-index: 1;
+  width: min(1728px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 43px 0;
+}
+
+.profile-message {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: 40px;
+  align-items: start;
+}
+
+.profile-left {
+  display: flex;
+  flex-direction: column;
+  gap: 43px;
+}
+
+.profile-card {
+  background: #352e2b;
+  border-radius: 24px;
+  min-height: 392px;
+  padding: 36px;
+}
+
+.profile-achievements-card {
+  background: #352e2b;
+  border-radius: 24px;
+  min-height: 405px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-info {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.profile-stats {
+  min-height: 28px;
+}
+
+.profile-avatar-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-avatar {
+  max-width: 320px;
+  max-height: 320px;
+  width: 100%;
+  height: auto;
+}
+
+.profile-name {
+  font-size: 48px;
+  padding: 10px 0;
+  margin-top: -30px;
+}
+
+.profile-name::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 80%;
+  background: #595959;
+  margin-top: 12px;
+}
+
+.profile-achievements-header {
+  font-size: 36px;
+  text-align: center;
+  margin-top: -15px;
+}
+
+.profile-achievements-header::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #595959;
+  margin-top: 12px;
+}
+
+.profile-achievements-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.profile-achievements-count,
+.profile-achievements-hours-count,
+.profile-achievements-cards-count {
+  width: 100%;
+  min-height: 260px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.profile-achievements-count > h2,
+.profile-achievements-hours-count > h2,
+.profile-achievements-cards-count > h2 {
+  font-size: 15px;
+  text-align: center;
+  line-height: 1.2;
+  font-weight: 300;
+}
+
+.profile-achievements-count > h3,
+.profile-achievements-hours-count > h3,
+.profile-achievements-cards-count > h3 {
+  font-size: 40px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.achievements-count-image,
+.hours-count-image,
+.cards-count-image {
+  max-width: 161px;
+  max-height: 161px;
+}
+
+/* FRIENDS */
+
+.profile-friends-card {
+  background: #352e2b;
+  border-radius: 24px;
+  padding: 18px 24px 28px;
+  height: fit-content;
+  min-height: auto;
+  align-self: start;
+}
+
+.profile-friends-header {
+  margin: 0;
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.profile-friends-header::after {
+  content: "";
+  display: block;
+  height: 2px;
+  width: 100%;
+  background: #595959;
+  margin-top: 16px;
+}
+
+.profile-friends-list {
+  min-height: 790px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+}
+
+.profile-friends-item {
+  display: grid;
+  grid-template-columns: 36px 40px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 12px;
+  min-height: 68px;
+  padding: 10px 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-friends-rank {
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.profile-friends-item-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.profile-friends-item-username {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profile-friends-empty {
+  margin: 20px 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 16px;
+}
+
+
+
+@media (max-width: 1200px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .profile-friends-card {
+    min-height: auto;
+  }
+
+  .achievements-count-image,
+  .hours-count-image,
+  .cards-count-image {
+    max-width: 101px;
+    max-height: 101px;
+  }
+}
+
+@media (max-width: 900px) {
+  .profile-container {
+    width: calc(100% - 32px);
+    padding: 24px 0;
+  }
+
+  .profile-info {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .profile-avatar-wrap {
+    justify-content: center;
+  }
+
+  .profile-avatar {
+    width: 220px;
+    height: 220px;
+  }
+
+  .profile-name {
+    font-size: 36px;
+    margin-top: 0;
+  }
+
+  .profile-achievements-stats {
+    grid-template-columns: repeat(3, minmax(140px, 1fr));
+  }
+
+  .profile-achievements-count > h2,
+  .profile-achievements-hours-count > h2,
+  .profile-achievements-cards-count > h2 {
+    font-size: 10px;
+    text-align: center;
+  }
+
+  .profile-friends-header {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .profile-card,
+  .profile-achievements-card,
+  .profile-friends-card {
+    padding: 20px;
+    border-radius: 20px;
+  }
+
+  .profile-friends-list {
+    margin-top: 10px;
+  }
+
+  .profile-friends-item {
+    grid-template-columns: 28px 36px minmax(0, 1fr);
+    column-gap: 10px;
+    min-height: 56px;
+    padding: 8px 4px;
+  }
+
+  .profile-friends-rank {
+    font-size: 18px;
+  }
+
+  .profile-friends-item-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .profile-friends-item-username {
+    font-size: 15px;
+  }
+
+  .profile-achievements-stats {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .profile-achievements-count,
+  .profile-achievements-hours-count,
+  .profile-achievements-cards-count {
+    aspect-ratio: auto;
+  }
+}

@@ -1,7 +1,7 @@
 import "./achieve.css";
 import Header from "../../components/header/Header";
 import trophyImg from "./trphu.png";
-import lockImg from "./lock.png";
+
 
 
 export const achievements = [
@@ -27,11 +27,13 @@ export const achievements = [
 
 export default function AchievePage() {
   return (
+    <>
+    <Header />
+
     <div className="achieve-page">
       <div className="achieve-bg" />
 
-      <Header />
-
+      
       <main className="achieve-main">
         <h1 className="achieve-title">Достижения</h1>
 
@@ -73,5 +75,7 @@ export default function AchievePage() {
         </section>
       </main>
     </div>
+    </>
   );
+  
 }
