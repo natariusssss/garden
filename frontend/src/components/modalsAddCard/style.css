@@ -527,38 +527,6 @@
   text-align: center;
 }
 
-
-.topic-modal__arrow {
-  position: absolute;
-  top: 102.31px;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: #68615d;
-  box-shadow: 0 0 5.5px rgba(0, 0, 0, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  margin: 0;
-  font-family: "Montserrat", sans-serif;
-  font-size: 28px;
-  line-height: 1;
-  color: #ffffff;
-  cursor: pointer;
-  z-index: 5;
-}
-
-.topic-modal__arrow--left {
-  left: -23px;
-}
-
-.topic-modal__arrow--right {
-  left: 685px;
-}
-
-
 .topic-modal__badge--featured-common {
   width: 161.77px;
   height: 36px;
@@ -606,6 +574,97 @@
   line-height: 16px;
   color: #ffffff;
 }
+textarea:focus,input:focus {
+  outline: none;
+  border: 2px solid #b1ca7e;
+}
+
+.topic-modal__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: #68615d;
+  box-shadow: 0 0 5.5px rgba(0, 0, 0, 0.25);
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.topic-modal__arrow--left {
+  left: -18px;
+}
+
+.topic-modal__arrow--right {
+  right: -18px;
+}
+
+.topic-modal__arrow-icon {
+  width: 12px;
+  height: 12px;
+  display: block;
+  flex: 0 0 12px;
+}
+
+.topic-modal__arrow-icon path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.topic-modal__close {
+  position: absolute;
+  top: 15px;
+  right: 17px;
+  width: 48px;
+  height: 48px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+}
+
+.topic-modal__close-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.topic-modal__close-icon path {
+  stroke: #ffffff;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.topic-modal__close:hover {
+  opacity: 0.8;
+}
+
+.topic-modal__close:focus {
+  outline: none;
+}
+
+.topic-modal__close:focus-visible {
+  outline: 2px solid #b1ca7e;
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+
 
 
 .dialog {

@@ -40,13 +40,13 @@ const TopicsPage = () => {
                     key={topic.id}
                     name={topic.name}
                     description={topic.description}
-                    index={topic.id}
                     level={topic.level}
                     xp={topic.xp}
                     onClick = {()=>navigate(`/topics/${topic.id}`)}
                     image={topic.image_url}
                     plant_name={topic.tree_type}
                     rarity={topic.rarity}
+                
                   />
                 );
               })}

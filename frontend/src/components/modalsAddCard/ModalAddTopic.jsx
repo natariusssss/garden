@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import "./style.css";
 import { createTopic } from "../../api/auth";
@@ -12,11 +12,19 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
   const [message, setMessage] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedPlant, setSelectedPlant] = useState(plants[0].id);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const currentPlant = plants.find((plant) => plant.id === selectedPlant);
   const image_url = plants.find((plant) => plant.id === selectedPlant).imgBig;
   const rarity = plants.find((plant) => plant.id === selectedPlant).rarity;
   const tree_type = plants.find((plant) => plant.id === selectedPlant).name;
+
+  const filtredPlants =
+    selectedFilter === "all"
+      ? plants
+      : plants.filter((plant) => plant.rarityClass === selectedFilter);
+
+  const sliceArray = filtredPlants.slice(currentPage * 4, currentPage * 4 + 4);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -28,7 +36,7 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
         description,
         image_url,
         rarity,
-        tree_type
+        tree_type,
       });
 
       if (onCreated) {
@@ -45,6 +53,22 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
     <div className="dialog">
       <div className="dialog-content">
         <div className="topic-modal">
+          <button
+            type="button"
+            className="topic-modal__close"
+            onClick={onClose}
+            aria-label="Закрыть"
+          >
+            <svg
+              className="topic-modal__close-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path d="M18 6L6 18" />
+              <path d="M6 6L18 18" />
+            </svg>
+          </button>
           <div className="topic-modal__divider" aria-hidden="true"></div>
 
           <form className="topic-modal__left" onSubmit={handleSubmit}>
@@ -157,11 +181,12 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                 </div>
 
                 <p className="topic-modal__selected-description">
-                  Нежное дерево с розовыми цветами, символ весны и обновления.
-                  Наполняет сад гармонией и умиротворением.
+                  {currentPlant?.description}
                 </p>
 
-                <p className="topic-modal__selected-type">Вид: дерево</p>
+                <p className="topic-modal__selected-type">
+                  Вид: {currentPlant?.type}
+                </p>
 
                 <div className="topic-modal__chosen">
                   <span
@@ -181,37 +206,52 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                 Выберите растение для вашей темы
               </p>
               <span className="topic-modal__plants-count">
-                {plants.length} растений
+                {filtredPlants.length} растений
               </span>
 
               <div className="topic-modal__filters" aria-hidden="true">
                 <span
                   className={`topic-modal__filter topic-modal__filter--all ${selectedFilter === "all" ? "topic-modal__filter--active" : ""} `}
-                  onClick={() => setSelectedFilter("all")}
+                  onClick={() => {
+                    setSelectedFilter("all");
+                    setCurrentPage(0);
+                  }}
                 >
                   Все
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--common ${selectedFilter === "common" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => setSelectedFilter("common")}
+                  onClick={() => {
+                    setSelectedFilter("common");
+                    setCurrentPage(0);
+                  }}
                 >
                   Обычное
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--rare ${selectedFilter === "rare" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => setSelectedFilter("rare")}
+                  onClick={() => {
+                    setSelectedFilter("rare");
+                    setCurrentPage(0);
+                  }}
                 >
                   Редкое
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--epic ${selectedFilter === "epic" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => setSelectedFilter("epic")}
+                  onClick={() => {
+                    setSelectedFilter("epic");
+                    setCurrentPage(0);
+                  }}
                 >
                   Эпическое
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--legendary ${selectedFilter === "legendary" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => setSelectedFilter("legendary")}
+                  onClick={() => {
+                    setSelectedFilter("legendary");
+                    setCurrentPage(0);
+                  }}
                 >
                   Легендарное
                 </span>
@@ -221,14 +261,23 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                 <button
                   type="button"
                   className="topic-modal__arrow topic-modal__arrow--left"
+                  aria-label="Назад"
+                  onClick={() =>
+                    setCurrentPage((prev) => (prev > 0 ? prev - 1 : prev))
+                  }
                 >
-                  ‹
+                  <svg
+                    viewBox="0 0 12 12"
+                    className="topic-modal__arrow-icon"
+                    aria-hidden="true"
+                  >
+                    <path d="M7.5 2.5L4 6l3.5 3.5" />
+                  </svg>
                 </button>
 
                 <div className="topic-modal__cards">
-                  {plants.map((plant) => {
-                    return plant.rarityClass === selectedFilter ||
-                      selectedFilter === "all" ? (
+                  {sliceArray.map((plant) => {
+                    return (
                       <CarouselCard
                         key={plant.id}
                         onClick={() => setSelectedPlant(plant.id)}
@@ -238,15 +287,27 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                         rarity={plant.rarity}
                         rarityClass={plant.rarityClass}
                       />
-                    ) : null;
+                    );
                   })}
                 </div>
 
                 <button
                   type="button"
                   className="topic-modal__arrow topic-modal__arrow--right"
+                  aria-label="Вперед"
+                  onClick={() =>
+                    setCurrentPage((prev) =>
+                      (prev + 1) * 4 < filtredPlants.length ? prev + 1 : prev,
+                    )
+                  }
                 >
-                  ›
+                  <svg
+                    viewBox="0 0 12 12"
+                    className="topic-modal__arrow-icon"
+                    aria-hidden="true"
+                  >
+                    <path d="M4.5 2.5L8 6l-3.5 3.5" />
+                  </svg>
                 </button>
               </div>
             </section>
