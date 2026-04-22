@@ -8,11 +8,14 @@
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   overflow: hidden;
   cursor: pointer;
+  isolation: isolate;
   padding: 20px 20px 19px 20px;
   transition:
     transform 0.7s ease,
     background 0.7s ease,
-    border-color 0.7s ease;
+    border-color 0.7s ease,
+    box-shadow 0.7s ease,
+    filter 0.7s ease;
 }
 
 .topic-card:hover {
@@ -27,6 +30,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  z-index: 3;
 }
 
 .topic-card__chips {
@@ -138,7 +142,7 @@
   align-items: flex-end;
   justify-content: center;
   overflow: visible;
-  z-index: 1;
+  z-index: 2;
 }
 
 .topic-card__text {
@@ -169,6 +173,7 @@
   object-fit: contain;
   top: 55px;
   right: 16px;
+  transition: transform 0.9s ease, filter 0.9s ease;
 }
 
 .topic-card__bottom {
@@ -178,10 +183,14 @@
   width: 360px;
   height: 105px;
   padding: 14px 24px 12px 24px;
-  background: rgba(76, 74, 73, 0.46);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.08) 100%);
   border-radius: 26px;
-  backdrop-filter: blur(27px);
-  -webkit-backdrop-filter: blur(27px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 28px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  z-index: 3;
 }
 
 .topic-card__bottom-top {
@@ -237,7 +246,8 @@
   top: 72px;
   width: 311px;
   height: 20px;
-  background: #2c2421;
+  background: rgba(37, 31, 36, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 32px;
   overflow: hidden;
 }
@@ -273,6 +283,285 @@
   color: #ffffff;
 }
 
+.topic-card__legendary-decor {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.topic-card__legendary-orb,
+.topic-card__legendary-shine {
+  position: absolute;
+  pointer-events: none;
+}
+
+.topic-card__legendary-orb {
+  display: none;
+}
+
+.topic-card__legendary-orb--1 {
+  left: 12%;
+  top: 76%;
+  animation: legendaryParticle1 4.8s ease-in-out infinite;
+}
+
+.topic-card__legendary-orb--2 {
+  left: 81%;
+  top: 71%;
+  width: 18px;
+  height: 9px;
+  animation: legendaryParticle2 5.4s ease-in-out infinite 0.7s;
+}
+
+.topic-card__legendary-orb--3 {
+  left: 73%;
+  top: 29%;
+  width: 20px;
+  height: 9px;
+  animation: legendaryParticle3 4.5s ease-in-out infinite 1.4s;
+}
+
+.topic-card__legendary-orb--4 {
+  left: 20%;
+  top: 22%;
+  width: 16px;
+  height: 8px;
+  animation: legendaryParticle4 5.8s ease-in-out infinite 0.4s;
+}
+
+.topic-card__legendary-orb--5 {
+  left: 49%;
+  top: 12%;
+  width: 15px;
+  height: 8px;
+  animation: legendaryParticle5 4.2s ease-in-out infinite 2s;
+}
+
+.topic-card__legendary-shine {
+  inset: -40%;
+  background: linear-gradient(
+    112deg,
+    rgba(255, 255, 255, 0) 10%,
+    rgba(255, 238, 248, 0.03) 24%,
+    rgba(255, 225, 246, 0.09) 38%,
+    rgba(255, 198, 243, 0.18) 48%,
+    rgba(240, 192, 255, 0.22) 57%,
+    rgba(255, 242, 250, 0.09) 70%,
+    rgba(255, 255, 255, 0) 86%
+  );
+  filter: blur(21px);
+  transform: translateX(-64%) rotate(8deg) scale(1.18);
+  mix-blend-mode: screen;
+  opacity: 0.46;
+  animation: legendaryShine 4.6s ease-out infinite;
+}
+
+.topic-card--legendary {
+  --legendary-angle: 0deg;
+  border: 2px solid rgba(255, 172, 237, 0.34);
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.3),
+    0 0 18px rgba(255, 117, 228, 0.1),
+    0 0 34px rgba(190, 113, 255, 0.1);
+}
+
+.topic-card--legendary::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: none;
+  opacity: 0;
+  z-index: 0;
+}
+
+.topic-card--legendary::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--legendary-angle),
+    rgba(255, 255, 255, 0) 0deg 264deg,
+    rgba(255, 224, 248, 0.08) 278deg,
+    rgba(255, 195, 242, 0.22) 292deg,
+    rgba(255, 160, 236, 0.44) 306deg,
+    rgba(255, 118, 230, 0.94) 322deg,
+    rgba(214, 153, 255, 0.68) 338deg,
+    rgba(255, 170, 238, 0.28) 350deg,
+    rgba(255, 255, 255, 0) 360deg
+  );
+  filter: drop-shadow(0 0 6px rgba(255, 126, 229, 0.32)) drop-shadow(0 0 14px rgba(201, 140, 255, 0.2));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 4;
+  pointer-events: none;
+  will-change: transform;
+  animation: legendaryBorderOrbit 1.8s linear infinite;
+}
+
+.topic-card--legendary:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, 0.34),
+    0 0 20px rgba(255, 111, 228, 0.12),
+    0 0 44px rgba(194, 106, 255, 0.1);
+}
+
+.topic-card--legendary:hover .topic-card__image {
+  transform: translateY(-4px);
+  filter: none;
+}
+
+@keyframes legendaryAuraPulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+@property --legendary-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes legendaryBorderOrbit {
+  0% {
+    --legendary-angle: 0deg;
+  }
+
+  100% {
+    --legendary-angle: 360deg;
+  }
+}
+
+@keyframes legendaryCardFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes legendaryShine {
+  0% {
+    transform: translateX(-64%) rotate(8deg) scale(1.18);
+    opacity: 0;
+  }
+
+  14% {
+    opacity: 0.1;
+  }
+
+  36% {
+    opacity: 0.48;
+  }
+
+  58% {
+    opacity: 0.22;
+  }
+
+  100% {
+    transform: translateX(64%) rotate(8deg) scale(1.18);
+    opacity: 0;
+  }
+}
+
+@keyframes legendaryParticle1 {
+  0% {
+    transform: translate3d(0, 12px, 0) scale(0.75);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.64;
+  }
+
+  100% {
+    transform: translate3d(26px, -184px, 0) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes legendaryParticle2 {
+  0% {
+    transform: translate3d(0, 18px, 0) scale(0.62);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 0.56;
+  }
+
+  100% {
+    transform: translate3d(-36px, -150px, 0) scale(1.05);
+    opacity: 0;
+  }
+}
+
+@keyframes legendaryParticle3 {
+  0% {
+    transform: translate3d(0, 22px, 0) scale(0.68);
+    opacity: 0;
+  }
+
+  24% {
+    opacity: 0.52;
+  }
+
+  100% {
+    transform: translate3d(18px, -132px, 0) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes legendaryParticle4 {
+  0% {
+    transform: translate3d(0, 10px, 0) scale(0.64);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.54;
+  }
+
+  100% {
+    transform: translate3d(30px, -120px, 0) scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes legendaryParticle5 {
+  0% {
+    transform: translate3d(0, 8px, 0) scale(0.62);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: translate3d(-12px, -110px, 0) scale(0.9);
+    opacity: 0;
+  }
+}
+
 .topic-card--common {
   border: none;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
@@ -290,13 +579,6 @@
   box-shadow: 0px 0px 24px rgba(93, 134, 255, 0.22);
 }
 
-.topic-card--legendary {
-  border: none;
-  box-shadow:
-  0 0 0 2px #b67ab4,    
-  0 6px 0 0 #b67ab4,      
-  0 0 40.4px rgba(182, 122, 180, 0.21);
-}
 .topic-card__chip--rarity-common {
   background: #6a9c02;
   border: 1px solid #7ab008;
@@ -319,6 +601,30 @@
   background: rgba(234, 112, 234, 0.67);
   border: 1px solid #b66ab3;
   box-shadow: 0px 0px 6.3px #ea70ea;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .topic-card--legendary,
+  .topic-card--legendary::before,
+  .topic-card--legendary::after,
+  .topic-card__legendary-orb,
+  .topic-card__legendary-shine {
+  inset: -40%;
+  background: linear-gradient(
+    112deg,
+    rgba(255, 255, 255, 0) 10%,
+    rgba(255, 238, 248, 0.03) 24%,
+    rgba(255, 225, 246, 0.09) 38%,
+    rgba(255, 198, 243, 0.18) 48%,
+    rgba(240, 192, 255, 0.22) 57%,
+    rgba(255, 242, 250, 0.09) 70%,
+    rgba(255, 255, 255, 0) 86%
+  );
+  filter: blur(21px);
+  transform: translateX(-64%) rotate(8deg) scale(1.18);
+  mix-blend-mode: screen;
+  opacity: 0.46;
+  animation: legendaryShine 4.6s ease-out infinite;
 }
 
 @media (max-width: 460px) {

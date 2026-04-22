@@ -35,6 +35,17 @@ const ListCard = ({
       className={`topic-card topic-card--${rarityClass}`}
       onClick={onClick}
     >
+      {rarityClass === "legendary" && (
+        <div className="topic-card__legendary-decor" aria-hidden="true">
+          <span className="topic-card__legendary-orb topic-card__legendary-orb--1"></span>
+          <span className="topic-card__legendary-orb topic-card__legendary-orb--2"></span>
+          <span className="topic-card__legendary-orb topic-card__legendary-orb--3"></span>
+          <span className="topic-card__legendary-orb topic-card__legendary-orb--4"></span>
+          <span className="topic-card__legendary-orb topic-card__legendary-orb--5"></span>
+          <span className="topic-card__legendary-shine"></span>
+        </div>
+      )}
+
       <div className="topic-card__head">
         <div className="topic-card__chips">
           <span className="topic-card__chip topic-card__chip--tree">
