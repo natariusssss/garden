@@ -50,7 +50,6 @@ body {
 .login-password {
   width: 100%;
   height: 87px;
-  border: none;
   outline: none;
   background: #463f3d;
   border-radius: 13px;
@@ -88,7 +87,7 @@ body {
   font-size: 24px;
   line-height: 29px;
   text-transform: uppercase;
-  color: #202020;
+  color: #121212;
   cursor: pointer;
 }
 
