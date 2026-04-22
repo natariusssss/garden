@@ -20,7 +20,7 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
   const rarity = plants.find((plant) => plant.id === selectedPlant).rarity;
   const tree_type = plants.find((plant) => plant.id === selectedPlant).name;
 
-  const slideDirectionRef = useRef("right");
+  const slideDirectionRef = useRef("");
 
   const filtredPlants =
     selectedFilter === "all"
@@ -288,7 +288,7 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                       <div
                         key={plant.id}
                         className="topic-modal__card-appear"
-                        style={{ animationDelay: `${index * 0.06}s` }}
+                        style={{ animationDelay: `${index * 0.08}s` }}
                       >
                         <CarouselCard
                           onClick={() => setSelectedPlant(plant.id)}
