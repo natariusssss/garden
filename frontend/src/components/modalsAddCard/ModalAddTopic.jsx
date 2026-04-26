@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+
 import { createPortal } from "react-dom";
 import "./style.css";
 import { createTopic } from "../../api/auth";
+import { useEffect, useRef, useState } from "react";
 import sakuraBig from "../../assets/sakura/sakura_big.png";
 import plants from "../../assets/characteristics_tree/characteristics_tree.jsx";
 import CarouselCard from "../carouselCard/CarouselCard.jsx";
@@ -18,6 +19,8 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
   const image_url = plants.find((plant) => plant.id === selectedPlant).imgBig;
   const rarity = plants.find((plant) => plant.id === selectedPlant).rarity;
   const tree_type = plants.find((plant) => plant.id === selectedPlant).name;
+
+  const slideDirectionRef = useRef("");
 
   const filtredPlants =
     selectedFilter === "all"
@@ -149,7 +152,7 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
 
             <h3 className="topic-modal__selected-title">Выбранное растение</h3>
 
-            <article className="topic-modal__selected-card">
+            <article className="topic-modal__selected-card" key={selectedPlant}>
               <div className="topic-modal__selected-visual">
                 <div className="topic-modal__selected-glow"></div>
                 <img
@@ -262,9 +265,10 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                   type="button"
                   className="topic-modal__arrow topic-modal__arrow--left"
                   aria-label="Назад"
-                  onClick={() =>
-                    setCurrentPage((prev) => (prev > 0 ? prev - 1 : prev))
-                  }
+                  onClick={() => {
+                    slideDirectionRef.current = "left";
+                    setCurrentPage((prev) => (prev > 0 ? prev - 1 : prev));
+                  }}
                 >
                   <svg
                     viewBox="0 0 12 12"
@@ -275,18 +279,27 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                   </svg>
                 </button>
 
-                <div className="topic-modal__cards">
-                  {sliceArray.map((plant) => {
+                <div
+                  className={`topic-modal__cards topic-modal__cards--${slideDirectionRef.current}`}
+                  key={`${currentPage}`}
+                >
+                  {sliceArray.map((plant, index) => {
                     return (
-                      <CarouselCard
+                      <div
                         key={plant.id}
-                        onClick={() => setSelectedPlant(plant.id)}
-                        id={plant.id}
-                        selected={selectedPlant == plant.id ? true : false}
-                        name={plant.name}
-                        rarity={plant.rarity}
-                        rarityClass={plant.rarityClass}
-                      />
+                        className="topic-modal__card-appear"
+                        style={{ animationDelay: `${index * 0.08}s` }}
+                      >
+                        <CarouselCard
+                          onClick={() => setSelectedPlant(plant.id)}
+                          id={plant.id}
+                          selected={selectedPlant == plant.id}
+                          name={plant.name}
+                          rarity={plant.rarity}
+                          rarityClass={plant.rarityClass}
+                          img_small={plant.imgBig}
+                        />
+                      </div>
                     );
                   })}
                 </div>
@@ -295,11 +308,12 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                   type="button"
                   className="topic-modal__arrow topic-modal__arrow--right"
                   aria-label="Вперед"
-                  onClick={() =>
+                  onClick={() => {
+                    slideDirectionRef.current = "right";
                     setCurrentPage((prev) =>
                       (prev + 1) * 4 < filtredPlants.length ? prev + 1 : prev,
-                    )
-                  }
+                    );
+                  }}
                 >
                   <svg
                     viewBox="0 0 12 12"

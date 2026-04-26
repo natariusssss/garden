@@ -50,7 +50,6 @@ body {
 .register-password, .mail {
   width: 100%;
   height: 87px;
-  border: none;
   outline: none;
   background: #463f3d;
   border-radius: 13px;

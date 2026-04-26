@@ -7,6 +7,7 @@ import {
   getPendingRequests,
   acceptFriendRequest,
   rejectFriendRequest,
+  deleteFriend
 } from "../../api/auth";
 import lockImg from "../achievements/lock.png";
 
@@ -28,7 +29,15 @@ const FriendsPage = () => {
         setFriends(friendsData);
 
         const pendingData = await getPendingRequests(token);
-        setPendingRequests(pendingData);
+        setPendingRequests(
+  pendingData.flatMap((request) =>
+    Array.from({ length: 10 }, (_, index) => ({
+      ...request,
+      id: `${request.id}-${index}`,
+      username: `${request.username} ${index + 1}`,
+    }))
+  )
+);
 
         setMessage("");
       } catch (error) {
@@ -70,6 +79,24 @@ const FriendsPage = () => {
     }
   };
 
+  const handleDeleteFriend = async (friendId) => {
+  const isConfirmed = window.confirm("Удалить друга?");
+
+  if (!isConfirmed) return;
+
+  const token = localStorage.getItem("token");
+
+  try {
+    await deleteFriend(token, friendId);
+
+    setFriends((prev) =>
+      prev.filter((friend) => friend.id !== friendId)
+    );
+  } catch (e) {
+    console.error(e);
+  }
+};
+
   return (
     <div className="friends-page">
       <Header />
@@ -105,6 +132,12 @@ const FriendsPage = () => {
                           Уровень: {friend.level} · XP: {friend.total_xp}
                         </p>
                       </div>
+                      <button
+                          className="friends-item-delete"
+                          onClick={() => handleDeleteFriend(friend.id)}
+                        >
+                          Удалить из друзей
+                        </button>
                     </div>
                   ))
                 ) : (
