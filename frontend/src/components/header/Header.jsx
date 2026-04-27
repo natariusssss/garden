@@ -14,7 +14,7 @@ const Header = () => {
             <Link to="/">О нас</Link>
             <Link className="is-active" to="/topicPage">Мой сад</Link>
             <Link to="/achieve">Достижения</Link>
-            <Link to="/login">Друзья</Link>
+            <Link to="/friends">Друзья</Link>
           </nav>
 
           <Link

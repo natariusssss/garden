@@ -1,0 +1,138 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;800&family=Raleway:wght@800&display=swap");
+
+.friends-page {
+  min-height: 100vh;
+  background: #2c2421;
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+.friends-container {
+  position: relative;
+  z-index: 1;
+  width: min(1728px, calc(100% - 64px));
+  margin: 0 auto;
+  padding: 42px 0;
+}
+
+.friends-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--profile-gap);
+    align-items: start;
+}
+
+.friends-list {
+  background: #291b1b;
+  min-height: 778px;
+  padding: 36px;
+}
+.friends-notifications{
+    background: #291b1b;
+  min-height: 778px;
+  padding: 36px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+.list-notifications-header {
+    font-size: 50px;
+    margin-top: -15px;
+}
+
+ .friends-list-items,
+.friends-notifications-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  overflow-y: auto;
+  flex: 1;
+}
+
+.friends-item,
+.friends-request-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.friends-item-icon,
+.friends-request-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.friends-rank {
+  width: 24px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.friends-item-info,
+.friends-request-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.friends-item-username,
+.friends-request-username {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.friends-item-meta,
+.friends-request-email {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.friends-request-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+.friends-request-accept,
+.friends-request-reject,
+.friends-item-delete {
+  border: none;
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.friends-request-accept {
+  background: #6a9c02;
+  color: #fff;
+}
+
+.friends-request-reject,
+.friends-item-delete {
+  background: #7a2f2f;
+  color: #fff;
+}
+
+.friends-empty,
+.friends-message {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 16px;
+}
+
+@media (max-width: 1100px) {
+  .friends-layout {
+    grid-template-columns: 1fr;
+  }
+}

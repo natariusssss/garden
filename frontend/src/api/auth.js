@@ -159,3 +159,74 @@ export async function getFriends(token) {
 
   return data;
 }
+
+
+
+export async function getPendingRequests(token) {
+  const response = await fetch(`${API_URL}/friendships/pending`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка загрузки заявок");
+  }
+
+  return data;
+}
+
+export async function acceptFriendRequest(requestId, token) {
+  const response = await fetch(`${API_URL}/friendships/accept/${requestId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка принятия заявки");
+  }
+
+  return data;
+}
+
+export async function rejectFriendRequest(requestId, token) {
+  const response = await fetch(`${API_URL}/friendships/reject/${requestId}`, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка отклонения заявки");
+  }
+
+  return data;
+}
+
+export async function deleteFriend(token, friendId) {
+  const response = await fetch(`${API_URL}/friends/${friendId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка удаления друга");
+  }
+
+  return data;
+}

@@ -51,9 +51,20 @@
   border-radius: 37px;
   background: #352e2b;
   box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  padding: 0;
-  cursor: pointer;
   overflow: hidden;
+<<<<<<< HEAD
+  cursor: pointer;
+  padding: 20px 20px 19px 20px;
+  appearance: none;
+  transition:
+    transform 0.7s ease,
+    background 0.7s ease,
+    border-color 0.7s ease;
+  
+    
+}
+
+=======
   transition:
     background-color 1s ease,
     transform 1s ease,
@@ -66,7 +77,18 @@
 .add-topic-card:hover {
   transform: translateY(-15px);
   filter: brightness(1.1);
+>>>>>>> 403dc87b8b19d377599e1de2aa1a93e7d124477f
 
+button.add-topic-card:hover,
+button.add-topic-card:focus,
+button.add-topic-card:focus-visible,
+button.add-topic-card:active {
+  background: #352e2b;
+  transform: translateY(-6px);
+  filter: none;
+  opacity: 1;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  outline: none;
 }
 
 .add-topic-card__plus {

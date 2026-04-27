@@ -6,6 +6,7 @@ import Home from "./pages/home/Home";
 import AchievePage from "./pages/achievements/Achieve";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Card from "./pages/card/Card";
+import FriendsPage from "./pages/friends/FriendsPage";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -20,7 +21,7 @@ export default function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/achieve" element={<AchievePage />} />
-
+      <Route path="/friends" element={<FriendsPage />} />
       <Route
         path="/topicPage"
         element={
