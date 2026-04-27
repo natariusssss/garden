@@ -4,25 +4,6 @@
   box-sizing: border-box;
 }
 
-.achieve-page {
-  min-height: 100vh;
-  background: #2c2421;
-  color: #ffffff;
-  font-family: "Montserrat", sans-serif;
-  position: relative;
-  overflow-x: hidden;
-}
-
-.achieve-bg {
-  position: fixed;
-  inset: 0;
-  background:
-    linear-gradient(rgba(44, 36, 33, 0.9), rgba(44, 36, 33, 0.9)),
-    radial-gradient(circle at 20% 10%, rgba(126, 101, 93, 0.18), transparent 26%),
-    radial-gradient(circle at 80% 20%, rgba(126, 101, 93, 0.12), transparent 24%);
-  pointer-events: none;
-  z-index: 0;
-}
 
 .achieve-main {
   position: relative;

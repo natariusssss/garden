@@ -6,7 +6,6 @@
 
 .topics-page {
   min-height: 100vh;
-  background: #2c2421;
 }
 
 .topics-section {
@@ -22,7 +21,7 @@
 }
 
 .topics-section__title {
-  margin: 0 0 97px 0;
+  margin: 0 0 50px 0;
   font-family: "Montserrat", sans-serif;
   font-weight: 800;
   font-size: 64px;

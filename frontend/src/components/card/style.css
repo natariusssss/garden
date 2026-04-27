@@ -177,19 +177,15 @@
 }
 
 .topic-card__bottom {
+  border: 2px solid #5B5B5B;
   position: absolute;
   left: 20px;
   top: 460px;
   width: 360px;
   height: 105px;
   padding: 14px 24px 12px 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.08) 100%);
+  background: #505050;
   border-radius: 26px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 10px 28px rgba(0, 0, 0, 0.18);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
   z-index: 3;
 }
 
@@ -227,7 +223,7 @@
 .topic-card__divider {
   width: 0;
   height: 36px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
 }
 
 .topic-card__name {
@@ -361,7 +357,7 @@
 
 .topic-card--legendary {
   --legendary-angle: 0deg;
-  border: 2px solid rgba(255, 172, 237, 0.34);
+  border: 3px solid #B66AB3;
   box-shadow:
     0 12px 34px rgba(0, 0, 0, 0.3),
     0 0 18px rgba(255, 117, 228, 0.1),
@@ -383,26 +379,27 @@
   position: absolute;
   inset: -2px;
   border-radius: inherit;
-  padding: 2px;
+  padding: 3px;
+  
   background: conic-gradient(
     from var(--legendary-angle),
     rgba(255, 255, 255, 0) 0deg 264deg,
     rgba(255, 224, 248, 0.08) 278deg,
-    rgba(255, 195, 242, 0.22) 292deg,
-    rgba(255, 160, 236, 0.44) 306deg,
-    rgba(255, 118, 230, 0.94) 322deg,
-    rgba(214, 153, 255, 0.68) 338deg,
+    rgba(116, 76, 107, 0.5) 292deg,
+    rgba(249, 181, 235, 0.7) 306deg,
+    rgb(255, 33, 214, 1) 322deg,
+    rgba(253, 116, 255, 0.68) 338deg,
     rgba(255, 170, 238, 0.28) 350deg,
     rgba(255, 255, 255, 0) 360deg
   );
-  filter: drop-shadow(0 0 6px rgba(255, 126, 229, 0.32)) drop-shadow(0 0 14px rgba(201, 140, 255, 0.2));
+  filter: blur(2px) drop-shadow(0 0 6px rgba(255, 126, 229, 0.32)) drop-shadow(0 0 14px rgba(201, 140, 255, 0.2));
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  z-index: 4;
+  z-index: 2222;
   pointer-events: none;
   will-change: transform;
-  animation: legendaryBorderOrbit 1.8s linear infinite;
+  animation: legendaryBorderOrbit 3s linear infinite;
 }
 
 .topic-card--legendary:hover {

@@ -14,8 +14,8 @@ main,
   z-index: 20;
   background: linear-gradient(
     180deg,
-    rgba(44, 36, 33, 0.98),
-    rgba(44, 36, 33, 0.92)
+    rgba(36, 32, 30, 0.98),
+    rgba(36, 32, 30, 0.92)
   );
   backdrop-filter: blur(6px);
 }
