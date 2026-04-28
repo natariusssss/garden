@@ -111,9 +111,18 @@
 .topic-plant-panel {
   position: absolute;
   z-index: 3;
-  background: #332f2d;
+
+  background: #34313182;
+
   border: 2px solid rgba(62, 57, 53, 0.36);
-  border-radius: 19px;
+  border-radius: 24px;
+
+  box-shadow:
+    0 0px 55px rgba(0, 0, 0, 0.2),
+    0 8px 18px rgba(0, 0, 0, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+
+  backdrop-filter: blur(20px);
 }
 
 .topic-xp-card {
@@ -511,8 +520,6 @@
   width: 820px;
   height: 129px;
 
-  background: #2d2925;
-  border: 2px solid rgba(62, 57, 53, 0.36);
   border-radius: 19px;
 }
 

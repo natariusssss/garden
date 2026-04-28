@@ -1,141 +1,178 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getMe, getFriends } from "../../api/auth";
 import Header from "../../components/header/Header";
 import "./profile.css";
-import lockImg from "../achievements/lock.png";
 
 export default function ProfilePage() {
-  const [user, setUser] = useState(null);
-  const [friends, setFriends] = useState([]);
-  const [message, setMessage] = useState("Загрузка профиля...");
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    async function fetchProfileData() {
-      try {
-        const me = await getMe(token);
-        setUser(me);
-
-        const friendsData = await getFriends(token);
-        setFriends(friendsData);
-
-        setMessage("");
-      } catch (error) {
-        setMessage(error.message || "Ошибка загрузки профиля");
-      }
-    }
-
-    fetchProfileData();
-  }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/");
-  };
-
   return (
     <div className="profile-page">
       <Header />
 
       <main className="profile-container">
-        {message && !user ? (
-          <p className="profile-message">{message}</p>
-        ) : (
-          <section className="profile-layout">
-            <div className="profile-left">
-              <div className="profile-card">
-                <div className="profile-info">
-                  <div className="profile-avatar-wrap">
-                    <img src={lockImg} alt="Аватар" className="profile-avatar" />
-                  </div>
+        <section className="profile-dashboard">
+          <article className="profile-hero profile-panel">
+            <div className="profile-avatar" aria-hidden="true">
+              <span>А</span>
+              <span className="profile-avatar-edit">✎</span>
+            </div>
 
-                  <div className="profile-stats">
-                    <h1 className="profile-name">
-                      {user?.username || "Имя Фамилия"}
-                    </h1>
-
-                    <p className="profile-level">17 уровень</p>
-                    <p className="profile-xp">XP: 253</p>
-                    <p className="profile-friends-count">
-                      {friends.length} друзей
-                    </p>
-                    <p className="profile-created">
-                      Дата регистрации:{" "}
-                      {user?.created_at
-                        ? new Date(user.created_at).toLocaleDateString()
-                        : "—"}
-                    </p>
-                  </div>
-                </div>
+            <div className="profile-main-info">
+              <div className="profile-title-row">
+                <h1>Алексей</h1>
+                <span className="profile-edit-button" aria-hidden="true">✎</span>
               </div>
 
-              <div className="profile-achievements-card">
-                <h1 className="profile-achievements-header">Деятельность</h1>
+              <p className="profile-user-tag">@alexey</p>
+              <p className="profile-bio">
+                Фокусируюсь на росте каждый день.
+                <br />
+                Маленькие шаги — большие результаты.
+              </p>
 
-                <div className="profile-achievements-stats">
-                  <div className="profile-achievements-count">
-                    <h2>достижений выполнено</h2>
-                    <img
-                      src={lockImg}
-                      alt="Аватар"
-                      className="achievements-count-image"
-                    />
-                    <h3>32/52</h3>
-                  </div>
-
-                  <div className="profile-achievements-cards-count">
-                    <h2>карточек создано</h2>
-                    <img
-                      src={lockImg}
-                      alt="Аватар"
-                      className="cards-count-image"
-                    />
-                    <h3>32/52</h3>
-                  </div>
-
-                  <div className="profile-achievements-hours-count">
-                    <h2>часов фокуса</h2>
-                    <img
-                      src={lockImg}
-                      alt="Аватар"
-                      className="hours-count-image"
-                    />
-                    <h3>32/52</h3>
-                  </div>
-                </div>
+              <div className="profile-meta-row">
+                <span className="profile-meta-item">
+                  <span className="profile-meta-icon">▣</span>
+                  Участник с марта 2024
+                </span>
               </div>
             </div>
 
-            <aside className="profile-friends-card">
-              <h1 className="profile-friends-header">Рейтинг друзей</h1>
+            <div className="profile-streak-card">
+              <div>
+                <p>Серия дней</p>
+                <strong>14 дней</strong>
+                <span>Лучший результат: 28 дней</span>
+              </div>
+            </div>
+          </article>
 
-              <div className="profile-friends-list">
-                {friends && friends.length > 0 > 0 ? (
-                  friends.map((friend, index) => (
-                    <div key={friend.id || friend.username} className="profile-friends-item">
-                      <span className="profile-friends-rank">{index + 1}</span>
+          <section className="profile-stats-grid" aria-label="Статистика профиля">
+            <article className="profile-stat-card profile-panel profile-stat-card--wide">
+              <span className="profile-stat-icon profile-stat-icon--green">✚</span>
+              <div className="profile-level-box">
+                <div className="title-lvl">
+                  <strong className="lvl">27</strong>
+                  <span className="lvl-tit">уровень</span>
+                </div>
+                <div className="profile-xp-bar" aria-hidden="true">
+                  <span style={{ width: "68%" }} />
+                </div>
+                <small>2380 / 3500 XP</small>
+              </div>
+            </article>
 
-                      <img
-                        src={lockImg}
-                        alt={friend.username}
-                        className="profile-friends-item-icon"
-                      />
+            <article className="profile-stat-card profile-panel">
+              <span className="profile-stat-icon profile-stat-icon--green">◷</span>
+              <div>
+                <strong>32 ч 15 м</strong>
+                <span>Общее время<br />фокусировки</span>
+              </div>
+            </article>
 
-                      <p className="profile-friends-item-username">
-                        {friend.username}
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="profile-friends-empty">У вас пока нет друзей</p>
-                )}
+            <article className="profile-stat-card profile-panel">
+              <span className="profile-stat-icon profile-stat-icon--gold">☆</span>
+              <div>
+                <strong>2 380</strong>
+                <span>XP заработано</span>
+              </div>
+            </article>
+
+            <article className="profile-stat-card profile-panel">
+              <span className="profile-stat-icon profile-stat-icon--green">⚇</span>
+              <div>
+                <strong>8</strong>
+                <span>Друзей</span>
+              </div>
+            </article>
+          </section>
+
+          <section className="profile-bottom-grid">
+            <article className="profile-panel profile-section-card profile-achievements-card">
+              <div className="profile-section-header">
+                <h2>Достижения</h2>
+              </div>
+
+              <div className="profile-achievements-list">
+                <div className="profile-achievement profile-achievement--pink">
+                  <span className="profile-achievement-icon">♨</span>
+                  <div>
+                    <strong>Пламя дисциплины</strong>
+                    <p>14 дней подряд</p>
+                  </div>
+                  <span className="profile-done-check">✓</span>
+                </div>
+
+                <div className="profile-achievement profile-achievement--orange">
+                  <span className="profile-achievement-icon">◎</span>
+                  <div>
+                    <strong>Мастер фокуса</strong>
+                    <p>Провести 50 фокус-сессий</p>
+                  </div>
+                  <span className="profile-done-check">✓</span>
+                </div>
+
+                <div className="profile-achievement profile-achievement--cyan">
+                  <span className="profile-achievement-icon">◷</span>
+                  <div>
+                    <strong>Время — золото</strong>
+                    <p>Сфокусироваться 50 часов</p>
+                  </div>
+                  <span className="profile-done-check">✓</span>
+                </div>
+
+                <div className="profile-achievement profile-achievement--purple">
+                  <span className="profile-achievement-icon">♕</span>
+                  <div>
+                    <strong>Целеустремлённость</strong>
+                    <p>Выполнить 100 задач</p>
+                  </div>
+                  <span className="profile-done-check">✓</span>
+                </div>
+              </div>
+            </article>
+
+            <aside className="profile-panel profile-section-card profile-rating-card">
+              <div className="profile-section-header">
+                <h2>Рейтинг друзей</h2>
+              </div>
+
+              <div className="profile-rating-list">
+                <div className="profile-rating-item">
+                  <span className="profile-rating-rank profile-rating-rank--1">1</span>
+                  <span className="profile-rating-avatar">М</span>
+                  <strong>Михаил</strong>
+                  <span className="profile-rating-xp">4 820 XP</span>
+                </div>
+
+                <div className="profile-rating-item">
+                  <span className="profile-rating-rank profile-rating-rank--2">2</span>
+                  <span className="profile-rating-avatar">А</span>
+                  <strong>Алексей</strong>
+                  <span className="profile-rating-xp">3 940 XP</span>
+                </div>
+
+                <div className="profile-rating-item">
+                  <span className="profile-rating-rank profile-rating-rank--3">3</span>
+                  <span className="profile-rating-avatar">Д</span>
+                  <strong>Данил</strong>
+                  <span className="profile-rating-xp">3 510 XP</span>
+                </div>
+
+                <div className="profile-rating-item">
+                  <span className="profile-rating-rank">4</span>
+                  <span className="profile-rating-avatar">К</span>
+                  <strong>Кирилл</strong>
+                  <span className="profile-rating-xp">2 840 XP</span>
+                </div>
+
+                <div className="profile-rating-item">
+                  <span className="profile-rating-rank">5</span>
+                  <span className="profile-rating-avatar">Н</span>
+                  <strong>Никита</strong>
+                  <span className="profile-rating-xp">2 410 XP</span>
+                </div>
               </div>
             </aside>
           </section>
-        )}
+        </section>
       </main>
     </div>
   );

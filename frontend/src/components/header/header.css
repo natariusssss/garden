@@ -1,8 +1,4 @@
-main,
-.site-header {
-  position: relative;
-  z-index: 1;
-}
+
 .shell {
   width: min(calc(100% - 48px), 1728px);
   margin: 0 auto;
