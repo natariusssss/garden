@@ -4,6 +4,7 @@ from sqlalchemy import or_
 from datetime import datetime, timedelta
 from utils import get_next_review_date
 from math import sqrt
+from achievements_service import check_and_unlock_achievements
 from models import UserTopic, ReviewHistory, User, Friendship
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
@@ -32,11 +33,13 @@ def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
     if user:
         user.total_xp+=xp_earned
     db.commit()
+    new_achievements=check_and_unlock_achievements(db, user_id)
     db.refresh(review)
     return {
         "review": review,
         "xp_earned": xp_earned,
-        "new_level": user_topic.level
+        "new_level": user_topic.level,
+        "new_achievements": new_achievements,
     }
 def get_due_topics(db: Session, user_id: int):
     repeat_topics=db.query(UserTopic).filter(UserTopic.user_id==user_id, or_(

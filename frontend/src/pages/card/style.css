@@ -112,16 +112,13 @@
   position: absolute;
   z-index: 3;
 
-  background: #34313182;
-
-  border: 2px solid rgba(62, 57, 53, 0.36);
+ background: #34313182;
+  border: 2px solid rgba(62, 57, 53, 0.26);
   border-radius: 24px;
-
   box-shadow:
-    0 0px 55px rgba(0, 0, 0, 0.2),
+    0 0 55px rgba(0, 0, 0, 0.2),
     0 8px 18px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
-
   backdrop-filter: blur(20px);
 }
 

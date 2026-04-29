@@ -1,4 +1,3 @@
-
 import { createPortal } from "react-dom";
 import "./style.css";
 import { createTopic } from "../../api/auth";
@@ -168,16 +167,7 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                     {currentPlant?.name}
                   </h4>
                   <span
-                    className={`topic-modal__badge topic-modal__badge--featured 
-                      ${
-                        currentPlant.rarityClass == "common"
-                          ? "topic-modal__badge topic-modal__badge--featured-common"
-                          : currentPlant.rarityClass == "rare"
-                            ? "topic-modal__badge topic-modal__badge--featured-rare"
-                            : currentPlant.rarityClass == "epic"
-                              ? "topic-modal__badge topic-modal__badge--featured-epic"
-                              : "topic-modal__badge topic-modal__badge--featured-ledendary"
-                      }`}
+                    className={`topic-modal__badge topic-modal__badge--featured topic-modal__badge--featured-${currentPlant?.rarityClass}`}
                   >
                     {currentPlant?.rarity}
                   </span>
