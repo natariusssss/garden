@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from setconf import settings
-
+from achievements_service import check_and_unlock_achievements, get_achievements_progress
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import create_engine
@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models import Base, User, Topic, UserTopic, Friendship
+from models import Base, User, Topic, UserTopic, Friendship, UserAchievement, Achievement
 import schemas
 import crud
 from typing import Optional, List
@@ -164,6 +164,7 @@ def create_topic(
     db.add(db_user_topic)
     db.commit()
     db.refresh(db_user_topic)
+    new_achievements = check_and_unlock_achievements(db, current_user.id)
 
     return {
         "id": db_topic.id,
@@ -177,6 +178,7 @@ def create_topic(
         "level": db_user_topic.level,
         "xp": db_user_topic.xp,
         "review_count": db_user_topic.review_count,
+        "new_achievements": new_achievements
     }
 
 
@@ -277,9 +279,9 @@ def update_topic(
 
 @app.delete("/topics/delete/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_topic(
-        topic_id: int,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    topic_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     db_topic = db.query(Topic).filter(
         Topic.id == topic_id,
@@ -289,9 +291,18 @@ def delete_topic(
     if not db_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
+    user_topic = db.query(UserTopic).filter(
+        UserTopic.topic_id == topic_id,
+        UserTopic.user_id == current_user.id
+    ).first()
+
+    if user_topic:
+
+        db.delete(user_topic)
+        db.flush()
+
     db.delete(db_topic)
     db.commit()
-    return None
 
 
 @app.get("/my_profile", response_model=schemas.UserResponse)
@@ -594,6 +605,60 @@ def health_check(db: Session = Depends(get_db)):
         }
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Database error: {str(e)}")
+
+
+@app.get("/users/me/achievements", response_model=List[schemas.UserAchievementResponse])
+def get_my_achievements(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    achievements=db.query(UserAchievement).filter(UserAchievement.user_id == current_user.id).all()
+    return achievements
+
+
+@app.get("/achievements", response_model=List[schemas.AchievementResponse])
+def get_all_achievements(db: Session = Depends(get_db)):
+    achievements=db.query(Achievement).all()
+    return achievements
+
+@app.get("/users/me/achievements/progress", response_model=List[schemas.AchievementProgressResponse])
+def get_my_achievements_progress(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return get_achievements_progress(db, current_user.id)
+
+
+@app.post("/topics/add-xp/{topic_id}", response_model=schemas.TopicXPResponse)
+def add_xp_to_topic(
+    topic_id: int,
+    payload: schemas.TopicXPAdd,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user_topic = db.query(UserTopic).filter(
+        UserTopic.topic_id == topic_id,
+        UserTopic.user_id == current_user.id
+    ).first()
+
+    if not user_topic:
+        raise HTTPException(status_code=404, detail="UserTopic not found")
+
+    user_topic.xp += max(0, payload.xp)
+    user_topic.level = user_topic.xp // 100
+
+    if user_topic.level >= 10:
+        user_topic.tree_state = "adult"
+    elif user_topic.level >= 5:
+        user_topic.tree_state = "young"
+    else:
+        user_topic.tree_state = "seed"
+
+    db.commit()
+    db.refresh(user_topic)
+
+    return {
+        "xp": user_topic.xp,
+        "level": user_topic.level,
+        "tree_state": user_topic.tree_state
+    }
 
 if __name__ == "__main__":
     import uvicorn

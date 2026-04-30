@@ -406,34 +406,36 @@
 .topic-modal__badge--featured-rare,
 .topic-modal__badge--featured-epic,
 .topic-modal__badge--featured-legendary {
-  width: 161.77px;
-  height: 36px;
-  padding: 10px 17px;
-  border-radius: 12px;
+  min-width: 108px;
+  height: 30px;
+  padding: 7px 24px 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(35.1px);
   font-weight: 700;
-  font-size: 13px;
-  line-height: 16px;
+  font-size: 12px;
+  line-height: 15px;
   color: #ffffff;
 }
 
-.topic-modal__badge--featured {
-  background: #ae5aab;
-}
-
 .topic-modal__badge--featured-common {
-  background: #6a9c02;
+  background: #699606;
+  box-shadow: 0 0 6.3px #699705;
 }
 
 .topic-modal__badge--featured-rare {
-  background: #9567e0;
+  background: #538fea;
+  box-shadow: 0 0 6.3px #538fea;
 }
 
 .topic-modal__badge--featured-epic {
-  background: #5d86ff;
+  background: #7851a9;
+  box-shadow: 0 0 6.3px #7851a9;
 }
 
 .topic-modal__badge--featured-legendary {
-  background: #ae5aab;
+  background: #e75480;
+  box-shadow: 0 0 6.3px #e75480;
 }
 
 .topic-modal__selected-description {

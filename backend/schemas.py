@@ -55,6 +55,43 @@ class TopicUpdate(BaseModel):
     rarity: Optional[str] = None
     image_url: Optional[str] = None
 
+class AchievementResponse(BaseModel):
+    id: int
+    code: str
+    title: str
+    description: Optional[str] = None
+    icon_url: Optional[str] = None
+    condition_type: str
+    condition_value: int
+
+    class Config:
+        from_attributes = True
+
+class UserAchievementResponse(BaseModel):
+    id: int
+    user_id: int
+    achievement_id: int
+    unlocked_at: Optional[datetime] = None
+    achievement: AchievementResponse
+
+    class Config:
+        from_attributes = True
+
+class AchievementProgressResponse(BaseModel):
+    id: int
+    code: str
+    title: str
+    description: Optional[str] = None
+    icon_url: Optional[str] = None
+    condition_type: str
+    condition_value: int
+    current_value: int
+    is_unlocked: bool
+    unlocked_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 class TopicResponse(BaseModel):
     id: int
     user_id: int
@@ -67,6 +104,7 @@ class TopicResponse(BaseModel):
     tree_type: Optional[str] = None
     rarity: Optional[str] = None
     image_url: Optional[str] = None
+    new_achievements: list[AchievementResponse] = []
 
     class Config:
         from_attributes = True
@@ -129,6 +167,14 @@ class FriendshipResponse(BaseModel):
 class FriendStatus(BaseModel):
     status: str
 
+
+class TopicXPAdd(BaseModel):
+    xp: int
+
+class TopicXPResponse(BaseModel):
+    xp: int
+    level: int
+    tree_state: str
 
 
 

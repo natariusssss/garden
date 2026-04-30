@@ -35,7 +35,7 @@ body {
   overflow-x: hidden;
 }
 
-/* общий фон всего проекта */
+
 body::before {
   content: "";
   position: fixed;
@@ -79,7 +79,7 @@ textarea {
 input:focus,
 textarea:focus {
   border-color: #b1ca7e;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 button {

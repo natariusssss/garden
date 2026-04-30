@@ -131,7 +131,9 @@ function getErrorMessage(data, fallback) {
   if (typeof data.detail === "string") return data.detail;
 
   if (Array.isArray(data.detail)) {
-    return data.detail.map((item) => item.msg || JSON.stringify(item)).join(", ");
+    return data.detail
+      .map((item) => item.msg || JSON.stringify(item))
+      .join(", ");
   }
 
   if (typeof data.detail === "object") {
@@ -140,7 +142,6 @@ function getErrorMessage(data, fallback) {
 
   return fallback;
 }
-
 
 export async function getFriends(token) {
   const response = await fetch(`${API_URL}/friends`, {
@@ -159,8 +160,6 @@ export async function getFriends(token) {
 
   return data;
 }
-
-
 
 export async function getPendingRequests(token) {
   const response = await fetch(`${API_URL}/friendships/pending`, {
@@ -230,7 +229,6 @@ export async function deleteFriend(token, friendId) {
 
   return data;
 }
-
 export async function getUserStats(token) {
   const response = await fetch(`${API_URL}/users/me/stats`, {
     method: "GET",
@@ -243,6 +241,73 @@ export async function getUserStats(token) {
 
   if (!response.ok) {
     throw new Error(data.detail || "Ошибка загрузки статистики");
+  }
+
+  return data;
+}
+
+export async function updateTopicById(topicId, payload) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/topics/update/${topicId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to update topic");
+  }
+
+  return data;
+}
+
+export async function deleteTopicById(topicId) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/topics/delete/${topicId}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.detail || "Failed to delete topic");
+  }
+
+  return data;
+}
+
+export async function addXpToTopic(topicId, xp) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/topics/add-xp/${topicId}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ xp }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to add XP");
   }
 
   return data;

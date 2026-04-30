@@ -131,3 +131,27 @@
   min-width: 112px;
   background: #ae5aab;
 }
+
+.topic-modal__badge--common-small {
+  min-width: 76px;
+  background: #699606;
+  box-shadow: 0 0 6.3px #699705;
+}
+
+.topic-modal__badge--rare-small {
+  min-width: 76px;
+  background: #538fea;
+  box-shadow: 0 0 6.3px #538fea;
+}
+
+.topic-modal__badge--epic-small {
+  min-width: 90px;
+  background: #7851a9;
+  box-shadow: 0 0 6.3px #7851a9;
+}
+
+.topic-modal__badge--legendary-small {
+  min-width: 112px;
+  background: #e75480;
+  box-shadow: 0 0 6.3px #e75480;
+}

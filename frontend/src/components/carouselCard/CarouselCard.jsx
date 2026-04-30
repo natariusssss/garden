@@ -33,13 +33,7 @@ const carouselCard = ({
       <h4 className="topic-modal__plant-name">{name}</h4>
 
       <span
-        className={`topic-modal__badge topic-modal__badge--small ${
-          rarityClass === "legendary"
-            ? "topic-modal__badge--legendary-small"
-            : rarityClass === "rare"
-              ? "topic-modal__badge--rare"
-              : "topic-modal__badge--common"
-        }`}
+        className={`topic-modal__badge topic-modal__badge--small topic-modal__badge--${rarityClass}-small`}
       >
         {rarity}
       </span>
