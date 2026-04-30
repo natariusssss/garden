@@ -230,3 +230,20 @@ export async function deleteFriend(token, friendId) {
 
   return data;
 }
+
+export async function getUserStats(token) {
+  const response = await fetch(`${API_URL}/users/me/stats`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка загрузки статистики");
+  }
+
+  return data;
+}

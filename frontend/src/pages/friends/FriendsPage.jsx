@@ -1,4 +1,12 @@
+import { useEffect, useState } from "react";
 import Header from "../../components/header/Header";
+import {
+  getFriends,
+  getPendingRequests,
+  acceptFriendRequest,
+  rejectFriendRequest,
+  deleteFriend,
+} from "../../api/auth";
 import "./friends.css";
 
 const UsersIcon = ({ className = "" }) => (
@@ -80,6 +88,65 @@ const MoreIcon = ({ className = "" }) => (
 );
 
 export default function FriendsPage() {
+  const [friends, setFriends] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    async function fetchFriendsPageData() {
+      const friendsData = await getFriends(token);
+      const requestsData = await getPendingRequests(token);
+
+      setFriends(friendsData);
+      setPendingRequests(requestsData);
+    }
+
+    fetchFriendsPageData();
+  }, []);
+
+  const getInitial = (username) => {
+    return username ? username[0].toUpperCase() : "?";
+  };
+
+  const handleAcceptRequest = async (requestId) => {
+    const token = localStorage.getItem("token");
+
+    await acceptFriendRequest(requestId, token);
+
+    setPendingRequests((prev) =>
+      prev.filter((request) => request.id !== requestId),
+    );
+
+    const updatedFriends = await getFriends(token);
+    setFriends(updatedFriends);
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    const isConfirmed = window.confirm(`Вы хотите отклонить заявку?`);
+
+    if (!isConfirmed) return;
+
+    const token = localStorage.getItem("token");
+
+    await rejectFriendRequest(requestId, token);
+
+    setPendingRequests((prev) =>
+      prev.filter((request) => request.id !== requestId),
+    );
+  };
+
+  const handleDeleteFriend = async (friend) => {
+    const isConfirmed = window.confirm(`Удалить ${friend.username} из друзей?`);
+
+    if (!isConfirmed) return;
+
+    const token = localStorage.getItem("token");
+
+    await deleteFriend(token, friend.id);
+
+    setFriends((prev) => prev.filter((item) => item.id !== friend.id));
+  };
   return (
     <div className="friends-page">
       <Header />
@@ -87,7 +154,9 @@ export default function FriendsPage() {
       <main className="friends-container">
         <section className="friends-hero">
           <h1 className="friends-title">Друзья</h1>
-          <p className="friends-subtitle">Находите друзей и управляйте заявками</p>
+          <p className="friends-subtitle">
+            Находите друзей и управляйте заявками
+          </p>
         </section>
 
         <section className="friends-top-grid">
@@ -108,7 +177,7 @@ export default function FriendsPage() {
             <UsersIcon className="friends-stat-icon" />
             <div>
               <p className="friends-stat-label">Друзей</p>
-              <p className="friends-stat-value">8</p>
+              <p className="friends-stat-value">{friends.length}</p>
             </div>
           </div>
         </section>
@@ -119,95 +188,92 @@ export default function FriendsPage() {
               <h2>Мои друзья</h2>
             </div>
 
-            <div className="friends-scroll-area friends-list-items">
-              <article className="friends-item">
-                <div className="friends-item-icon" aria-hidden="true"><span>М</span></div>
-                <div className="friends-item-info">
-                  <p className="friends-item-username">Михаил</p>
-                  <p className="friends-item-meta">Уровень 31</p>
-                </div>
-                <button className="friends-profile-button" type="button">Удалить</button>
-                <button className="friends-more-button" type="button" aria-label="Дополнительно"><MoreIcon /></button>
-              </article>
+            {friends.length > 0 ? (
+              friends.map((friend) => (
+                <article key={friend.id} className="friends-item">
+                  <div className="friends-item-icon" aria-hidden="true">
+                    <span>{getInitial(friend.username)}</span>
+                  </div>
 
-              <article className="friends-item">
-                <div className="friends-item-icon" aria-hidden="true"><span>Д</span></div>
-                <div className="friends-item-info">
-                  <p className="friends-item-username">Данил</p>
-                  <p className="friends-item-meta">Уровень 24</p>
-                </div>
-                <button className="friends-profile-button" type="button">Удалить</button>
-                <button className="friends-more-button" type="button" aria-label="Дополнительно"><MoreIcon /></button>
-              </article>
+                  <div className="friends-item-info">
+                    <p className="friends-item-username">{friend.username}</p>
+                    <p className="friends-item-meta">
+                      Уровень {friend.level ?? 1}
+                    </p>
+                  </div>
 
-              <article className="friends-item">
-                <div className="friends-item-icon" aria-hidden="true"><span>К</span></div>
-                <div className="friends-item-info">
-                  <p className="friends-item-username">Кирилл</p>
-                  <p className="friends-item-meta">Уровень 19</p>
-                </div>
-                <button className="friends-profile-button" type="button">Удалить</button>
-                <button className="friends-more-button" type="button" aria-label="Дополнительно"><MoreIcon /></button>
-              </article>
+                  <button
+                    className="friends-profile-button"
+                    type="button"
+                    onClick={() => handleDeleteFriend(friend)}
+                  >
+                    Удалить
+                  </button>
 
-              <article className="friends-item">
-                <div className="friends-item-icon" aria-hidden="true"><span>Н</span></div>
-                <div className="friends-item-info">
-                  <p className="friends-item-username">Никита</p>
-                  <p className="friends-item-meta">Уровень 16</p>
-                </div>
-                <button className="friends-profile-button" type="button">Удалить</button>
-                <button className="friends-more-button" type="button" aria-label="Дополнительно"><MoreIcon /></button>
-              </article>
-            </div>
+                  <button
+                    className="friends-more-button"
+                    type="button"
+                    aria-label="Дополнительно"
+                  >
+                    <MoreIcon />
+                  </button>
+                </article>
+              ))
+            ) : (
+              <p className="friends-empty">Друзей нет</p>
+            )}
           </div>
 
           <div className="friends-panel friends-requests-panel">
             <div className="friends-panel-header friends-panel-header-purple">
               <h2>Заявки в друзья</h2>
-              <span>3</span>
+              <span>{pendingRequests.length}</span>
             </div>
 
-            <div className="friends-scroll-area friends-notifications-items">
-              <article className="friends-request-item">
-                <div className="friends-request-icon" aria-hidden="true"><span>А</span></div>
-                <div className="friends-request-info">
-                  <p className="friends-request-username">Артём</p>
-                  <p className="friends-request-email">artem@example.com</p>
-                </div>
-                <div className="friends-request-actions">
-                  <button className="friends-request-accept" type="button">Принять</button>
-                  <button className="friends-request-reject" type="button">Отклонить</button>
-                  <button className="friends-more-button" type="button" aria-label="Дополнительно"><MoreIcon /></button>
-                </div>
-              </article>
+            {pendingRequests.length > 0 ? (
+              pendingRequests.map((request) => (
+                <article key={request.id} className="friends-request-item">
+                  <div className="friends-request-icon" aria-hidden="true">
+                    <span>{getInitial(request.username)}</span>
+                  </div>
 
-              <article className="friends-request-item">
-                <div className="friends-request-icon" aria-hidden="true"><span>С</span></div>
-                <div className="friends-request-info">
-                  <p className="friends-request-username">София</p>
-                  <p className="friends-request-email">Уровень 12</p>
-                </div>
-                <div className="friends-request-actions">
-                  <button className="friends-request-accept" type="button">Принять</button>
-                  <button className="friends-request-reject" type="button">Отклонить</button>
-                  <button className="friends-more-button" type="button" aria-label="Дополнительно"><MoreIcon /></button>
-                </div>
-              </article>
+                  <div className="friends-request-info">
+                    <p className="friends-request-username">
+                      {request.username}
+                    </p>
+                    <p className="friends-request-email">{request.email}</p>
+                  </div>
 
-              <article className="friends-request-item">
-                <div className="friends-request-icon" aria-hidden="true"><span>И</span></div>
-                <div className="friends-request-info">
-                  <p className="friends-request-username">Илья</p>
-                  <p className="friends-request-email">Уровень 9</p>
-                </div>
-                <div className="friends-request-actions">
-                  <button className="friends-request-accept" type="button">Принять</button>
-                  <button className="friends-request-reject" type="button">Отклонить</button>
-                  <button className="friends-more-button" type="button" aria-label="Дополнительно"><MoreIcon /></button>
-                </div>
-              </article>
-            </div>
+                  <div className="friends-request-actions">
+                    <button
+                      className="friends-request-accept"
+                      type="button"
+                      onClick={() => handleAcceptRequest(request.id)}
+                    >
+                      Принять
+                    </button>
+
+                    <button
+                      className="friends-request-reject"
+                      type="button"
+                      onClick={() => handleRejectRequest(request.id)}
+                    >
+                      Отклонить
+                    </button>
+
+                    <button
+                      className="friends-more-button"
+                      type="button"
+                      aria-label="Дополнительно"
+                    >
+                      <MoreIcon />
+                    </button>
+                  </div>
+                </article>
+              ))
+            ) : (
+              <p className="friends-empty">Заявок нет</p>
+            )}
           </div>
         </section>
       </main>
