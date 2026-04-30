@@ -279,9 +279,9 @@ def update_topic(
 
 @app.delete("/topics/delete/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_topic(
-        topic_id: int,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    topic_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
     db_topic = db.query(Topic).filter(
         Topic.id == topic_id,
@@ -291,9 +291,18 @@ def delete_topic(
     if not db_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
+    user_topic = db.query(UserTopic).filter(
+        UserTopic.topic_id == topic_id,
+        UserTopic.user_id == current_user.id
+    ).first()
+
+    if user_topic:
+
+        db.delete(user_topic)
+        db.flush()
+
     db.delete(db_topic)
     db.commit()
-    return None
 
 
 @app.get("/my_profile", response_model=schemas.UserResponse)
@@ -615,6 +624,41 @@ def get_my_achievements_progress(
     db: Session = Depends(get_db)
 ):
     return get_achievements_progress(db, current_user.id)
+
+
+@app.post("/topics/add-xp/{topic_id}", response_model=schemas.TopicXPResponse)
+def add_xp_to_topic(
+    topic_id: int,
+    payload: schemas.TopicXPAdd,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user_topic = db.query(UserTopic).filter(
+        UserTopic.topic_id == topic_id,
+        UserTopic.user_id == current_user.id
+    ).first()
+
+    if not user_topic:
+        raise HTTPException(status_code=404, detail="UserTopic not found")
+
+    user_topic.xp += max(0, payload.xp)
+    user_topic.level = user_topic.xp // 100
+
+    if user_topic.level >= 10:
+        user_topic.tree_state = "adult"
+    elif user_topic.level >= 5:
+        user_topic.tree_state = "young"
+    else:
+        user_topic.tree_state = "seed"
+
+    db.commit()
+    db.refresh(user_topic)
+
+    return {
+        "xp": user_topic.xp,
+        "level": user_topic.level,
+        "tree_state": user_topic.tree_state
+    }
 
 if __name__ == "__main__":
     import uvicorn

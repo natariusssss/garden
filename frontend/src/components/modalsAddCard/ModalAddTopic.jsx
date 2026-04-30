@@ -33,17 +33,14 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
     setMessage("");
 
     try {
-      const newTopic = await createTopic({
+      await createTopic({
         name: title,
         description,
         image_url,
         rarity,
         tree_type,
       });
-
-      if (onCreated) {
-        onCreated(newTopic);
-      }
+      await onCreated();
 
       onClose();
     } catch (error) {

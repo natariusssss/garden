@@ -13,28 +13,35 @@ const TopicsPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function loadTopics() {
-      try {
-        const data = await getTopics();
-        setTopics(data);
-        setMessage("");
-      } catch (error) {
-        setMessage(error.message);
-      }
-    }
     loadTopics();
   }, []);
+
+  const loadTopics = async () => {
+    try {
+      const data = await getTopics();
+
+      const sortedTopics = [...data].sort((a, b) => b.id - a.id);
+
+      setTopics(sortedTopics);
+      setMessage("");
+    } catch (error) {
+      setMessage(error.message || "Неизвестная ошибка загрузки тем");
+    }
+  };
 
   return (
     <>
       <Header />
+
       <main className="topics-page">
         <section className="topics-section">
           <div className="topics-section__container">
             <h1 className="topics-section__title">Ваши темы</h1>
 
+            {message && <p className="topics-section__message">{message}</p>}
+
             <div className="topics-grid">
-              {topics.map((topic, index) => {
+              {topics.map((topic) => {
                 return (
                   <ListCard
                     key={topic.id}
@@ -42,14 +49,14 @@ const TopicsPage = () => {
                     description={topic.description}
                     level={topic.level}
                     xp={topic.xp}
-                    onClick = {()=>navigate(`/topics/${topic.id}`)}
+                    onClick={() => navigate(`/topics/${topic.id}`)}
                     image={topic.image_url}
                     plant_name={topic.tree_type}
                     rarity={topic.rarity}
-                
                   />
                 );
               })}
+
               <button
                 onClick={() => setIsModalOpen(true)}
                 className="add-topic-card"
@@ -65,7 +72,13 @@ const TopicsPage = () => {
           </div>
         </section>
       </main>
-      {isModalOpen && <ModalAddTopic onClose={() => setIsModalOpen(false)} />}
+
+      {isModalOpen && (
+        <ModalAddTopic
+          onClose={() => setIsModalOpen(false)}
+          onCreated={loadTopics}
+        />
+      )}
     </>
   );
 };

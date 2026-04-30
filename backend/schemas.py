@@ -168,6 +168,13 @@ class FriendStatus(BaseModel):
     status: str
 
 
+class TopicXPAdd(BaseModel):
+    xp: int
+
+class TopicXPResponse(BaseModel):
+    xp: int
+    level: int
+    tree_state: str
 
 
 

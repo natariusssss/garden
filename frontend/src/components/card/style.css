@@ -145,10 +145,13 @@
 }
 
 .topic-card__check {
-  display: block;
-  width: 17px;
-  height: 17px;
-  object-fit: contain;
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: #9dbd5f;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .topic-card__image-wrap {
