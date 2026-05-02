@@ -53,6 +53,9 @@ const TopicsPage = () => {
                     image={topic.image_url}
                     plant_name={topic.tree_type}
                     rarity={topic.rarity}
+                    current_progress_xp={topic.current_progress_xp}
+                    current_max_xp={topic.current_max_xp}
+                    progress_width={topic.progress_width}
                   />
                 );
               })}

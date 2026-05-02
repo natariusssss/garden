@@ -11,7 +11,7 @@
 
   --rarity-color: #699606;
   --rarity-shadow: rgba(105, 150, 6, 0.18);
-  --progress-width: 0%;
+  --progress-width: 1%;
 
   background: #352e2b;
   border: 3px solid transparent;

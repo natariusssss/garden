@@ -1,26 +1,19 @@
 import "./style.css";
 import basicPlant from "./../../assets/basic_plant.png";
+import { useState } from "react";
 
 const RARITY_META = {
   common: {
     label: "Обычное",
-    color: "#699606",
-    shadow: "rgba(105, 150, 6, 0.18)",
   },
   rare: {
     label: "Редкое",
-    color: "#538FEA",
-    shadow: "rgba(83, 143, 234, 0.18)",
   },
   epic: {
     label: "Эпическое",
-    color: "#7851A9",
-    shadow: "rgba(120, 81, 169, 0.15)",
   },
   legendary: {
     label: "Легендарная",
-    color: "#E75480",
-    shadow: "rgba(231, 84, 128, 0.17)",
   },
 };
 
@@ -35,16 +28,16 @@ const getRarityClass = (rarity = "") => {
 
 const ListCard = ({
   name,
-  xp = 0,
   level = 0,
   image,
   plant_name,
   rarity,
   onClick,
+  xp,
+  current_progress_xp,
+  current_max_xp,
+  progress_width,
 }) => {
-  const maxXp = 560;
-  const safeXp = Number.isFinite(Number(xp)) ? Number(xp) : 0;
-  const progress = Math.min((safeXp / maxXp) * 100, 100);
   const rarityClass = getRarityClass(rarity);
   const rarityMeta = RARITY_META[rarityClass];
 
@@ -52,11 +45,6 @@ const ListCard = ({
     <article
       className={`topic-card topic-card--${rarityClass}`}
       onClick={onClick}
-      style={{
-        "--rarity-color": rarityMeta.color,
-        "--rarity-shadow": rarityMeta.shadow,
-        "--progress-width": `${progress}%`,
-      }}
     >
       <div className="topic-card__head">
         <div className="topic-card__chips">
@@ -116,9 +104,12 @@ const ListCard = ({
         <h2 className="topic-card__name">{name}</h2>
 
         <div className="topic-card__progress">
-          <div className="topic-card__progress-fill" />
+          <div
+            className="topic-card__progress-fill"
+            style={{ "--progress-width":progress_width }}
+          />
           <span className="topic-card__progress-text">
-            {safeXp} / {maxXp} XP
+            {current_progress_xp} / {current_max_xp}
           </span>
         </div>
       </div>

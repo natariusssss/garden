@@ -2,7 +2,7 @@
   position: relative;
   min-height: calc(1080px - var(--header-h, 116px));
   overflow-x: hidden;
-
+  --progress-width: 0%;
 }
 
 .topic-inside {
@@ -173,7 +173,7 @@
 
 .topic-xp-card__bar-fill {
   position: relative;
-  width: 84.6%;
+  width: var(--progress-width);
   height: 100%;
   min-width: 0;
   background: #78b01d;
@@ -810,7 +810,8 @@
 
 .topic-stage__step--done .topic-icon,
 .topic-stage__step--active .topic-icon {
-  filter: brightness(0) saturate(100%) invert(11%) sepia(8%) saturate(478%) hue-rotate(347deg) brightness(91%) contrast(88%);
+  filter: brightness(0) saturate(100%) invert(11%) sepia(8%) saturate(478%)
+    hue-rotate(347deg) brightness(91%) contrast(88%);
 }
 
 .topic-stage__step--next .topic-icon {

@@ -84,6 +84,41 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise HTTPException(status_code=401, detail="User not found")
     return user
 
+def get_current_max_xp(level: int) -> int:
+    if level == 0:
+        return 100
+
+    return 100 * level + 20 * level
+
+
+
+
+def calculate_topic_progress_data(xp: int):
+    total_xp = max(0, xp or 0)
+
+    level = 0
+    current_progress_xp = total_xp
+
+    while current_progress_xp >= get_current_max_xp(level):
+        current_progress_xp -= get_current_max_xp(level)
+        level += 1
+
+    current_max_xp = get_current_max_xp(level)
+
+    progress_width = f"{round((current_progress_xp / current_max_xp) * 100, 2)}%"
+
+    return {
+        "level": level,
+        "xp": total_xp,
+        "current_max_xp": current_max_xp,
+        "current_progress_xp": current_progress_xp,
+        "progress_width": progress_width,
+    }
+
+
+def get_topic_progress_data(user_topic: Optional[UserTopic]):
+    xp = user_topic.xp if user_topic else 0
+    return calculate_topic_progress_data(xp)
 
 
 
@@ -165,7 +200,7 @@ def create_topic(
     db.commit()
     db.refresh(db_user_topic)
     new_achievements = check_and_unlock_achievements(db, current_user.id)
-
+    progress_data = get_topic_progress_data(db_user_topic)
     return {
         "id": db_topic.id,
         "user_id": db_topic.user_id,
@@ -175,10 +210,10 @@ def create_topic(
         "rarity": db_topic.rarity,
         "image_url": db_topic.image_url,
         "tree_state": db_user_topic.tree_state,
-        "level": db_user_topic.level,
-        "xp": db_user_topic.xp,
         "review_count": db_user_topic.review_count,
-        "new_achievements": new_achievements
+        "new_achievements": new_achievements,
+
+        **progress_data,
     }
 
 
@@ -192,24 +227,29 @@ def get_my_topics(
 
     topics = query.all()
     result = []
+
     for topic in topics:
         user_topic = db.query(UserTopic).filter(
             UserTopic.user_id == current_user.id,
             UserTopic.topic_id == topic.id
         ).first()
+
+        progress_data = get_topic_progress_data(user_topic)
+
         result.append({
-    "id": topic.id,
-    "user_id": topic.user_id,
-    "name": topic.name,
-    "description": topic.description,
-    "tree_type": topic.tree_type,
-    "rarity": topic.rarity,
-    "image_url": topic.image_url,
-    "tree_state": user_topic.tree_state if user_topic else "seed",
-    "level": user_topic.level if user_topic else 0,
-    "xp": user_topic.xp if user_topic else 0,
-    "review_count": user_topic.review_count if user_topic else 0,
-})
+            "id": topic.id,
+            "user_id": topic.user_id,
+            "name": topic.name,
+            "description": topic.description,
+            "tree_type": topic.tree_type,
+            "rarity": topic.rarity,
+            "image_url": topic.image_url,
+
+            "tree_state": user_topic.tree_state if user_topic else "seed",
+            "review_count": user_topic.review_count if user_topic else 0,
+
+            **progress_data,
+        })
 
     return result
 
@@ -233,6 +273,8 @@ def get_topic(
         UserTopic.topic_id == topic.id
     ).first()
 
+    progress_data = get_topic_progress_data(user_topic)
+
     return {
         "id": topic.id,
         "user_id": topic.user_id,
@@ -242,9 +284,9 @@ def get_topic(
         "rarity": topic.rarity,
         "image_url": topic.image_url,
         "tree_state": user_topic.tree_state if user_topic else "seed",
-        "level": user_topic.level if user_topic else 0,
-        "xp": user_topic.xp if user_topic else 0,
         "review_count": user_topic.review_count if user_topic else 0,
+
+        **progress_data,
     }
 
 @app.put("/topics/update/{topic_id}", response_model=schemas.TopicResponse)
@@ -642,11 +684,13 @@ def add_xp_to_topic(
         raise HTTPException(status_code=404, detail="UserTopic not found")
 
     user_topic.xp += max(0, payload.xp)
-    user_topic.level = user_topic.xp // 100
 
-    if user_topic.level >= 10:
+    progress_data = calculate_topic_progress_data(user_topic.xp)
+    user_topic.level = progress_data["level"]
+
+    if user_topic.level >= 30:
         user_topic.tree_state = "adult"
-    elif user_topic.level >= 5:
+    elif user_topic.level >= 20:
         user_topic.tree_state = "young"
     else:
         user_topic.tree_state = "seed"
@@ -657,7 +701,10 @@ def add_xp_to_topic(
     return {
         "xp": user_topic.xp,
         "level": user_topic.level,
-        "tree_state": user_topic.tree_state
+        "tree_state": user_topic.tree_state,
+        "current_max_xp": progress_data["current_max_xp"],
+        "current_progress_xp": progress_data["current_progress_xp"],
+        "progress_width": progress_data["progress_width"],
     }
 
 if __name__ == "__main__":

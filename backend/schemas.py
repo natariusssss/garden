@@ -97,8 +97,13 @@ class TopicResponse(BaseModel):
     user_id: int
     name: str
     description: Optional[str] = None
+
     level: int = 0
     xp: int = 0
+    current_max_xp: int = 100
+    current_progress_xp: int = 0
+    progress_width: str = "0%"
+
     review_count: int = 0
     tree_state: str = "seed"
     tree_type: Optional[str] = None
@@ -175,6 +180,9 @@ class TopicXPResponse(BaseModel):
     xp: int
     level: int
     tree_state: str
+    current_max_xp: int
+    current_progress_xp: int
+    progress_width: str
 
 
 

@@ -1,14 +1,8 @@
-import Header from "../../components/header/Header";
-import "./style.css";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import sakuraBig from "../../assets/sakura/sakura_big.png";
-import {
-  getTopicById,
-  updateTopicById,
-  deleteTopicById,
-  addXpToTopic,
-} from "../../api/auth";
+import { addXpToTopic, deleteTopicById, getTopicById } from "../../api/auth";
+import Header from "../../components/header/Header";
+import "./style.css";
 const ICONS = {
   settings: "/card-icons/settings.svg",
   play: "/card-icons/play.svg",
@@ -33,9 +27,11 @@ const formatTimer = (seconds) => {
   const minutes = Math.floor((total % 3600) / 60);
   const secs = total % 60;
 
-  return [hours, minutes, secs]
+  const formattedTimer = [hours, minutes, secs]
     .map((value) => String(value).padStart(2, "0"))
     .join(":");
+
+  return { formattedTimer, total };
 };
 
 const Card = () => {
@@ -48,20 +44,27 @@ const Card = () => {
   const [message, setMessage] = useState("Загрузка...");
   const [aiMessage, setAiMessage] = useState("");
   const [permissionEdit, setPermissionEdit] = useState(false);
-  const [descriptionEdit, setDescriptionEdit] = useState("");
+  const [edit, setEdit] = useState(false);
+  const [stateSettings, setStateSettings] = useState(false);
 
   const handleAddXp = async (event) => {
     event.preventDefault();
 
     try {
-      const updated = await addXpToTopic(id, 10);
+      const updated = await addXpToTopic(id, formatTimer(time).total);
 
       setInfoPlant((prev) => ({
         ...prev,
         xp: updated.xp,
         level: updated.level,
         tree_state: updated.tree_state,
+        current_max_xp: updated.current_max_xp,
+        current_progress_xp: updated.current_progress_xp,
+        progress_width: updated.progress_width,
       }));
+      setButtonTimer("disabled");
+      setTime(0);
+      setSaveTime(0);
     } catch (error) {
       setMessage(error.message);
     }
@@ -89,7 +92,6 @@ const Card = () => {
 
     if (id) {
       loadTopic();
-      setDescriptionEdit(infoPlant.description);
     }
   }, [id]);
 
@@ -118,15 +120,7 @@ const Card = () => {
               <h1>{infoPlant.name}</h1>
 
               <div className="topic-hero__description-row">
-                <p>{descriptionEdit}</p>
-
-                <button
-                  className="topic-hero__edit"
-                  type="button"
-                  aria-label="Редактировать описание"
-                >
-                  ✎
-                </button>
+                <p>{infoPlant.description}</p>
               </div>
             </div>
 
@@ -137,10 +131,17 @@ const Card = () => {
               </div>
 
               <div className="topic-xp-card__info">
-                <span>{infoPlant.xp} / 200 XP</span>
+                <span>
+                  {infoPlant.current_progress_xp} / {infoPlant.current_max_xp}
+                </span>
 
                 <div className="topic-xp-card__bar" aria-hidden="true">
-                  <div className="topic-xp-card__bar-fill"></div>
+                  <div
+                    className="topic-xp-card__bar-fill"
+                    style={{
+                      "--progress-width": infoPlant.progress_width || "0%",
+                    }}
+                  ></div>
                 </div>
               </div>
             </section>
@@ -160,7 +161,7 @@ const Card = () => {
                   key={Math.floor(time)}
                   className="topic-timer-panel__value"
                 >
-                  {formatTimer(time)}
+                  {formatTimer(time).formattedTimer}
                 </strong>
                 <span>фокусировка</span>
               </div>
@@ -334,7 +335,15 @@ const Card = () => {
               />
             </div>
 
-            <button className="topic-settings-btn" type="button">
+            <button
+              className="topic-settings-btn"
+              type="button"
+              onClick={
+                stateSettings === false
+                  ? () => setStateSettings(true)
+                  : () => setStateSettings(false)
+              }
+            >
               <img
                 className="topic-icon topic-icon--settings"
                 src={ICONS.settings}
@@ -344,17 +353,26 @@ const Card = () => {
               <span>Настройки</span>
             </button>
 
-            <div className="topic-settings-menu" aria-label="Действия с темой">
-              <button type="button">Редактировать</button>
-              <span aria-hidden="true"></span>
-              <button
-                type="button"
-                className="topic-settings-menu__delete"
-                onClick={handleDeleteTopic}
+            {stateSettings && (
+              <div
+                className="topic-settings-menu"
+                aria-label="Действия с темой"
               >
-                Удалить тему
-              </button>
-            </div>
+                <button type="button" onClick={() => setEdit(true)}>
+                  Редактировать
+                </button>
+
+                <span aria-hidden="true"></span>
+
+                <button
+                  type="button"
+                  className="topic-settings-menu__delete"
+                  onClick={handleDeleteTopic}
+                >
+                  Удалить тему
+                </button>
+              </div>
+            )}
           </section>
 
           <section
@@ -372,7 +390,7 @@ const Card = () => {
 
                 <div>
                   <span>Растение</span>
-                  <strong>Сакура</strong>
+                  <strong>{infoPlant.tree_type}</strong>
                 </div>
               </div>
 
@@ -387,7 +405,7 @@ const Card = () => {
                 <div>
                   <span>Редкость</span>
                   <strong className="topic-plant-feature__rarity">
-                    Легендарная
+                    {infoPlant.rarity}
                   </strong>
                 </div>
               </div>
