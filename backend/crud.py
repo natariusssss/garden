@@ -1,6 +1,6 @@
 from models import UserTopic, ReviewHistory, User, Friendship
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from datetime import datetime, timedelta
 from utils import get_next_review_date
 from math import sqrt
@@ -86,7 +86,66 @@ def send_friend_requests(db: Session, user_id: int, friend_id: int):
     db.refresh(friendship)
     return friendship
 def get_friends(db: Session, user_id: int):
-    friendships=db.query(Friendship).filter(((Friendship.user_id == user_id)|(Friendship.friend_id == user_id))&(Friendship.status == 'accepted')).all()
+    friendships = db.query(Friendship).filter(Friendship.status == "accepted", or_(Friendship.user_id == user_id,Friendship.friend_id == user_id)).all()
+    friends = []
+    for friendship in friendships:
+        friend_id = (
+            friendship.friend_id
+            if friendship.user_id==user_id
+            else friendship.user_id
+        )
+        friend = db.query(User).filter(User.id == friend_id).first()
+        if friend:
+            friends.append({
+                "friendship_id": friendship.id,
+                "id": friend.id,
+                "username": friend.username,
+                "email": friend.email,
+                "total_xp": friend.total_xp,
+                "level": calculate_user_level(friend.total_xp),
+            })
+    return friends
+def get_pending_friend_requests(db: Session, user_id: int):
+    requests = db.query(Friendship).filter(Friendship.friend_id == user_id, Friendship.status == "pending").all()
+    result = []
+    for request in requests:
+        sender=db.query(User).filter(User.id == request.user_id).first()
+        if sender:
+            result.append({
+                "request_id": request.id,
+                "user_id": sender.id,
+                "username": sender.username,
+                "email": sender.email,
+                "total_xp": sender.total_xp,
+                "level": calculate_user_level(sender.total_xp),
+                "status": request.status,
+            })
+    return result
+def accept_friend_request(db: Session, user_id: int, request_id: int):
+    friendship = db.query(Friendship).filter(Friendship.id == request_id, Friendship.friend_id == user_id,Friendship.status == "pending").first()
+    if not friendship:
+        return None
+    friendship.status = "accepted"
+    db.commit()
+    db.refresh(friendship)
+    check_and_unlock_achievements(db, friendship.user_id)
+    check_and_unlock_achievements(db, friendship.friend_id)
+    return friendship
+def reject_friend_request(db: Session, user_id: int, request_id: int):
+    friendship = db.query(Friendship).filter(Friendship.id==request_id, Friendship.friend_id == user_id, Friendship.status=="pending").first()
+    if not friendship:
+        return None
+    friendship.status="rejected"
+    db.commit()
+    db.refresh(friendship)
+    return friendship
+def delete_friend(db: Session, user_id: int, friend_id: int):
+    friendship=db.query(Friendship).filter(Friendship.status=="accepted", or_(and_(Friendship.user_id == user_id, Friendship.friend_id == friend_id),and_(Friendship.user_id == friend_id, Friendship.friend_id == user_id))).first()
+    if not friendship:
+        return None
+    db.delete(friendship)
+    db.commit()
+    return True
 
 
 
