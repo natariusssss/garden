@@ -688,9 +688,9 @@ def add_xp_to_topic(
     progress_data = calculate_topic_progress_data(user_topic.xp)
     user_topic.level = progress_data["level"]
 
-    if user_topic.level >= 30:
+    if user_topic.level >= 20:
         user_topic.tree_state = "adult"
-    elif user_topic.level >= 20:
+    elif user_topic.level >= 10:
         user_topic.tree_state = "young"
     else:
         user_topic.tree_state = "seed"

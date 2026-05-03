@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { addXpToTopic, deleteTopicById, getTopicById } from "../../api/auth";
 import Header from "../../components/header/Header";
 import "./style.css";
+
 const ICONS = {
   settings: "/card-icons/settings.svg",
   play: "/card-icons/play.svg",
@@ -34,6 +35,15 @@ const formatTimer = (seconds) => {
   return { formattedTimer, total };
 };
 
+const getRarityClass = (rarity = "") => {
+  const value = String(rarity).toLowerCase();
+
+  if (value.includes("легендар")) return "legendary";
+  if (value.includes("эпичес")) return "epic";
+  if (value.includes("редк")) return "rare";
+  return "common";
+};
+
 const Card = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -51,7 +61,7 @@ const Card = () => {
     event.preventDefault();
 
     try {
-      const updated = await addXpToTopic(id, formatTimer(time).total);
+      const updated = await addXpToTopic(id, formatTimer(time).total * 1000);
 
       setInfoPlant((prev) => ({
         ...prev,
@@ -109,6 +119,8 @@ const Card = () => {
     };
   }, [buttonTimer, saveTime]);
 
+  const rarityClass = getRarityClass(infoPlant.rarity);
+
   return (
     <>
       <Header />
@@ -137,7 +149,7 @@ const Card = () => {
 
                 <div className="topic-xp-card__bar" aria-hidden="true">
                   <div
-                    className="topic-xp-card__bar-fill"
+                    className={`topic-xp-card__bar-fill topic-xp-card__bar-fill--${rarityClass}`}
                     style={{
                       "--progress-width": infoPlant.progress_width || "0%",
                     }}
@@ -324,10 +336,12 @@ const Card = () => {
               </div>
             </div>
           </section>
-
+          <div
+            className={`topic-tree-back-glow topic-tree-back-glow--${rarityClass}`}
+            aria-hidden="true"
+          ></div>
           <section className="topic-tree-panel" aria-label="Растение темы">
             <div className="topic-tree-visual" aria-hidden="true">
-              <div className="topic-tree-visual__glow"></div>
               <img
                 className="topic-tree-visual__image"
                 src={infoPlant.image_url}
@@ -395,16 +409,16 @@ const Card = () => {
               </div>
 
               <div className="topic-plant-feature topic-plant-feature--rarity">
-                <img
-                  className="topic-icon topic-icon--star"
-                  src={ICONS.star}
-                  alt=""
+                <span
+                  className={`topic-icon topic-icon--star topic-icon--star--${rarityClass}`}
                   aria-hidden="true"
-                />
+                ></span>
 
                 <div>
                   <span>Редкость</span>
-                  <strong className="topic-plant-feature__rarity">
+                  <strong
+                    className={`topic-plant-feature__rarity topic-plant-feature__rarity--${rarityClass}`}
+                  >
                     {infoPlant.rarity}
                   </strong>
                 </div>
@@ -415,7 +429,9 @@ const Card = () => {
               <div className="topic-stage__divider"></div>
 
               <div className="topic-stage__steps">
-                <div className="topic-stage__step topic-stage__step--done">
+                <div
+                  className={`${infoPlant.tree_state === "seed" ? "topic-stage__step topic-stage__step--active" : "topic-stage__step topic-stage__step--done"} `}
+                >
                   <div className="topic-stage__circle">
                     <img
                       className="topic-icon topic-icon--stage-seedling"
@@ -434,7 +450,9 @@ const Card = () => {
                   aria-hidden="true"
                 />
 
-                <div className="topic-stage__step topic-stage__step--active">
+                <div
+                  className={`${infoPlant.tree_state === "young" ? "topic-stage__step topic-stage__step--active" : infoPlant.tree_state === "seed" ? "topic-stage__step topic-stage__step--next" : "topic-stage__step topic-stage__step--done"} `}
+                >
                   <div className="topic-stage__circle">
                     <img
                       className="topic-icon topic-icon--stage-young"
@@ -457,7 +475,9 @@ const Card = () => {
                   aria-hidden="true"
                 />
 
-                <div className="topic-stage__step topic-stage__step--next">
+                <div
+                  className={`${infoPlant.tree_state === "adult" ? "topic-stage__step topic-stage__step--active" : "topic-stage__step topic-stage__step--next"} `}
+                >
                   <div className="topic-stage__circle">
                     <img
                       className="topic-icon topic-icon--stage-adult"

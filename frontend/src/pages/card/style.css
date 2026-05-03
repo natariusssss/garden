@@ -119,28 +119,35 @@
   position: absolute;
   left: 32px;
   top: 19px;
+
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+
   width: 52px;
   height: 59px;
+  text-align: center;
 }
 
 .topic-xp-card__level span {
-  margin: 0 0 -5px;
+  margin: 0;
+  width: 100%;
+
   font-family: "Montserrat", sans-serif;
   font-weight: 800;
   font-size: 36px;
-  line-height: 44px;
+  line-height: 36px;
   color: #ffffff;
 }
 
 .topic-xp-card__level strong {
+  width: 100%;
+
   font-family: "Montserrat", sans-serif;
   font-weight: 800;
   font-size: 24px;
-  line-height: 29px;
+  line-height: 24px;
   color: #ffffff;
 }
 
@@ -176,7 +183,6 @@
   width: var(--progress-width);
   height: 100%;
   min-width: 0;
-  background: #78b01d;
   border: 1px solid rgba(62, 57, 53, 0.36);
   border-radius: 8px;
 }
@@ -186,8 +192,28 @@
   position: absolute;
   inset: -1px 0;
   border-radius: 5px;
-  background: rgba(120, 176, 29, 0.42);
+
   filter: blur(7.45px);
+}
+
+.topic-xp-card__bar-fill--legendary,
+.topic-xp-card__bar-fill--legendary::after {
+  background: #e75480;
+}
+
+.topic-xp-card__bar-fill--common,
+.topic-xp-card__bar-fill--common::after {
+  background: #699606;
+}
+
+.topic-xp-card__bar-fill--epic,
+.topic-xp-card__bar-fill--epic::after {
+  background: #7851a9;
+}
+
+.topic-xp-card__bar-fill--rare,
+.topic-xp-card__bar-fill--rare::after {
+  background: #538fea;
 }
 
 .topic-work-panel {
@@ -369,7 +395,7 @@
   left: 35px;
   top: 111px;
   width: 757px;
-  height: 2px;
+  height: 3px;
   background: #3f3734;
 }
 
@@ -546,6 +572,7 @@
   width: 881px;
   height: 708px;
   overflow: hidden;
+  z-index: 3;
 }
 
 .topic-tree-visual {
@@ -555,16 +582,42 @@
   pointer-events: none;
 }
 
-.topic-tree-visual__glow {
+.topic-inside {
+  position: relative;
+  isolation: isolate;
+}
+
+.topic-tree-back-glow {
   position: absolute;
-  left: 239px;
-  top: 223px;
+
+  left: 1182px;
+  top: 200px;
+
   width: 375px;
   height: 422px;
   border-radius: 50%;
-  background: #82668a;
-  filter: blur(59.05px);
-  opacity: 0.95;
+
+  filter: blur(150px);
+  opacity: 1;
+
+  z-index: 2;
+  pointer-events: none;
+}
+
+.topic-tree-back-glow--legendary {
+  background: #e75480;
+}
+
+.topic-tree-back-glow--rare {
+  background: #538fea;
+}
+
+.topic-tree-back-glow--common {
+  background: #699606;
+}
+
+.topic-tree-back-glow--epic {
+  background: #7851a9;
 }
 
 .topic-tree-visual__image {
@@ -572,7 +625,7 @@
   left: 67px;
   top: 33px;
   width: 722px;
-  height: 699px;
+  height: 649px;
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
@@ -655,30 +708,27 @@
   left: 943px;
   top: 772px;
   display: flex;
-  flex-direction: row;
   align-items: center;
+  justify-content: space-between;
   width: 881px;
   height: 129px;
-  padding: 0 18px;
-  gap: 3px;
+  padding: 0 32px;
+  gap: 28px;
 }
 
 .topic-plant-panel__short-info {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  width: 453px;
-  height: 53px;
-  padding: 0 38px;
-  gap: 39px;
-  flex: none;
+  width: auto;
+  height: auto;
+  padding: 0;
+  gap: 34px;
+  flex: 0 0 auto;
 }
 
 .topic-plant-feature {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  padding: 0;
   gap: 18px;
   width: 159px;
   height: 53px;
@@ -702,6 +752,36 @@
 .topic-plant-feature .topic-icon--star {
   width: 44px;
   height: 41px;
+  flex: none;
+  display: block;
+
+  background-color: #e65480;
+
+  mask-image: url("/card-icons/star.svg");
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+
+  -webkit-mask-image: url("/card-icons/star.svg");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.topic-plant-feature .topic-icon--star.topic-icon--star--legendary {
+  background-color: #e65480;
+}
+
+.topic-plant-feature .topic-icon--star.topic-icon--star--common {
+  background-color: #699606;
+}
+
+.topic-plant-feature .topic-icon--star.topic-icon--star--epic {
+  background-color: #7851a9;
+}
+
+.topic-plant-feature .topic-icon--star.topic-icon--star--rare {
+  background-color: #538fea;
 }
 
 .topic-plant-feature div {
@@ -745,20 +825,36 @@
   color: #ffffff !important;
 }
 
+.topic-plant-feature__rarity--legendary {
+  background: #e65480;
+}
+
+.topic-plant-feature__rarity--common {
+  background: #699606;
+}
+
+.topic-plant-feature__rarity--epic {
+  background: #7851a9;
+}
+
+.topic-plant-feature__rarity--rare {
+  background: #538fea;
+}
+
 .topic-stage {
   display: flex;
-  flex-direction: row;
   align-items: center;
-  width: 350px;
-  height: 77px;
-  gap: 39px;
-  flex: none;
+  justify-content: center;
+  width: 386px;
+  height: 100%;
+  gap: 28px;
+  flex: 0 0 auto;
 }
 
 .topic-stage__divider {
   width: 0;
   height: 60px;
-  border-left: 2px solid #3e3935;
+  border-left: 3px solid #3e3935;
   flex: none;
 }
 
@@ -766,9 +862,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  width: 311px;
-  height: 77px;
+  gap: 18px;
+  width: auto;
+  height: auto;
+  transform: translateY(10px);
 }
 
 .topic-stage__step {
@@ -776,9 +873,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
-  width: 58px;
-  height: 77px;
+  width: 74px;
+  min-height: 96px;
+  gap: 10px;
 }
 
 .topic-stage__circle {
@@ -788,6 +885,7 @@
   width: 41px;
   height: 41px;
   border-radius: 131px;
+  flex: 0 0 auto;
 }
 
 .topic-stage__step--done .topic-stage__circle,
@@ -796,12 +894,13 @@
 }
 
 .topic-stage__step--active .topic-stage__circle {
-  box-shadow: 0 0 8.2px #9dbd5f;
+  box-shadow: 0 0 22.2px #9dbd5f;
+  scale: 1.2;
 }
 
 .topic-stage__step--next .topic-stage__circle {
   background: #282422;
-  border: 1px solid #9dbd5f;
+  border: 3px solid #9dbd5f;
 }
 
 .topic-stage__circle .topic-icon {
@@ -834,20 +933,39 @@
 }
 
 .topic-stage__step span {
-  width: 58px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 34px;
+  margin: 0;
   text-align: center;
   font-family: "Montserrat", sans-serif;
   font-weight: 700;
-  font-size: 11px;
-  line-height: 128%;
+  font-size: 13px;
+  line-height: 1.2;
   color: #ffffff;
+}
+
+.topic-stage__step--next span,
+.topic-stage__step--next .topic-stage__circle {
+  opacity: 0.4;
+}
+
+.topic-stage__step--next src {
+  background-color: #fc0000;
+  color: #ff5500;
+}
+
+.topic-stage__step--done .topic-stage__circle {
+  opacity: 0.8;
 }
 
 .topic-stage__arrow {
   flex: 0 0 auto;
   width: 32px;
   height: 14px;
-  margin-top: -28px;
+  margin-top: -22px;
   object-fit: contain;
 }
 
