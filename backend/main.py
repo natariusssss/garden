@@ -247,7 +247,7 @@ def get_my_topics(
 
             "tree_state": user_topic.tree_state if user_topic else "seed",
             "review_count": user_topic.review_count if user_topic else 0,
-
+            "last_reviewed": user_topic.last_reviewed if user_topic else None,
             **progress_data,
         })
 

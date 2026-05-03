@@ -55,7 +55,7 @@ const TopicsPage = () => {
                     rarity={topic.rarity}
                     current_progress_xp={topic.current_progress_xp}
                     current_max_xp={topic.current_max_xp}
-                    progress_width={topic.progress_width}
+                    last_reviewed={topic.last_reviewed}
                   />
                 );
               })}

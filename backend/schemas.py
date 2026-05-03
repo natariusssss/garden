@@ -103,7 +103,7 @@ class TopicResponse(BaseModel):
     current_max_xp: int = 100
     current_progress_xp: int = 0
     progress_width: str = "0%"
-
+    
     review_count: int = 0
     tree_state: str = "seed"
     tree_type: Optional[str] = None
@@ -111,6 +111,7 @@ class TopicResponse(BaseModel):
     image_url: Optional[str] = None
     new_achievements: list[AchievementResponse] = []
 
+    last_reviewed: Optional[datetime] = None
     class Config:
         from_attributes = True
 

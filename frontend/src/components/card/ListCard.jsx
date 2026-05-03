@@ -26,6 +26,23 @@ const getRarityClass = (rarity = "") => {
   return "common";
 };
 
+const TimePassed = (last_reviewed) => {
+  if (!last_reviewed) return "—";
+  const lastDate = new Date(last_reviewed);
+  const now = new Date();
+  const diffMs = now - lastDate;
+  if (diffMs < 0) return "0";
+  const diffMinutes = Math.floor(diffMs / 1000 / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
+  const diffMonths = Math.floor(diffDays / 30);
+  const diffYears = Math.floor(diffDays / 365);
+  if (diffHours < 48) return diffHours;
+  if (diffHours < 48 && diffDays <= 31) return diffDays;
+  if (diffHours < 48 && diffDays <= 31 && diffMonths <= 12) return diffMonths;
+  return diffYears;
+};
+
 const ListCard = ({
   name,
   level = 0,
@@ -37,6 +54,7 @@ const ListCard = ({
   current_progress_xp,
   current_max_xp,
   progress_width,
+  last_reviewed,
 }) => {
   const rarityClass = getRarityClass(rarity);
   const rarityMeta = RARITY_META[rarityClass];
@@ -68,7 +86,9 @@ const ListCard = ({
               className="topic-card__clock"
               aria-hidden="true"
             />
-            <span className="topic-card__time">17ч</span>
+            <span className="topic-card__time">
+              {TimePassed(last_reviewed)}ч
+            </span>
           </div>
 
           <div
@@ -106,7 +126,7 @@ const ListCard = ({
         <div className="topic-card__progress">
           <div
             className="topic-card__progress-fill"
-            style={{ "--progress-width":progress_width }}
+            style={{ "--progress-width": progress_width }}
           />
           <span className="topic-card__progress-text">
             {current_progress_xp} / {current_max_xp}

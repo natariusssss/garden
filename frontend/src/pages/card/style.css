@@ -597,7 +597,7 @@
   height: 422px;
   border-radius: 50%;
 
-  filter: blur(150px);
+  filter: blur(120px);
   opacity: 1;
 
   z-index: 2;
@@ -675,7 +675,7 @@
   width: 182px;
   height: 78px;
   padding: 11px 0;
-  background: rgba(44, 40, 39, 0.5);
+  background: #3a3433;
   border: 2px solid rgba(62, 57, 53, 0.36);
   border-radius: 10px;
   backdrop-filter: blur(14px);
@@ -818,6 +818,7 @@
   width: 117px;
   height: 22px !important;
   border-radius: 13px;
+  margin-top: 3px;
   background: #e65480;
   font-weight: 700 !important;
   font-size: 14px !important;
@@ -900,7 +901,7 @@
 
 .topic-stage__step--next .topic-stage__circle {
   background: #282422;
-  border: 3px solid #9dbd5f;
+  border: 2px solid #9dbd5f;
 }
 
 .topic-stage__circle .topic-icon {
@@ -912,9 +913,9 @@
   filter: brightness(0) saturate(100%) invert(11%) sepia(8%) saturate(478%)
     hue-rotate(347deg) brightness(91%) contrast(88%);
 }
-
 .topic-stage__step--next .topic-icon {
-  filter: none;
+  filter: brightness(0) saturate(100%) invert(72%) sepia(25%) saturate(582%)
+    hue-rotate(38deg) brightness(91%) contrast(89%);
 }
 
 .topic-stage__step .topic-icon--stage-seedling {
