@@ -3,7 +3,7 @@ import "./style.css";
 import { createTopic } from "../../api/auth";
 import { useEffect, useRef, useState } from "react";
 import sakuraBig from "../../assets/sakura/sakura_big.png";
-import plants from "../../assets/characteristics_tree/characteristics_tree.jsx";
+import plants from "../../data/plants.js";
 import CarouselCard from "../carouselCard/CarouselCard.jsx";
 
 const ModalAddTopic = ({ onClose, onCreated }) => {
@@ -15,7 +15,7 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
   const [currentPage, setCurrentPage] = useState(0);
 
   const currentPlant = plants.find((plant) => plant.id === selectedPlant);
-  const image_url = plants.find((plant) => plant.id === selectedPlant).imgBig;
+  const image_url = plants.find((plant) => plant.id === selectedPlant).imgSmall;
   const rarity = plants.find((plant) => plant.id === selectedPlant).rarity;
   const tree_type = plants.find((plant) => plant.id === selectedPlant).name;
 

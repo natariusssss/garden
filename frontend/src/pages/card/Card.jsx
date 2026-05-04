@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { addXpToTopic, deleteTopicById, getTopicById } from "../../api/auth";
 import Header from "../../components/header/Header";
+import plants from "../../data/plants.js";
 import "./style.css";
 
 const ICONS = {
@@ -44,6 +45,11 @@ const getRarityClass = (rarity = "") => {
   return "common";
 };
 
+const currentPlant = (tree_state) => {
+  if (tree_state === "seed") {
+  }
+};
+
 const Card = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -71,6 +77,7 @@ const Card = () => {
         current_max_xp: updated.current_max_xp,
         current_progress_xp: updated.current_progress_xp,
         progress_width: updated.progress_width,
+        image_url: updated.image_url,
       }));
       setButtonTimer("disabled");
       setTime(0);
@@ -440,7 +447,7 @@ const Card = () => {
                       aria-hidden="true"
                     />
                   </div>
-                  <span>Саженец</span>
+                  <span>Росток</span>
                 </div>
 
                 <img

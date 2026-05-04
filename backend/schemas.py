@@ -184,6 +184,7 @@ class TopicXPResponse(BaseModel):
     current_max_xp: int
     current_progress_xp: int
     progress_width: str
+    image_url: Optional[str] = None
 
 
 

@@ -243,7 +243,10 @@ def get_my_topics(
             "description": topic.description,
             "tree_type": topic.tree_type,
             "rarity": topic.rarity,
-            "image_url": topic.image_url,
+            "image_url": get_tree_image_url(
+                topic.image_url,
+                user_topic.tree_state if user_topic else "seed"
+            ),
 
             "tree_state": user_topic.tree_state if user_topic else "seed",
             "review_count": user_topic.review_count if user_topic else 0,
@@ -282,7 +285,10 @@ def get_topic(
         "description": topic.description,
         "tree_type": topic.tree_type,
         "rarity": topic.rarity,
-        "image_url": topic.image_url,
+        "image_url": get_tree_image_url(
+             topic.image_url,
+            user_topic.tree_state if user_topic else "seed"
+        ),
         "tree_state": user_topic.tree_state if user_topic else "seed",
         "review_count": user_topic.review_count if user_topic else 0,
 
@@ -695,6 +701,16 @@ def add_xp_to_topic(
     else:
         user_topic.tree_state = "seed"
 
+    topic = db.query(Topic).filter(
+        Topic.id == topic_id,
+        Topic.user_id == current_user.id
+    ).first()
+
+    image_url = get_tree_image_url(
+        topic.image_url if topic else None,
+        user_topic.tree_state
+    )
+
     db.commit()
     db.refresh(user_topic)
 
@@ -702,10 +718,30 @@ def add_xp_to_topic(
         "xp": user_topic.xp,
         "level": user_topic.level,
         "tree_state": user_topic.tree_state,
+        "image_url": image_url,
         "current_max_xp": progress_data["current_max_xp"],
         "current_progress_xp": progress_data["current_progress_xp"],
         "progress_width": progress_data["progress_width"],
     }
+
+
+def get_tree_image_url(image_url: str | None, tree_state: str):
+    if not image_url:
+        return None
+
+    state_to_suffix = {
+        "seed": "_small",
+        "young": "_medium",
+        "adult": "_big",
+    }
+
+    target_suffix = state_to_suffix.get(tree_state, "_small")
+
+    for suffix in ["_small", "_medium", "_big"]:
+        if suffix in image_url:
+            return image_url.replace(suffix, target_suffix)
+
+    return image_url
 
 if __name__ == "__main__":
     import uvicorn
