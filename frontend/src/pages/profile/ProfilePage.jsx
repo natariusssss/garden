@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/header/Header";
 import { getMe, getFriends, getUserStats } from "../../api/auth";
 import "./profile.css";
@@ -43,6 +44,17 @@ export default function ProfilePage() {
     return username ? username[0].toUpperCase() : "?";
   };
 
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    const isConfirmed = window.confirm(`Вы хотите выйти?`);
+
+    if (!isConfirmed) return;
+
+    localStorage.removeItem("token");
+    navigate("/");
+
+  };
+
   return (
     <div className="profile-page">
       <Header />
@@ -55,13 +67,13 @@ export default function ProfilePage() {
             <article className="profile-hero profile-panel">
               <div className="profile-avatar" aria-hidden="true">
                 <span>{getInitial(user?.username)}</span>
-                <span className="profile-avatar-edit">✎</span>
+                <button className="profile-avatar-edit">✎</button>
               </div>
 
               <div className="profile-main-info">
                 <div className="profile-title-row">
                   <h1>{user?.username || "Пользователь"}</h1>
-                  <span className="profile-edit-button" aria-hidden="true">✎</span>
+                  <button className="profile-edit-button" aria-hidden="true">✎</button>
                 </div>
 
                 <p className="profile-user-tag">@{user?.username || "user"}</p>
@@ -76,6 +88,7 @@ export default function ProfilePage() {
                     <span className="profile-meta-icon">▣</span>
                     Участник с {formatJoinDate(user?.created_at)}
                   </span>
+                  <button onClick={handleLogout} className="profile-btn-logout">Выйти</button>
                 </div>
               </div>
 

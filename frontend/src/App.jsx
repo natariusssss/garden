@@ -20,8 +20,7 @@ export default function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/achieve" element={<AchievePage />} />
-      <Route path="/friends" element={<FriendsPage />} />
+
       <Route
         path="/topicPage"
         element={
@@ -48,6 +47,25 @@ export default function App() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/achieve"
+        element={
+          <ProtectedRoute>
+            <AchievePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/friends"
+        element={
+          <ProtectedRoute>
+            <FriendsPage />
+          </ProtectedRoute>
+        }
+      />
+
+
+
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

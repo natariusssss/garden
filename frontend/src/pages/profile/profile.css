@@ -223,6 +223,27 @@
   font-size: 18px;
 }
 
+.profile-btn-logout {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 0 15px;
+  border: 1px solid #46423d;
+  border-radius: 12px;
+  background: rgba(76, 71, 65, 0.22);
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.profile-btn-logout:hover {
+  background: #b1ca7e;
+  color: #ffffff;
+}
+
+
 .profile-user-tag {
   margin: 13px 0 20px;
   color: rgba(255, 255, 255, 0.36);
