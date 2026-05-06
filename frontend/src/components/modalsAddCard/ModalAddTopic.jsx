@@ -1,18 +1,37 @@
 import { createPortal } from "react-dom";
 import "./style.css";
-import { createTopic } from "../../api/auth";
+import { createTopic, updateTopicById } from "../../api/auth";
 import { useEffect, useRef, useState } from "react";
 import sakuraBig from "../../assets/sakura/sakura_big.png";
 import plants from "../../data/plants.js";
 import CarouselCard from "../carouselCard/CarouselCard.jsx";
 
-const ModalAddTopic = ({ onClose, onCreated }) => {
-  const [title, setTitle] = useState("");
+const ModalAddTopic = ({
+  onClose,
+  onCreated,
+  mode,
+  name,
+  title,
+  descriptionEdit,
+  id,
+}) => {
+  const [topicName, setTopicName] = useState("");
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [selectedPlant, setSelectedPlant] = useState(plants[0].id);
   const [currentPage, setCurrentPage] = useState(0);
+  const [buttonModeName, setButtonModeName] = useState("Создать тему");
+  const [editTitle, setEditTitle] = useState("Создать тему");
+
+  useEffect(() => {
+    if (mode === "edit") {
+      setTopicName(name || "");
+      setDescription(descriptionEdit || "");
+      setButtonModeName("Сохранить");
+      setEditTitle(title || "");
+    }
+  }, [mode, name, descriptionEdit, title]);
 
   const currentPlant = plants.find((plant) => plant.id === selectedPlant);
   const image_url = plants.find((plant) => plant.id === selectedPlant).imgSmall;
@@ -31,20 +50,35 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setMessage("");
+    if (mode === "edit") {
+      try {
+        await updateTopicById(id, {
+          name: topicName,
+          description,
+          image_url,
+          rarity,
+          tree_type,
+        });
+        await onCreated();
+        onClose();
+      } catch (error) {
+        setMessage(error.message || "Ошибка добавления темы");
+      }
+    } else {
+      try {
+        await createTopic({
+          name: topicName,
+          description,
+          image_url,
+          rarity,
+          tree_type,
+        });
+        await onCreated();
 
-    try {
-      await createTopic({
-        name: title,
-        description,
-        image_url,
-        rarity,
-        tree_type,
-      });
-      await onCreated();
-
-      onClose();
-    } catch (error) {
-      setMessage(error.message || "Ошибка добавления темы");
+        onClose();
+      } catch (error) {
+        setMessage(error.message || "Ошибка добавления темы");
+      }
     }
   };
 
@@ -71,13 +105,13 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
           <div className="topic-modal__divider" aria-hidden="true"></div>
 
           <form className="topic-modal__left" onSubmit={handleSubmit}>
-            <h2 className="topic-modal__title">Создание темы</h2>
+            <h2 className="topic-modal__title">{editTitle}</h2>
 
             <div className="topic-modal__field topic-modal__field--title">
               <div className="topic-modal__field-head">
                 <h3 className="topic-modal__field-title">Название темы</h3>
                 <span className="topic-modal__counter">
-                  {title.length} / 15
+                  {topicName.length} / 15
                 </span>
               </div>
 
@@ -85,8 +119,8 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
                 className="topic-modal__input"
                 type="text"
                 placeholder="Введите название темы"
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
+                value={topicName}
+                onChange={(event) => setTopicName(event.target.value)}
               />
             </div>
 
@@ -126,7 +160,7 @@ const ModalAddTopic = ({ onClose, onCreated }) => {
 
             <div className="topic-modal__actions">
               <button className="topic-modal__submit" type="submit">
-                Создать тему
+                {buttonModeName}
               </button>
 
               <button

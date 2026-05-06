@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { addXpToTopic, deleteTopicById, getTopicById } from "../../api/auth";
+import ModalAddTopic from "../../components/modalsAddCard/ModalAddTopic";
 import Header from "../../components/header/Header";
 import plants from "../../data/plants.js";
 import "./style.css";
@@ -60,8 +61,8 @@ const Card = () => {
   const [message, setMessage] = useState("Загрузка...");
   const [aiMessage, setAiMessage] = useState("");
   const [permissionEdit, setPermissionEdit] = useState(false);
-  const [edit, setEdit] = useState(false);
   const [stateSettings, setStateSettings] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleAddXp = async (event) => {
     event.preventDefault();
@@ -95,22 +96,23 @@ const Card = () => {
       setMessage(error.message);
     }
   };
-
   useEffect(() => {
-    const loadTopic = async () => {
-      try {
-        const data = await getTopicById(id);
-        setInfoPlant(data);
-        setMessage("");
-      } catch (error) {
-        setMessage(error.message);
-      }
-    };
-
-    if (id) {
-      loadTopic();
-    }
+    loadTopic();
   }, [id]);
+
+  const loadTopic = async () => {
+    try {
+      const data = await getTopicById(id);
+      setInfoPlant(data);
+      setMessage("");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  if (id) {
+    loadTopic();
+  }
 
   useEffect(() => {
     if (buttonTimer !== "active") return;
@@ -379,7 +381,7 @@ const Card = () => {
                 className="topic-settings-menu"
                 aria-label="Действия с темой"
               >
-                <button type="button" onClick={() => setEdit(true)}>
+                <button type="button" onClick={() => setIsModalOpen(true)}>
                   Редактировать
                 </button>
 
@@ -504,6 +506,17 @@ const Card = () => {
           </section>
         </section>
       </main>
+      {isModalOpen && (
+        <ModalAddTopic
+          onClose={() => setIsModalOpen(false)}
+          mode="edit"
+          title="Редактировать тему"
+          name={infoPlant.name}
+          descriptionEdit={infoPlant.description}
+          onCreated={loadTopic}
+          id={id}
+        />
+      )}
     </>
   );
 };

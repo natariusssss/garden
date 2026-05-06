@@ -9,7 +9,7 @@ const plants = [
     imgMedium: "/birch/birch_medium.png",
     imgSmall: "/birch/birch_small.png",
     description:
-      "Светлое дерево с тонким стволом и легкой листвой. Создает ощущение чистоты, свежести и спокойного роста.",
+      "Светлое дерево с тонким белым стволом, темными отметинами на коре и легкой зеленой листвой.",
   },
   {
     id: "thuja",
@@ -21,7 +21,7 @@ const plants = [
     imgMedium: "/tuya/tuya_medium.png",
     imgSmall: "/tuya/tuya_small.png",
     description:
-      "Стройное хвойное растение с аккуратным силуэтом. Добавляет саду свежесть, порядок и спокойную зелень.",
+      "Стройное хвойное растение с плотной зеленой кроной, мелкой хвоей и аккуратным вертикальным силуэтом.",
   },
   {
     id: "maple",
@@ -33,7 +33,7 @@ const plants = [
     imgMedium: "/maple/maple_medium.png",
     imgSmall: "/maple/maple_small.png",
     description:
-      "Аккуратное декоративное дерево с выразительной кроной. Хорошо подходит для спокойного и гармоничного сада.",
+      "Декоративное дерево с выразительной кроной, резными листьями и мягко раскинутыми ветвями.",
   },
   {
     id: "oak",
@@ -45,43 +45,43 @@ const plants = [
     imgMedium: "/oak/oak_medium.png",
     imgSmall: "/oak/oak_small.png",
     description:
-      "Мощное дерево с широкой кроной, символ устойчивости и силы. Наполняет пространство надежностью и спокойствием.",
+      "Мощное дерево с толстым стволом, широкой кроной, крепкими ветвями и плотными дубовыми листьями.",
   },
   {
     id: "rose",
     name: "Роза",
-    rarity: "Редкое",
-    rarityClass: "rare",
+    rarity: "Эпическое",
+    rarityClass: "epic",
     type: "цветок",
     imgBig: "/roses/roses_big.png",
     imgMedium: "/roses/roses_medium.png",
     imgSmall: "/roses/roses_small.png",
     description:
-      "Пышный куст с розовыми бутонами. Делает сад ярче, романтичнее и заметно декоративнее.",
+      "Пышный цветочный куст с тонкими стеблями, зелеными листьями и яркими розовыми бутонами.",
   },
   {
     id: "maple_japan",
     name: "Японский клен",
-    rarity: "Редкое",
-    rarityClass: "rare",
+    rarity: "Эпическое",
+    rarityClass: "epic",
     type: "дерево",
     imgBig: "/maple_japan/maple_japan_big.png",
-    imgMedium: "/maple_japan/maple_japan_big.png",
-    imgSmall: "/maple_japan/maple_japan_big.png",
+    imgMedium: "/maple_japan/maple_japan_medium.png",
+    imgSmall: "/maple_japan/maple_japan_small.png",
     description:
-      "Яркое декоративное дерево с красной листвой. Делает сад выразительным, атмосферным и немного сказочным.",
+      "Невысокое декоративное дерево с тонким стволом, изящными ветвями и резной красной листвой.",
   },
   {
     id: "magnolia",
     name: "Магнолия",
-    rarity: "Редкое",
-    rarityClass: "rare",
+    rarity: "Легендарное",
+    rarityClass: "legendary",
     type: "дерево",
     imgBig: "/magnolia/magnolia_big.png",
     imgMedium: "/magnolia/magnolia_medium.png",
     imgSmall: "/magnolia/magnolia_small.png",
     description:
-      "Элегантное цветущее дерево с крупными нежными цветами. Добавляет саду мягкость, редкость и красивый акцент.",
+      "Элегантное цветущее дерево с тонкими ветвями, крупными зелеными листьями и нежными светлыми цветами.",
   },
   {
     id: "baobab",
@@ -93,19 +93,31 @@ const plants = [
     imgMedium: "/baobab/baobab_medium.png",
     imgSmall: "/baobab/baobab_small.png",
     description:
-      "Необычное массивное дерево с сильным силуэтом. Выглядит редким, древним и очень запоминающимся.",
+      "Необычное массивное дерево с очень толстым стволом, короткими ветвями и компактной верхней кроной.",
+  },
+  {
+    id: "hydrangea",
+    name: "Гортензия",
+    rarity: "Редкое",
+    rarityClass: "rare",
+    type: "кустарник",
+    imgBig: "/hydrangea/hydrangea_big.png",
+    imgMedium: "/hydrangea/hydrangea_medium.png",
+    imgSmall: "/hydrangea/hydrangea_small.png",
+    description:
+      "Пышный декоративный куст с крупными зелеными листьями и округлыми цветочными соцветиями.",
   },
   {
     id: "lilac",
     name: "Сирень",
-    rarity: "Эпическое",
-    rarityClass: "epic",
+    rarity: "Редкое",
+    rarityClass: "rare",
     type: "кустарник",
     imgBig: "/lilac/lilac_big.png",
     imgMedium: "/lilac/lilac_medium.png",
     imgSmall: "/lilac/lilac_small.png",
     description:
-      "Нежный кустарник с мягкими цветами и уютным силуэтом. Делает сад более живым, теплым и декоративным.",
+      "Кустарник с тонкими ветвями, густой зеленой листвой и мягкими сиреневыми цветочными кистями.",
   },
   {
     id: "orchid",
@@ -117,7 +129,7 @@ const plants = [
     imgMedium: "/orchids/orchids_medium.png",
     imgSmall: "/orchids/orchids_small.png",
     description:
-      "Изящный цветок с мягкими лепестками. Придает саду утонченность и ощущение редкой красоты.",
+      "Изящный цветок с тонким стеблем, плавными листьями и крупными мягкими лепестками.",
   },
   {
     id: "ginkgo",
@@ -126,10 +138,10 @@ const plants = [
     rarityClass: "epic",
     type: "дерево",
     imgBig: "/ginko/ginko_big.png",
-    imgMedium: "/ginko/ginko_big.png",
-    imgSmall: "/ginko/ginko_big.png",
+    imgMedium: "/ginko/ginko_medium.png",
+    imgSmall: "/ginko/ginko_small.png",
     description:
-      "Древнее дерево с веерообразными листьями и теплым оттенком. Добавляет саду благородство и ощущение долголетия.",
+      "Древнее дерево с аккуратным стволом, веерообразными листьями и теплой желто-зеленой кроной.",
   },
   {
     id: "swamp_cypress",
@@ -141,19 +153,31 @@ const plants = [
     imgMedium: "/swamp_cypress/swamp_cypress_medium.png",
     imgSmall: "/swamp_cypress/swamp_cypress_small.png",
     description:
-      "Атмосферное дерево с необычным характером. Добавляет саду глубину, загадочность и природную силу.",
+      "Высокое хвойное дерево с мягкой рыжеватой кроной, тонкой хвоей и вытянутым силуэтом.",
   },
   {
     id: "sequoia",
     name: "Секвойя",
-    rarity: "Эпическое",
-    rarityClass: "epic",
+    rarity: "Легендарное",
+    rarityClass: "legendary",
     type: "дерево",
     imgBig: "/sequoia/sequoia_big.png",
     imgMedium: "/sequoia/sequoia_medium.png",
     imgSmall: "/sequoia/sequoia_small.png",
     description:
-      "Величественное древнее дерево с мощным силуэтом. Дает саду ощущение масштаба, силы и легендарности.",
+      "Гигантское хвойное дерево с мощным прямым стволом, плотной кроной и массивным вертикальным силуэтом.",
+  },
+  {
+    id: "palm",
+    name: "Пальма",
+    rarity: "Редкое",
+    rarityClass: "rare",
+    type: "дерево",
+    imgBig: "/palm/palm_big.png",
+    imgMedium: "/palm/palm_medium.png",
+    imgSmall: "/palm/palm_small.png",
+    description:
+      "Тропическое дерево с высоким тонким стволом, крупными раскидистыми листьями и кокосами у кроны.",
   },
   {
     id: "sakura",
@@ -165,7 +189,7 @@ const plants = [
     imgMedium: "/sakura/sakura_medium.png",
     imgSmall: "/sakura/sakura_small.png",
     description:
-      "Нежное дерево с облаком розовых цветов, символ весны и обновления. Наполняет сад гармонией и особой атмосферой.",
+      "Нежное дерево с изогнутым стволом, тонкими ветвями и пышной розовой цветущей кроной.",
   },
   {
     id: "willow",
@@ -177,7 +201,7 @@ const plants = [
     imgMedium: "/willow/willow_medium.png",
     imgSmall: "/willow/willow_small.png",
     description:
-      "Высокое дерево со свисающими ветвями и мягким силуэтом. Делает атмосферу сада тихой и немного сказочной.",
+      "Высокое дерево с мягким силуэтом, длинными свисающими ветвями и узкой зеленой листвой.",
   },
 ];
 

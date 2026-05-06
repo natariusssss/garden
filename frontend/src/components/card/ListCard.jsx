@@ -126,7 +126,7 @@ const ListCard = ({
         <div className="topic-card__progress">
           <div
             className="topic-card__progress-fill"
-            style={{ "--progress-width": progress_width }}
+            style={{ "--progress-width": progress_width || "0%" }}
           />
           <span className="topic-card__progress-text">
             {current_progress_xp} / {current_max_xp}
