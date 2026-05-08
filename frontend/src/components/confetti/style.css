@@ -1,0 +1,62 @@
+.level-confetti {
+  position: absolute;
+  inset: -900px 0 0 0;
+  z-index: 3;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.level-confetti__piece {
+  position: absolute;
+  left: var(--confetti-left);
+  top: var(--confetti-top);
+
+  width: var(--confetti-size);
+  height: calc(var(--confetti-size) * 0.58);
+
+  border-radius: 4px;
+  background: var(--confetti-color);
+  opacity: 0;
+
+  transform: translate3d(0, -20px, 0) rotate(var(--confetti-rotate));
+  filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.32));
+
+  animation: levelConfettiFall var(--confetti-duration)
+    cubic-bezier(0.12, 0.62, 0.28, 1) var(--confetti-delay) both;
+  will-change: opacity, transform;
+}
+
+.level-confetti__piece:nth-child(3n) {
+  border-radius: 999px;
+}
+
+.level-confetti__piece:nth-child(4n) {
+  height: var(--confetti-size);
+  clip-path: polygon(
+    50% 0%,
+    62% 36%,
+    100% 50%,
+    62% 64%,
+    50% 100%,
+    38% 64%,
+    0% 50%,
+    38% 36%
+  );
+}
+
+@keyframes levelConfettiFall {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(var(--confetti-rotate)) scale(0.9);
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift), 155vh, 0)
+      rotate(calc(var(--confetti-rotate) + 520deg)) scale(1);
+  }
+}

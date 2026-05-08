@@ -1,6 +1,5 @@
 import "./style.css";
 import basicPlant from "./../../assets/basic_plant.png";
-import { useState } from "react";
 
 const RARITY_META = {
   common: {
@@ -16,6 +15,46 @@ const RARITY_META = {
     label: "Легендарная",
   },
 };
+
+const EPIC_PARTICLES = [
+  "star-1",
+  "star-2",
+  "star-3",
+  "star-4",
+  "star-5",
+  "star-6",
+  "star-7",
+  "star-8",
+  "star-9",
+  "spark-1",
+  "spark-2",
+  "spark-3",
+  "spark-4",
+  "spark-5",
+  "dot-1",
+  "dot-2",
+  "dot-3",
+  "dot-4",
+];
+
+const LEGENDARY_STARS = [
+  "star-1",
+  "star-2",
+  "star-3",
+  "star-4",
+  "star-5",
+  "star-6",
+  "star-7",
+  "star-8",
+  "dot-1",
+  "dot-2",
+  "dot-3",
+  "dot-4",
+  "dot-5",
+  "dot-6",
+];
+
+
 
 const getRarityClass = (rarity = "") => {
   const value = String(rarity).toLowerCase();
@@ -104,6 +143,44 @@ const ListCard = ({
           </div>
         </div>
       </div>
+
+      {rarityClass === "epic" && (
+        <div className="topic-card__particles" aria-hidden="true">
+          {EPIC_PARTICLES.map((particle) => {
+            const particleType = particle.startsWith("dot") ? "dot" : "star";
+
+            return (
+              <span
+                key={particle}
+                className={`topic-card__particle topic-card__particle--${particleType} topic-card__particle--${particle}`}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {rarityClass === "legendary" && (
+        <div className="topic-card__legendary-effects" aria-hidden="true">
+          <span className="topic-card__legendary-aura" />
+          <span className="topic-card__legendary-orbit topic-card__legendary-orbit--one" />
+          <span className="topic-card__legendary-orbit topic-card__legendary-orbit--two" />
+          <span className="topic-card__legendary-orbit topic-card__legendary-orbit--three" />
+
+          {LEGENDARY_STARS.map((particle) => {
+            const particleType = particle.startsWith("dot") ? "dot" : "star";
+
+            return (
+              <span
+                key={particle}
+                className={`topic-card__legendary-particle topic-card__legendary-particle--${particleType} topic-card__legendary-particle--${particle}`}
+              />
+            );
+          })}
+
+          <span className="topic-card__legendary-leaf topic-card__legendary-leaf--one" />
+          <span className="topic-card__legendary-leaf topic-card__legendary-leaf--two" />
+        </div>
+      )}
 
       <div className="topic-card__image-wrap">
         <img

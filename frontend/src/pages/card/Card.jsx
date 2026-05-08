@@ -5,6 +5,9 @@ import ModalAddTopic from "../../components/modalsAddCard/ModalAddTopic";
 import Header from "../../components/header/Header";
 import plants from "../../data/plants.js";
 import "./style.css";
+import ModalsLevelUp from "../../components/modalsLevelUp/ModalsLevelUp.jsx";
+import ModalNewPlantState from "../../components/modalNewPlantState/ModalNewPlantState.jsx";
+import StagesGrowth from "../../components/stagesGrowth/StagesGrowth.jsx";
 
 const ICONS = {
   settings: "/card-icons/settings.svg",
@@ -23,6 +26,44 @@ const ICONS = {
   stageArrow: "/card-icons/stage-arrow.svg",
   stageArrowSecond: "/card-icons/stage-arrow-2.svg",
 };
+
+const EPIC_PARTICLES = [
+  "star-1",
+  "star-2",
+  "star-3",
+  "star-4",
+  "star-5",
+  "star-6",
+  "star-7",
+  "star-8",
+  "star-9",
+  "spark-1",
+  "spark-2",
+  "spark-3",
+  "spark-4",
+  "spark-5",
+  "dot-1",
+  "dot-2",
+  "dot-3",
+  "dot-4",
+];
+
+const LEGENDARY_STARS = [
+  "star-1",
+  "star-2",
+  "star-3",
+  "star-4",
+  "star-5",
+  "star-6",
+  "star-7",
+  "star-8",
+  "dot-1",
+  "dot-2",
+  "dot-3",
+  "dot-4",
+  "dot-5",
+  "dot-6",
+];
 
 const formatTimer = (seconds) => {
   const total = Math.floor(seconds);
@@ -63,12 +104,26 @@ const Card = () => {
   const [permissionEdit, setPermissionEdit] = useState(false);
   const [stateSettings, setStateSettings] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [isModalLevelUpOpen, setIsModalLevelUpOpen] = useState(false);
+  const [isModalNewPlantState, setIsModalNewPlantState] = useState(false);
+  const [levelUpInfo, setLevelUpInfo] = useState(null);
+  const [flagStateChange, setFlagStateChange] = useState(false);
   const handleAddXp = async (event) => {
     event.preventDefault();
 
     try {
       const updated = await addXpToTopic(id, formatTimer(time).total * 1000);
+      const isPlantStateChanged = updated.tree_state !== infoPlant.tree_state;
+      if (updated.level > infoPlant.level) {
+        setLevelUpInfo({
+          oldLevel: infoPlant.level,
+          newLevel: updated.level,
+          currentMaxXp: updated.current_max_xp,
+          currentProgress: updated.current_progress_xp,
+        });
+        setFlagStateChange(isPlantStateChanged);
+        setIsModalLevelUpOpen(true);
+      }
 
       setInfoPlant((prev) => ({
         ...prev,
@@ -109,10 +164,6 @@ const Card = () => {
       setMessage(error.message);
     }
   };
-
-  if (id) {
-    loadTopic();
-  }
 
   useEffect(() => {
     if (buttonTimer !== "active") return;
@@ -350,7 +401,58 @@ const Card = () => {
             aria-hidden="true"
           ></div>
           <section className="topic-tree-panel" aria-label="Растение темы">
-            <div className="topic-tree-visual" aria-hidden="true">
+            <div
+              className={`topic-tree-visual topic-tree-visual--${rarityClass}`}
+              aria-hidden="true"
+            >
+              {rarityClass === "epic" && (
+                <div
+                  className="topic-tree-visual__particles"
+                  aria-hidden="true"
+                >
+                  {EPIC_PARTICLES.map((particle) => {
+                    const particleType = particle.startsWith("dot")
+                      ? "dot"
+                      : "star";
+
+                    return (
+                      <span
+                        key={particle}
+                        className={`topic-tree-visual__particle topic-tree-visual__particle--${particleType} topic-tree-visual__particle--${particle}`}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
+              {rarityClass === "legendary" && (
+                <div
+                  className="topic-tree-visual__legendary-effects"
+                  aria-hidden="true"
+                >
+                  <span className="topic-tree-visual__legendary-aura" />
+                  <span className="topic-tree-visual__legendary-orbit topic-tree-visual__legendary-orbit--one" />
+                  <span className="topic-tree-visual__legendary-orbit topic-tree-visual__legendary-orbit--two" />
+                  <span className="topic-tree-visual__legendary-orbit topic-tree-visual__legendary-orbit--three" />
+
+                  {LEGENDARY_STARS.map((particle) => {
+                    const particleType = particle.startsWith("dot")
+                      ? "dot"
+                      : "star";
+
+                    return (
+                      <span
+                        key={particle}
+                        className={`topic-tree-visual__legendary-particle topic-tree-visual__legendary-particle--${particleType} topic-tree-visual__legendary-particle--${particle}`}
+                      />
+                    );
+                  })}
+
+                  <span className="topic-tree-visual__legendary-leaf topic-tree-visual__legendary-leaf--one" />
+                  <span className="topic-tree-visual__legendary-leaf topic-tree-visual__legendary-leaf--two" />
+                </div>
+              )}
+
               <img
                 className="topic-tree-visual__image"
                 src={infoPlant.image_url}
@@ -437,71 +539,7 @@ const Card = () => {
             <div className="topic-stage">
               <div className="topic-stage__divider"></div>
 
-              <div className="topic-stage__steps">
-                <div
-                  className={`${infoPlant.tree_state === "seed" ? "topic-stage__step topic-stage__step--active" : "topic-stage__step topic-stage__step--done"} `}
-                >
-                  <div className="topic-stage__circle">
-                    <img
-                      className="topic-icon topic-icon--stage-seedling"
-                      src={ICONS.stageSeedling}
-                      alt=""
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <span>Росток</span>
-                </div>
-
-                <img
-                  className="topic-icon topic-stage__arrow"
-                  src={ICONS.stageArrow}
-                  alt=""
-                  aria-hidden="true"
-                />
-
-                <div
-                  className={`${infoPlant.tree_state === "young" ? "topic-stage__step topic-stage__step--active" : infoPlant.tree_state === "seed" ? "topic-stage__step topic-stage__step--next" : "topic-stage__step topic-stage__step--done"} `}
-                >
-                  <div className="topic-stage__circle">
-                    <img
-                      className="topic-icon topic-icon--stage-young"
-                      src={ICONS.stageYoung}
-                      alt=""
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <span>
-                    Молодое
-                    <br />
-                    Растение
-                  </span>
-                </div>
-
-                <img
-                  className="topic-icon topic-stage__arrow"
-                  src={ICONS.stageArrowSecond}
-                  alt=""
-                  aria-hidden="true"
-                />
-
-                <div
-                  className={`${infoPlant.tree_state === "adult" ? "topic-stage__step topic-stage__step--active" : "topic-stage__step topic-stage__step--next"} `}
-                >
-                  <div className="topic-stage__circle">
-                    <img
-                      className="topic-icon topic-icon--stage-adult"
-                      src={ICONS.stageAdult}
-                      alt=""
-                      aria-hidden="true"
-                    />
-                  </div>
-                  <span>
-                    Взрослое
-                    <br />
-                    растение
-                  </span>
-                </div>
-              </div>
+              <StagesGrowth state={infoPlant.tree_state} />
             </div>
           </section>
         </section>
@@ -515,6 +553,26 @@ const Card = () => {
           descriptionEdit={infoPlant.description}
           onCreated={loadTopic}
           id={id}
+        />
+      )}
+      {isModalLevelUpOpen && (
+        <ModalsLevelUp
+          newLevel={levelUpInfo.newLevel}
+          oldLevel={levelUpInfo.oldLevel}
+          currentMaxXp={levelUpInfo.currentMaxXp}
+          currentProgress={levelUpInfo.currentProgress}
+          onClose={() => {
+            setIsModalLevelUpOpen(false);
+            setIsModalNewPlantState(flagStateChange);
+          }}
+        />
+      )}
+      {isModalNewPlantState && (
+        <ModalNewPlantState
+          img={infoPlant.image_url}
+          state={infoPlant.tree_state}
+          name={infoPlant.tree_type}
+          onClose={() => setIsModalNewPlantState(false)}
         />
       )}
     </>

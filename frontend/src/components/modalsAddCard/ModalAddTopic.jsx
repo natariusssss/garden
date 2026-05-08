@@ -350,7 +350,7 @@ const ModalAddTopic = ({
         </div>
       </div>
     </div>,
-    document.getElementById("modal"),
+    document.getElementById("modalTopic"),
   );
 };
 
