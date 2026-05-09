@@ -4,7 +4,7 @@ from models import Base
 from setconf import settings
 from seed_plants import seed_plants
 from seed_achievements import seed_achievements
-
+from seed_level_rewards import seed_level_rewards
 engine = create_engine(
     settings.DATABASE_URL,
     connect_args={"check_same_thread": False}
@@ -20,9 +20,10 @@ Base.metadata.create_all(bind=engine)
 db = SessionLocal()
 try:
     seed_plants(db)
+    seed_level_rewards(db)
+    seed_achievements(db)
 finally:
     db.close()
-seed_achievements()
 
 print("База данных создана!")
 print("DATABASE_URL =", settings.DATABASE_URL)

@@ -21,7 +21,7 @@ from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 from sqlalchemy import func
 from sqlalchemy import text
-
+from crud import get_level_rewards_progress
 
 
 
@@ -742,6 +742,14 @@ def get_tree_image_url(image_url: str | None, tree_state: str):
             return image_url.replace(suffix, target_suffix)
 
     return image_url
+
+
+@app.get("/level-rewards")
+def get_my_level_rewards(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return get_level_rewards_progress(db, current_user.id)
 
 if __name__ == "__main__":
     import uvicorn

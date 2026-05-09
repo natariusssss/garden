@@ -1,12 +1,14 @@
 from sqlalchemy.orm import Session
-from models import User, Achievement, UserAchievement, UserTopic, ReviewHistory, Friendship
+from models import User, Achievement, UserAchievement, UserTopic, ReviewHistory, Friendship, AchievementReward, Plant, UserPlant
 from sqlalchemy import or_
 from datetime import datetime, timedelta
+from math import sqrt
 
 def get_user_progress(db: Session, user_id):
     user=db.query(User).filter(User.id == user_id).first()
     if user is None:
         return None
+    level = int(sqrt(user.total_xp / 100) + 1)
     reviews_count=db.query(ReviewHistory).filter(ReviewHistory.user_id == user.id).count()
     topics_count=db.query(UserTopic).filter(UserTopic.user_id == user.id).count()
     user_xp=user.total_xp
@@ -18,6 +20,7 @@ def get_user_progress(db: Session, user_id):
         "reviews_count": reviews_count,
         "friends_count": friends_count,
         "days_streak": days_streak,
+        "level": level,
     }
 
 def get_unlock_achievement_ids(db: Session, user_id):
@@ -35,12 +38,16 @@ def is_achievement_completed(achievement, progress):
         return progress["friends_count"] >= achievement.condition_value
     elif achievement.condition_type == "days_streak":
         return progress["days_streak"] >= achievement.condition_value
+    elif achievement.condition_type == "level":
+        return progress["level"] >= achievement.condition_value
     else:
         return False
 
-def unlock_achievement(db: Session, user_id, achievement_id):
-    user_achievement=UserAchievement(user_id=user_id, achievement_id=achievement_id)
+def unlock_achievement(db: Session, user_id: int, achievement: Achievement):
+    user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement.id)
     db.add(user_achievement)
+    rewards = apply_achievement_rewards(db, user_id, achievement)
+    return rewards
 
 def check_and_unlock_achievements(db: Session, user_id):
     progress=get_user_progress(db, user_id)
@@ -53,8 +60,17 @@ def check_and_unlock_achievements(db: Session, user_id):
         if achievement.id in unlocked_ids:
             continue
         if is_achievement_completed(achievement, progress):
-            unlock_achievement(db, user_id, achievement.id)
-            new_achievements.append(achievement)
+            rewards = unlock_achievement(db, user_id, achievement)
+            new_achievements.append({
+                "id": achievement.id,
+                "code": achievement.code,
+                "title": achievement.title,
+                "description": achievement.description,
+                "icon_url": achievement.icon_url,
+                "condition_type": achievement.condition_type,
+                "condition_value": achievement.condition_value,
+                "rewards": rewards,
+            })
     if new_achievements:
         db.commit()
     return new_achievements
@@ -70,6 +86,8 @@ def get_current_value_for_achievement(achievement, progress):
         return progress["friends_count"]
     elif achievement.condition_type == "days_streak":
         return progress["days_streak"]
+    elif achievement.condition_type == "level":
+        return progress["level"]
     else:
         return 0
 
@@ -84,6 +102,10 @@ def get_achievements_progress(db: Session, user_id: int):
     for achievement in achievements:
         current_value = get_current_value_for_achievement(achievement, progress)
         unlocked_entry=unlocked_map.get(achievement.id)
+        rewards = [
+            reward_to_dict(db, reward)
+            for reward in achievement.rewards
+        ]
         result.append({
             "id": achievement.id,
             "code": achievement.code,
@@ -95,6 +117,7 @@ def get_achievements_progress(db: Session, user_id: int):
             "current_value": current_value,
             "is_unlocked": unlocked_entry is not None,
             "unlocked_at": unlocked_entry.unlocked_at if unlocked_entry else None,
+            "rewards": rewards,
         })
 
     return result
@@ -120,5 +143,67 @@ def calculate_days_streak(db: Session, user_id: int):
             break
     return streak
 
+def plant_to_dict(plant):
+    if not plant:
+        return None
+    return {
+        "code": plant.code,
+        "name": plant.name,
+        "description": plant.description,
+        "rarity": plant.rarity,
+        "tree_type": plant.tree_type,
+        "image_url": plant.image_url,
+    }
+
+
+def apply_achievement_rewards(db: Session, user_id: int, achievement: Achievement):
+    user = db.get(User, user_id)
+    if not user:
+        return []
+    given_rewards = []
+    for reward in achievement.rewards:
+        if reward.reward_type == "xp":
+            xp_amount = int(reward.reward_value)
+            user.total_xp += xp_amount
+            given_rewards.append({
+                "type": "xp",
+                "value": xp_amount,
+            })
+        elif reward.reward_type == "plant":
+            plant_code = reward.reward_value
+            plant = db.query(Plant).filter(Plant.code == plant_code).first()
+            if not plant:
+                continue
+            existing_user_plant = db.query(UserPlant).filter( UserPlant.user_id == user_id, UserPlant.plant_code == plant.code).first()
+            if not existing_user_plant:
+                db.add(UserPlant(
+                    user_id=user_id,
+                    plant_code=plant.code,
+                    source_achievement_id=achievement.id,
+                ))
+            given_rewards.append({
+                "type": "plant",
+                "value": plant.code,
+                "plant": plant_to_dict(plant),
+            })
+    return given_rewards
+
+def reward_to_dict(db: Session, reward: AchievementReward):
+    if reward.reward_type == "xp":
+        return {
+            "type": "xp",
+            "value": int(reward.reward_value),
+        }
+    if reward.reward_type == "plant":
+        plant = db.query(Plant).filter(Plant.code == reward.reward_value).first()
+        return {
+            "type": "plant",
+            "value": reward.reward_value,
+            "plant": plant_to_dict(plant),
+        }
+    return {
+        "type": reward.reward_type,
+        "value": reward.reward_value,
+    }
 
 

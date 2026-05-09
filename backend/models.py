@@ -19,6 +19,7 @@ class User(Base):
     topics = relationship("Topic", back_populates="user")
     user_achievements = relationship("UserAchievement", back_populates="user")
     plants = relationship("UserPlant", back_populates="user")
+    level_rewards = relationship("UserLevelReward", back_populates="user")
 
     friendships_sent = relationship("Friendship",
         foreign_keys="Friendship.user_id",
@@ -145,7 +146,7 @@ class Plant(Base):
 class UserPlant(Base):
     __tablename__ = "user_plants"
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     plant_code = Column(String, ForeignKey("plants.code"), nullable=False)
     source_achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=True)
     unlocked_at = Column(DateTime, default=datetime.utcnow)
@@ -153,6 +154,30 @@ class UserPlant(Base):
 
     user=relationship("User", back_populates="plants")
     plant = relationship("Plant", back_populates="user_plants")
+
+class LevelReward(Base):
+    __tablename__ = "level_rewards"
+    id = Column(Integer, primary_key=True, index=True)
+    level = Column(Integer, unique=True, nullable=False)
+    plant_code = Column(String, ForeignKey("plants.code"), nullable=False)
+    title = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+
+    plant = relationship("Plant")
+    user_level_rewards = relationship("UserLevelReward", back_populates="level_reward")
+
+class UserLevelReward(Base):
+    __tablename__ = "user_level_rewards"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    level_reward_id = Column(Integer, ForeignKey("level_rewards.id"), nullable=False)
+    received_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="level_rewards")
+    level_reward = relationship("LevelReward", back_populates="user_level_rewards")
+    __table_args__ = (
+        UniqueConstraint("user_id", "level_reward_id", name="uq_user_level_reward"),
+    )
 
 
 

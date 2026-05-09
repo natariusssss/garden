@@ -11,6 +11,8 @@ from sqlalchemy import or_
 from datetime import datetime, timedelta
 from utils import get_next_review_date
 from math import sqrt
+from level_rewards_service import check_and_unlock_level_rewards
+from models import LevelReward, UserLevelReward
 
 def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
     user_topic=db.query(UserTopic).filter(UserTopic.id == user_topic_id, UserTopic.user_id == user_id
@@ -34,12 +36,14 @@ def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
         user.total_xp+=xp_earned
     db.commit()
     new_achievements=check_and_unlock_achievements(db, user_id)
+    new_level_rewards = check_and_unlock_level_rewards(db, user_id)
     db.refresh(review)
     return {
         "review": review,
         "xp_earned": xp_earned,
         "new_level": user_topic.level,
         "new_achievements": new_achievements,
+        "new_level_rewards": new_level_rewards,
     }
 def get_due_topics(db: Session, user_id: int):
     repeat_topics=db.query(UserTopic).filter(UserTopic.user_id==user_id, or_(
@@ -146,7 +150,31 @@ def delete_friend(db: Session, user_id: int, friend_id: int):
     db.delete(friendship)
     db.commit()
     return True
-
+def get_level_rewards_progress(db: Session, user_id: int):
+    rewards = db.query(LevelReward).order_by(LevelReward.level).all()
+    user_rewards = db.query(UserLevelReward).filter(UserLevelReward.user_id == user_id).all()
+    unlocked_ids = {
+        item.level_reward_id for item in user_rewards
+    }
+    result = []
+    for reward in rewards:
+        plant = reward.plant
+        result.append({
+            "id": reward.id,
+            "level": reward.level,
+            "title": reward.title,
+            "description": reward.description,
+            "is_unlocked": reward.id in unlocked_ids,
+            "plant": {
+                "code": plant.code,
+                "name": plant.name,
+                "description": plant.description,
+                "rarity": plant.rarity,
+                "tree_type": plant.tree_type,
+                "image_url": plant.image_url,
+            } if plant else None,
+        })
+    return result
 
 
 
