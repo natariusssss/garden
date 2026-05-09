@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import declarative_base, relationship
 Base = declarative_base()
 
@@ -18,6 +18,7 @@ class User(Base):
     review_history = relationship("ReviewHistory", back_populates="user")
     topics = relationship("Topic", back_populates="user")
     user_achievements = relationship("UserAchievement", back_populates="user")
+    plants = relationship("UserPlant", back_populates="user")
 
     friendships_sent = relationship("Friendship",
         foreign_keys="Friendship.user_id",
@@ -128,6 +129,30 @@ class AchievementReward(Base):
     reward_value = Column(String(100), nullable=False)
 
     achievement = relationship("Achievement", back_populates="rewards")
+
+class Plant(Base):
+    __tablename__ = "plants"
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    description = Column(String, nullable=True)
+    rarity = Column(String, nullable=False)
+    tree_type = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
+
+    user_plants = relationship("UserPlant", back_populates="plant")
+
+class UserPlant(Base):
+    __tablename__ = "user_plants"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    plant_code = Column(String, ForeignKey("plants.code"), nullable=False)
+    source_achievement_id = Column(Integer, ForeignKey("achievements.id"), nullable=True)
+    unlocked_at = Column(DateTime, default=datetime.utcnow)
+    __table_args__ = (UniqueConstraint("user_id", "plant_code", name="uq_user_plant"),)
+
+    user=relationship("User", back_populates="plants")
+    plant = relationship("Plant", back_populates="user_plants")
 
 
 

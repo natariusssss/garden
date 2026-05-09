@@ -1,8 +1,8 @@
 import code
-
 from main import SessionLocal
 from backend.models import Achievement
-
+from sqlalchemy.orm import Session
+from models import Achievement, AchievementReward
 def seed_achievements():
     db = SessionLocal()
     achievements_data=[
@@ -87,7 +87,6 @@ def seed_achievements():
             "condition_value": 7
         }
     ]
-
     try:
         for item in achievements_data:
             exists=db.query(Achievement).filter(Achievement.code==item["code"]).first()
