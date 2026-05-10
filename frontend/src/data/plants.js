@@ -8,6 +8,7 @@ const plants = [
     imgBig: "/birch/birch_big.png",
     imgMedium: "/birch/birch_medium.png",
     imgSmall: "/birch/birch_small.png",
+    imgDry: "/birch/birch_dry.png",
     description:
       "Светлое дерево с тонким белым стволом, темными отметинами на коре и легкой зеленой листвой.",
   },
@@ -20,6 +21,7 @@ const plants = [
     imgBig: "/tuya/tuya_big.png",
     imgMedium: "/tuya/tuya_medium.png",
     imgSmall: "/tuya/tuya_small.png",
+    imgDry: "/tuya/tuya_dry.png",
     description:
       "Стройное хвойное растение с плотной зеленой кроной, мелкой хвоей и аккуратным вертикальным силуэтом.",
   },
@@ -32,6 +34,7 @@ const plants = [
     imgBig: "/maple/maple_big.png",
     imgMedium: "/maple/maple_medium.png",
     imgSmall: "/maple/maple_small.png",
+    imgDry: "/maple/maple_dry.png",
     description:
       "Декоративное дерево с выразительной кроной, резными листьями и мягко раскинутыми ветвями.",
   },
@@ -44,6 +47,7 @@ const plants = [
     imgBig: "/oak/oak_big.png",
     imgMedium: "/oak/oak_medium.png",
     imgSmall: "/oak/oak_small.png",
+    imgDry: "/oak/oak_dry.png",
     description:
       "Мощное дерево с толстым стволом, широкой кроной, крепкими ветвями и плотными дубовыми листьями.",
   },
@@ -56,6 +60,7 @@ const plants = [
     imgBig: "/roses/roses_big.png",
     imgMedium: "/roses/roses_medium.png",
     imgSmall: "/roses/roses_small.png",
+    imgDry: "/roses/roses_dry.png",
     description:
       "Пышный цветочный куст с тонкими стеблями, зелеными листьями и яркими розовыми бутонами.",
   },
@@ -68,6 +73,7 @@ const plants = [
     imgBig: "/maple_japan/maple_japan_big.png",
     imgMedium: "/maple_japan/maple_japan_medium.png",
     imgSmall: "/maple_japan/maple_japan_small.png",
+    imgDry: "/maple_japan/maple_japan_dry.png",
     description:
       "Невысокое декоративное дерево с тонким стволом, изящными ветвями и резной красной листвой.",
   },
@@ -80,6 +86,7 @@ const plants = [
     imgBig: "/magnolia/magnolia_big.png",
     imgMedium: "/magnolia/magnolia_medium.png",
     imgSmall: "/magnolia/magnolia_small.png",
+    imgDry: "/magnolia/magnolia_dry.png",
     description:
       "Элегантное цветущее дерево с тонкими ветвями, крупными зелеными листьями и нежными светлыми цветами.",
   },
@@ -92,6 +99,7 @@ const plants = [
     imgBig: "/baobab/baobab_big.png",
     imgMedium: "/baobab/baobab_medium.png",
     imgSmall: "/baobab/baobab_small.png",
+    imgDry: "/baobab/baobab_dry.png",
     description:
       "Необычное массивное дерево с очень толстым стволом, короткими ветвями и компактной верхней кроной.",
   },
@@ -104,6 +112,7 @@ const plants = [
     imgBig: "/hydrangea/hydrangea_big.png",
     imgMedium: "/hydrangea/hydrangea_medium.png",
     imgSmall: "/hydrangea/hydrangea_small.png",
+    imgDry: "/hydrangea/hydrangea_dry.png",
     description:
       "Пышный декоративный куст с крупными зелеными листьями и округлыми цветочными соцветиями.",
   },
@@ -116,6 +125,7 @@ const plants = [
     imgBig: "/lilac/lilac_big.png",
     imgMedium: "/lilac/lilac_medium.png",
     imgSmall: "/lilac/lilac_small.png",
+    imgDry: "/lilac/lilac_dry.png",
     description:
       "Кустарник с тонкими ветвями, густой зеленой листвой и мягкими сиреневыми цветочными кистями.",
   },
@@ -128,6 +138,7 @@ const plants = [
     imgBig: "/orchids/orchids_big.png",
     imgMedium: "/orchids/orchids_medium.png",
     imgSmall: "/orchids/orchids_small.png",
+    imgDry: "/orchids/orchids_dry.png",
     description:
       "Изящный цветок с тонким стеблем, плавными листьями и крупными мягкими лепестками.",
   },
@@ -140,6 +151,7 @@ const plants = [
     imgBig: "/ginko/ginko_big.png",
     imgMedium: "/ginko/ginko_medium.png",
     imgSmall: "/ginko/ginko_small.png",
+    imgDry: "/ginko/ginko_dry.png",
     description:
       "Древнее дерево с аккуратным стволом, веерообразными листьями и теплой желто-зеленой кроной.",
   },
@@ -152,6 +164,7 @@ const plants = [
     imgBig: "/swamp_cypress/swamp_cypress_big.png",
     imgMedium: "/swamp_cypress/swamp_cypress_medium.png",
     imgSmall: "/swamp_cypress/swamp_cypress_small.png",
+    imgDry: "/swamp_cypress/swamp_cypress_dry.png",
     description:
       "Высокое хвойное дерево с мягкой рыжеватой кроной, тонкой хвоей и вытянутым силуэтом.",
   },
@@ -164,6 +177,7 @@ const plants = [
     imgBig: "/sequoia/sequoia_big.png",
     imgMedium: "/sequoia/sequoia_medium.png",
     imgSmall: "/sequoia/sequoia_small.png",
+    imgDry: "/sequoia/sequoia_dry.png",
     description:
       "Гигантское хвойное дерево с мощным прямым стволом, плотной кроной и массивным вертикальным силуэтом.",
   },
@@ -176,6 +190,7 @@ const plants = [
     imgBig: "/palm/palm_big.png",
     imgMedium: "/palm/palm_medium.png",
     imgSmall: "/palm/palm_small.png",
+    imgDry: "/palm/palm_dry.png",
     description:
       "Тропическое дерево с высоким тонким стволом, крупными раскидистыми листьями и кокосами у кроны.",
   },
@@ -188,6 +203,7 @@ const plants = [
     imgBig: "/sakura/sakura_big.png",
     imgMedium: "/sakura/sakura_medium.png",
     imgSmall: "/sakura/sakura_small.png",
+    imgDry: "/sakura/sakura_dry.png",
     description:
       "Нежное дерево с изогнутым стволом, тонкими ветвями и пышной розовой цветущей кроной.",
   },
@@ -200,6 +216,7 @@ const plants = [
     imgBig: "/willow/willow_big.png",
     imgMedium: "/willow/willow_medium.png",
     imgSmall: "/willow/willow_small.png",
+    imgDry: "/willow/willow_dry.png",
     description:
       "Высокое дерево с мягким силуэтом, длинными свисающими ветвями и узкой зеленой листвой.",
   },
@@ -212,6 +229,7 @@ const plants = [
     imgBig: "/cercis/cercis_big.png",
     imgMedium: "/cercis/cercis_medium.png",
     imgSmall: "/cercis/cercis_small.png",
+    imgDry: "/cercis/cercis_dry.png",
     description:
       "Декоративное дерево с изящным стволом, округлыми зелеными листьями и мягкими розово-сиреневыми цветами.",
   },
@@ -224,6 +242,7 @@ const plants = [
     imgBig: "/lotos/lotos_big.png",
     imgMedium: "/lotos/lotos_medium.png",
     imgSmall: "/lotos/lotos_small.png",
+    imgDry: "/lotos/lotos_dry.png",
     description:
       "Водное растение с широкими округлыми листьями, тонкими стеблями и крупным светлым цветком.",
   },
@@ -236,6 +255,7 @@ const plants = [
     imgBig: "/rainbow_eucalyptus/rainbow_eucalyptus_big.png",
     imgMedium: "/rainbow_eucalyptus/rainbow_eucalyptus_medium.png",
     imgSmall: "/rainbow_eucalyptus/rainbow_eucalyptus_small.png",
+    imgDry: "/rainbow_eucalyptus/rainbow_eucalyptus_dry.png",
     description:
       "Высокое дерево с гладким многоцветным стволом, вытянутой кроной и длинными зелеными листьями.",
   },
@@ -248,6 +268,7 @@ const plants = [
     imgBig: "/wise_oak/wise_oak_big.png",
     imgMedium: "/wise_oak/wise_oak_medium.png",
     imgSmall: "/wise_oak/wise_oak_small.png",
+    imgDry: "/wise_oak/wise_oak_dry.png",
     description:
       "Старинный дуб с крепким стволом, выразительными ветвями и густой плотной листвой.",
   },
@@ -260,6 +281,7 @@ const plants = [
     imgBig: "/lily/lily_big.png",
     imgMedium: "/lily/lily_medium.png",
     imgSmall: "/lily/lily_small.png",
+    imgDry: "/lily/lily_dry.png",
     description:
       "Изящный цветок с тонким зеленым стеблем, вытянутыми листьями и крупными мягкими лепестками.",
   },
@@ -272,6 +294,7 @@ const plants = [
     imgBig: "/dragon/dragon_big.png",
     imgMedium: "/dragon/dragon_medium.png",
     imgSmall: "/dragon/dragon_small.png",
+    imgDry: "/dragon/dragon_dry.png",
     description:
       "Декоративное дерево с разветвленным стволом, плотной зонтичной кроной и узкими зелеными листьями на концах ветвей.",
   },
@@ -284,6 +307,7 @@ const plants = [
     imgBig: "/jac/jac_big.png",
     imgMedium: "/jac/jac_medium.png",
     imgSmall: "/jac/jac_small.png",
+    imgDry: "/jac/jac_dry.png",
     description:
       "Цветущее дерево с тонким стволом, мягкой раскидистой кроной и пышными сиренево-фиолетовыми цветами.",
   },

@@ -7,6 +7,6 @@ class Settings:
     DATABASE_URL = f"sqlite:///{(BASE_DIR / 'garden.db').as_posix()}"
     SECRET_KEY = "your-secret-key-change-me-in-production"
     ALGORITHM = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+    ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 settings = Settings()

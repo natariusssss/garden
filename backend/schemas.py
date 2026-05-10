@@ -109,6 +109,7 @@ class TopicResponse(BaseModel):
     tree_type: Optional[str] = None
     rarity: Optional[str] = None
     image_url: Optional[str] = None
+    is_dry: bool = False
     new_achievements: list[AchievementResponse] = []
 
     last_reviewed: Optional[datetime] = None
@@ -185,6 +186,7 @@ class TopicXPResponse(BaseModel):
     current_progress_xp: int
     progress_width: str
     image_url: Optional[str] = None
+    is_dry: bool = False
 
 
 

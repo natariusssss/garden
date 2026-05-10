@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { createPortal } from "react-dom";
 import "./style.css";
 import Confetti from "../confetti/Confetti";
@@ -16,7 +15,10 @@ export default function ModalsLevelUp({
 }) {
   return createPortal(
     <div className="level-modal-overlay">
-      <Confetti />
+      <div className="level-modal-confetti">
+        <Confetti />
+      </div>
+
       <div className="level-modal">
         <h2 className="level-modal__title">Новый уровень !</h2>
 

@@ -2,37 +2,71 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 24px;
   overflow: hidden;
+
+  font-family: "Montserrat", "Raleway", sans-serif;
+
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  isolation: isolate;
+}
+
+.level-modal-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
   background: rgba(7, 7, 6, 0.72);
   backdrop-filter: blur(8px);
-  font-family: "Montserrat", "Raleway", sans-serif;
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.level-modal-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .level-modal {
   position: relative;
   z-index: 2;
   overflow: hidden;
+
   width: 500px;
   min-height: 500px;
   padding: 58px 64px 42px;
+
   text-align: center;
   color: #f7f7f2;
+
   border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+
+  backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
+  -webkit-backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
   background:
     radial-gradient(
       circle at 50% 22%,
-      rgba(154, 196, 75, 0.14),
+      rgba(154, 196, 75, 0.12),
       transparent 36%
     ),
-    linear-gradient(180deg, rgba(49, 45, 40, 0.96), rgba(31, 29, 27, 0.98));
+    linear-gradient(180deg, rgba(49, 45, 40, 0.896), rgba(49, 45, 40, 0.896));
+
   box-shadow:
-    0 0px 90px #000000,
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 0 90px #000000,
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .level-modal__title {
@@ -101,10 +135,12 @@
   width: 310px;
   height: 54px;
   margin: 0 auto 28px;
+
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
+
   border-radius: 14px;
   font-size: 22px;
   font-weight: 800;
@@ -115,12 +151,15 @@
 .level-modal__button {
   width: 100%;
   height: 62px;
+
   border: 0;
   border-radius: 15px;
   cursor: pointer;
+
   color: #202020;
   font-size: 20px;
   font-weight: 900;
+
   background: #b1ca7e;
   box-shadow: 0 12px 30px rgba(128, 193, 70, 0.22);
 }

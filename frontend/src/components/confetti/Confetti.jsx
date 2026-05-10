@@ -11,16 +11,13 @@ const CONFETTI_COLORS = [
 ];
 
 const createConfetti = () => {
-  return Array.from({ length: 55 }, (_, index) => ({
+  return Array.from({ length: 77 }, (_, index) => ({
     id: index,
     left: `${Math.random() * 100}%`,
-
-    top: `${-500 + Math.random() * 900}px`,
-
+    top: `${-1100 + Math.random() * 2000}px`,
     delay: `${Math.random() * 2.2}s`,
-
-    duration: `${7.5 + Math.random() * 3.5}s`,
-    size: `${9 + Math.random() * 10}px`,
+    duration: `${7 + Math.random() * 2}s`,
+    size: `${20 + Math.random() * 10}px`,
     rotate: `${Math.random() * 360}deg`,
     drift: `${-95 + Math.random() * 190}px`,
     color: CONFETTI_COLORS[index % CONFETTI_COLORS.length],
@@ -29,6 +26,7 @@ const createConfetti = () => {
 
 const Confetti = () => {
   const confetti = useMemo(() => createConfetti(), []);
+
   return (
     <div className="level-confetti" aria-hidden="true">
       {confetti.map((item) => (

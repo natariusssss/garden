@@ -8,6 +8,7 @@ import "./style.css";
 import ModalsLevelUp from "../../components/modalsLevelUp/ModalsLevelUp.jsx";
 import ModalNewPlantState from "../../components/modalNewPlantState/ModalNewPlantState.jsx";
 import StagesGrowth from "../../components/stagesGrowth/StagesGrowth.jsx";
+import NotificationXp from "../../components/notificationXp/NotificationXp.jsx";
 
 const ICONS = {
   settings: "/card-icons/settings.svg",
@@ -108,12 +109,18 @@ const Card = () => {
   const [isModalNewPlantState, setIsModalNewPlantState] = useState(false);
   const [levelUpInfo, setLevelUpInfo] = useState(null);
   const [flagStateChange, setFlagStateChange] = useState(false);
+  const [notificationXp, setNotificationXp] = useState(null);
   const handleAddXp = async (event) => {
     event.preventDefault();
 
     try {
-      const updated = await addXpToTopic(id, formatTimer(time).total * 1000);
+      const xpUp = formatTimer(time).total * 2000;
+      const updated = await addXpToTopic(id, xpUp);
       const isPlantStateChanged = updated.tree_state !== infoPlant.tree_state;
+      setNotificationXp({
+        xp: xpUp || 0,
+        text: "Выполнение задачи",
+      });
       if (updated.level > infoPlant.level) {
         setLevelUpInfo({
           oldLevel: infoPlant.level,
@@ -121,6 +128,7 @@ const Card = () => {
           currentMaxXp: updated.current_max_xp,
           currentProgress: updated.current_progress_xp,
         });
+
         setFlagStateChange(isPlantStateChanged);
         setIsModalLevelUpOpen(true);
       }
@@ -573,6 +581,13 @@ const Card = () => {
           state={infoPlant.tree_state}
           name={infoPlant.tree_type}
           onClose={() => setIsModalNewPlantState(false)}
+        />
+      )}
+      {notificationXp && notificationXp.xp > 0 && (
+        <NotificationXp
+          xp={notificationXp.xp}
+          text={notificationXp.text}
+          onClose={() => setNotificationXp(null)}
         />
       )}
     </>

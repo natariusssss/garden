@@ -1,7 +1,7 @@
 .level-confetti {
   position: absolute;
   inset: -900px 0 0 0;
-  z-index: 3;
+
   overflow: hidden;
   pointer-events: none;
 }
@@ -18,12 +18,10 @@
   background: var(--confetti-color);
   opacity: 0;
 
-  transform: translate3d(0, -20px, 0) rotate(var(--confetti-rotate));
-  filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.32));
+  transform: translate(0, -20px) rotate(var(--confetti-rotate));
 
   animation: levelConfettiFall var(--confetti-duration)
     cubic-bezier(0.12, 0.62, 0.28, 1) var(--confetti-delay) both;
-  will-change: opacity, transform;
 }
 
 .level-confetti__piece:nth-child(3n) {
@@ -47,7 +45,7 @@
 @keyframes levelConfettiFall {
   0% {
     opacity: 1;
-    transform: translate3d(0, 0, 0) rotate(var(--confetti-rotate)) scale(0.9);
+    transform: translate(0, 0) rotate(var(--confetti-rotate)) scale(0.9);
   }
 
   90% {
@@ -56,7 +54,7 @@
 
   100% {
     opacity: 0;
-    transform: translate3d(var(--confetti-drift), 155vh, 0)
+    transform: translate(var(--confetti-drift), 155vh)
       rotate(calc(var(--confetti-rotate) + 520deg)) scale(1);
   }
 }

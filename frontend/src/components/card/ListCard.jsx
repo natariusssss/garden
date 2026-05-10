@@ -54,8 +54,6 @@ const LEGENDARY_STARS = [
   "dot-6",
 ];
 
-
-
 const getRarityClass = (rarity = "") => {
   const value = String(rarity).toLowerCase();
 
@@ -97,7 +95,7 @@ const ListCard = ({
 }) => {
   const rarityClass = getRarityClass(rarity);
   const rarityMeta = RARITY_META[rarityClass];
-
+  const time = TimePassed(last_reviewed);
   return (
     <article
       className={`topic-card topic-card--${rarityClass}`}
@@ -125,9 +123,7 @@ const ListCard = ({
               className="topic-card__clock"
               aria-hidden="true"
             />
-            <span className="topic-card__time">
-              {TimePassed(last_reviewed)}ч
-            </span>
+            <span className="topic-card__time">{time}ч</span>
           </div>
 
           <div

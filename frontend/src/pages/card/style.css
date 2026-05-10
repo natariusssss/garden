@@ -605,7 +605,7 @@
 }
 
 .topic-tree-back-glow--legendary {
-  background: #e75480;
+  background: rgba(231, 84, 128, 0.82);
 }
 
 .topic-tree-back-glow--rare {
@@ -1129,8 +1129,8 @@
   --legendary-color: #e75480;
   --legendary-hot: #ff6fa3;
   --legendary-soft: #ffc4d8;
-  --legendary-gold: #ffd37a;
-  --legendary-gold-soft: #fff0bd;
+  --legendary-gold: #ff9abd;
+  --legendary-gold-soft: #ffd3e4;
 }
 
 .topic-tree-visual__legendary-effects {
@@ -1152,21 +1152,22 @@
   background:
     radial-gradient(
       circle at 50% 55%,
-      rgba(255, 221, 142, 0.46) 0%,
-      rgba(255, 158, 94, 0.15) 22%,
-      rgba(255, 83, 142, 0.25) 43%,
-      rgba(231, 84, 128, 0.12) 62%,
-      transparent 78%
+      rgba(255, 155, 194, 0.5) 0%,
+      rgba(255, 121, 169, 0.4) 20%,
+      rgba(231, 84, 128, 0.3) 40%,
+      rgba(186, 58, 111, 0.14) 62%,
+      transparent 84%
     ),
     radial-gradient(
       circle at 50% 50%,
-      rgba(255, 151, 181, 0.33) 0%,
-      rgba(231, 84, 128, 0.1) 42%,
-      transparent 72%
+      rgba(255, 205, 223, 0.28) 0%,
+      rgba(255, 132, 176, 0.18) 32%,
+      rgba(186, 58, 111, 0.08) 56%,
+      transparent 78%
     );
-  filter: blur(51px);
-  opacity: 0.86;
-  transform: scale(0.8);
+  filter: blur(66px);
+  opacity: 0.94;
+  transform: scale(0.84);
   animation: topic-tree-legendary-aura-pulse 5.4s ease-in-out infinite;
 }
 
@@ -1177,39 +1178,18 @@
   width: 84%;
   height: 31%;
   border-radius: 50%;
-  border: 1px solid rgba(255, 180, 125, 0.26);
+  border: 1px solid rgba(231, 84, 128, 0.28);
   box-shadow:
-    0 -1px 8px rgba(255, 208, 120, 0.16),
-    0 1px 12px rgba(231, 84, 128, 0.13),
-    inset 0 0 18px rgba(255, 129, 166, 0.06);
-  opacity: 0.74;
+    0 -1px 12px rgba(255, 154, 189, 0.16),
+    0 1px 22px rgba(231, 84, 128, 0.16),
+    inset 0 0 28px rgba(231, 84, 128, 0.08);
+  opacity: 0.82;
   animation: topic-tree-legendary-orbit-drift 7.2s ease-in-out infinite;
 }
 
 .topic-tree-visual__legendary-orbit::before,
 .topic-tree-visual__legendary-orbit::after {
-  content: "";
-  position: absolute;
-  border-radius: 999px;
-  background: var(--legendary-gold-soft);
-  box-shadow:
-    0 0 5px rgba(255, 236, 172, 0.95),
-    0 0 14px rgba(255, 169, 109, 0.65),
-    0 0 24px rgba(231, 84, 128, 0.42);
-}
-
-.topic-tree-visual__legendary-orbit::before {
-  right: 10%;
-  top: 46%;
-  width: 4px;
-  height: 4px;
-}
-
-.topic-tree-visual__legendary-orbit::after {
-  left: 13%;
-  top: 52%;
-  width: 3px;
-  height: 3px;
+  display: none;
 }
 
 .topic-tree-visual__legendary-orbit--one {
@@ -1288,7 +1268,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-1 {
-  --legendary-size: 18px;
+  --legendary-size: 42px;
   --legendary-delay: 0s;
   --legendary-particle-color: #ffd37a;
   left: 18%;
@@ -1296,7 +1276,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-2 {
-  --legendary-size: 12px;
+  --legendary-size: 31px;
   --legendary-delay: 1.2s;
   --legendary-particle-color: #ff8eb5;
   left: 73%;
@@ -1304,7 +1284,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-3 {
-  --legendary-size: 14px;
+  --legendary-size: 34px;
   --legendary-delay: 2.1s;
   --legendary-particle-color: #ffd37a;
   left: 86%;
@@ -1312,7 +1292,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-4 {
-  --legendary-size: 10px;
+  --legendary-size: 24px;
   --legendary-delay: 3.4s;
   --legendary-particle-color: #ff8eb5;
   left: 12%;
@@ -1320,7 +1300,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-5 {
-  --legendary-size: 16px;
+  --legendary-size: 38px;
   --legendary-delay: 4.4s;
   --legendary-particle-color: #ffd37a;
   left: 20%;
@@ -1328,7 +1308,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-6 {
-  --legendary-size: 13px;
+  --legendary-size: 33px;
   --legendary-delay: 5.5s;
   --legendary-particle-color: #ff8eb5;
   left: 68%;
@@ -1336,7 +1316,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-7 {
-  --legendary-size: 11px;
+  --legendary-size: 26px;
   --legendary-delay: 6.2s;
   --legendary-particle-color: #ffd37a;
   left: 27%;
@@ -1344,7 +1324,7 @@
 }
 
 .topic-tree-visual__legendary-particle--star-8 {
-  --legendary-size: 15px;
+  --legendary-size: 36px;
   --legendary-delay: 7.3s;
   --legendary-particle-color: #ff8eb5;
   left: 84%;
@@ -1352,7 +1332,7 @@
 }
 
 .topic-tree-visual__legendary-particle--dot-1 {
-  --legendary-size: 3px;
+  --legendary-size: 4px;
   --legendary-delay: 0.7s;
   --legendary-particle-color: #ffd37a;
   left: 24%;
@@ -1360,7 +1340,7 @@
 }
 
 .topic-tree-visual__legendary-particle--dot-2 {
-  --legendary-size: 4px;
+  --legendary-size: 5px;
   --legendary-delay: 1.9s;
   --legendary-particle-color: #ff8eb5;
   left: 80%;
@@ -1368,7 +1348,7 @@
 }
 
 .topic-tree-visual__legendary-particle--dot-3 {
-  --legendary-size: 3px;
+  --legendary-size: 4px;
   --legendary-delay: 2.8s;
   --legendary-particle-color: #ffd37a;
   left: 15%;
@@ -1376,7 +1356,7 @@
 }
 
 .topic-tree-visual__legendary-particle--dot-4 {
-  --legendary-size: 3px;
+  --legendary-size: 4px;
   --legendary-delay: 4.9s;
   --legendary-particle-color: #ff8eb5;
   left: 88%;
@@ -1384,7 +1364,7 @@
 }
 
 .topic-tree-visual__legendary-particle--dot-5 {
-  --legendary-size: 3px;
+  --legendary-size: 4px;
   --legendary-delay: 6.7s;
   --legendary-particle-color: #ffd37a;
   left: 33%;
@@ -1392,7 +1372,7 @@
 }
 
 .topic-tree-visual__legendary-particle--dot-6 {
-  --legendary-size: 3px;
+  --legendary-size: 4px;
   --legendary-delay: 8.2s;
   --legendary-particle-color: #ff8eb5;
   left: 74%;
@@ -1400,8 +1380,8 @@
 }
 
 .topic-tree-visual__legendary-leaf {
-  width: 34px;
-  height: 24px;
+  width: 40px;
+  height: 28px;
   color: #ffdda0;
   opacity: 0;
   filter: drop-shadow(0 0 5px rgba(255, 215, 132, 0.85))
@@ -1413,9 +1393,9 @@
 .topic-tree-visual__legendary-leaf::after {
   content: "";
   position: absolute;
-  top: 3px;
-  width: 13px;
-  height: 21px;
+  top: 4px;
+  width: 15px;
+  height: 24px;
   border: 2px solid currentColor;
   border-radius: 100% 0 100% 0;
 }
@@ -1497,12 +1477,12 @@
   0%,
   100% {
     opacity: 0.42;
-    filter: blur(0px) drop-shadow(0 0 7px rgba(255, 164, 119, 0.18));
+    filter: blur(0.2px) drop-shadow(0 0 8px rgba(231, 84, 128, 0.16));
   }
 
   50% {
     opacity: 0.82;
-    filter: blur(0px) drop-shadow(0 0 12px rgba(255, 210, 122, 0.32));
+    filter: blur(0.4px) drop-shadow(0 0 14px rgba(255, 139, 178, 0.26));
   }
 }
 

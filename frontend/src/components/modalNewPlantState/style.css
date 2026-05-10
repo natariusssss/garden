@@ -2,68 +2,109 @@
   position: fixed;
   inset: 0;
   z-index: 1000;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 24px;
+  overflow: hidden;
+
+  font-family: "Montserrat", "Raleway", sans-serif;
+
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  isolation: isolate;
+}
+
+.growth-modal-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
   background: rgba(7, 7, 6, 0.72);
   backdrop-filter: blur(8px);
-  font-family: "Montserrat", "Raleway", sans-serif;
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.growth-modal-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .growth-modal {
   position: relative;
+  z-index: 2;
   overflow: hidden;
-  width: 590px;
-  min-height: 720px;
-  padding: 54px 62px 34px;
+
+  width: 550px;
+  min-height: 650px;
+  padding: 48px 54px 34px;
+
   text-align: center;
   color: #f7f7f2;
+
   border-radius: 28px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+
+  backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
+  -webkit-backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
+
   background:
     radial-gradient(
       circle at 50% 22%,
-      rgba(154, 196, 75, 0.14),
+      rgba(154, 196, 75, 0.12),
       transparent 36%
     ),
-    linear-gradient(180deg, rgba(49, 45, 40, 0.96), rgba(31, 29, 27, 0.98));
+    linear-gradient(180deg, rgba(49, 45, 40, 0.896), rgba(49, 45, 40, 0.896));
+
   box-shadow:
-    0 32px 90px rgba(0, 0, 0, 0.58),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    0 0 90px #000000,
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .growth-modal__title {
   margin: 0;
   font-size: 38px;
   line-height: 1.05;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: -0.04em;
   color: #fff;
 }
 
 .growth-modal__plant-name {
-  margin-top: 12px;
+  margin-top: 16px;
+
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14px;
+
   font-size: 22px;
+  line-height: 1;
   font-weight: 800;
-  color: #fff;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .growth-modal__plant-name span {
   width: 38px;
-  height: 2px;
+  height: 1px;
   border-radius: 999px;
-  background: #8fca45;
+  background: rgba(177, 202, 126, 0.62);
 }
 
 .growth-modal__plant-wrap {
   position: relative;
-  height: 315px;
-  margin-top: 10px;
+  height: 255px;
+  margin-top: 8px;
+
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,12 +112,13 @@
 
 .growth-modal__plant-glow {
   position: absolute;
-  width: 390px;
-  height: 250px;
+  width: 330px;
+  height: 210px;
   border-radius: 50%;
+
   background: radial-gradient(
     circle,
-    rgba(151, 191, 78, 0.26),
+    rgba(151, 191, 78, 0.25),
     transparent 68%
   );
   filter: blur(14px);
@@ -85,16 +127,19 @@
 .growth-modal__plant-img {
   position: relative;
   z-index: 2;
-  width: 550px;
-  max-height: 330px;
+
+  width: 430px;
+  max-height: 320px;
   object-fit: contain;
-  margin-top: 35px;
+
+  margin-top: 15px;
 }
 
 .growth-modal__divider {
   width: 100%;
   height: 1px;
-  margin: 28px auto 20px;
+  margin: 22px auto 18px;
+
   background: linear-gradient(
     90deg,
     transparent,
@@ -104,26 +149,28 @@
 }
 
 .growth-modal__caption {
-  margin-top: -4px;
+  margin-top: 0;
   font-size: 17px;
-  font-weight: 750;
-  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.58);
 }
 
 .growth-modal__stage-title {
-  margin: 10px 0 35px;
+  margin: 8px 0 40px;
   font-size: 30px;
   line-height: 1;
   font-weight: 900;
   color: #b1ca7e;
-  text-shadow: 0 0 18px #b1ca7e38;
+  text-shadow: 0 0 18px rgba(177, 202, 126, 0.35);
 }
 
 .growth-modal__stages {
-  display: flex;
-  justify-content: center;
   width: 100%;
   margin: 0 auto 28px;
+
+  display: flex;
+  justify-content: center;
 }
 
 .growth-modal__stages .topic-stage__steps {
@@ -131,6 +178,7 @@
   align-items: flex-start;
   justify-content: center;
   gap: 18px;
+
   width: auto;
   height: auto;
   transform: none;
@@ -149,6 +197,7 @@
   flex-shrink: 0;
 }
 
+.growth-modal__stages .topic-stage__circle .topic-icon,
 .growth-modal__stages .topic-icon--stage-seedling,
 .growth-modal__stages .topic-icon--stage-young,
 .growth-modal__stages .topic-icon--stage-adult {
@@ -158,15 +207,19 @@
 }
 
 .growth-modal__stages .topic-stage__step span {
-  font-size: 14px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
   line-height: 1.15;
-  font-weight: 850;
+  font-weight: 300;
+  text-align: center;
+  letter-spacing: 0.01em;
   color: rgba(255, 255, 255, 0.88);
 }
 
 .growth-modal__stages .topic-stage__arrow {
   width: 34px;
   height: 62px;
+  margin-top: 17px;
   object-fit: contain;
   opacity: 0.55;
   flex-shrink: 0;
@@ -175,57 +228,19 @@
 .growth-modal__button {
   width: 100%;
   height: 62px;
+
   border: 0;
   border-radius: 15px;
   cursor: pointer;
-  color: #20251b;
+
+  color: #202020;
   font-size: 20px;
   font-weight: 900;
+
   background: #b1ca7e;
   box-shadow: 0 12px 30px rgba(128, 193, 70, 0.22);
 }
 
-.growth-modal__stages .topic-stage__steps {
-  transform: none;
-  align-items: flex-start;
-}
-
-.growth-modal__stages .topic-stage__step {
-  width: 96px;
-  min-height: auto;
-}
-
-.growth-modal__stages .topic-stage__circle {
-  width: 62px;
-  height: 62px;
-}
-
-.growth-modal__stages .topic-stage__circle .topic-icon {
-  width: 32px;
-  height: 32px;
-}
-
-.growth-modal__stages .topic-stage__step span {
-  font-size: 14px;
-  line-height: 1.15;
-  font-weight: 850;
-  color: rgba(255, 255, 255, 0.88);
-}
-
-.topic-stage__step span {
-  font-family: "Montserrat", sans-serif;
-  font-weight: 300;
-  font-size: 13px;
-  line-height: 1.15;
-  text-align: center;
-  letter-spacing: 0.01em;
-}
-.growth-modal__stages .topic-stage__steps {
-  align-items: flex-start;
-}
-.growth-modal__stages .topic-stage__arrow {
-  margin-top: 17px;
-}
 @media (max-width: 760px) {
   .growth-modal {
     width: min(100%, 420px);
@@ -242,11 +257,12 @@
   }
 
   .growth-modal__plant-wrap {
-    height: 250px;
+    height: 220px;
   }
 
   .growth-modal__plant-img {
     width: 330px;
+    max-height: 235px;
   }
 
   .growth-modal__stage-title {
@@ -266,6 +282,7 @@
     height: 48px;
   }
 
+  .growth-modal__stages .topic-stage__circle .topic-icon,
   .growth-modal__stages .topic-icon--stage-seedling,
   .growth-modal__stages .topic-icon--stage-young,
   .growth-modal__stages .topic-icon--stage-adult {

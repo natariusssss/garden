@@ -121,6 +121,17 @@ def get_topic_progress_data(user_topic: Optional[UserTopic]):
     return calculate_topic_progress_data(xp)
 
 
+DRY_AFTER_DAYS = 2
+
+
+def is_user_topic_dry(user_topic: Optional[UserTopic]) -> bool:
+    if not user_topic or not user_topic.next_review_date:
+        return False
+
+    dry_date = user_topic.next_review_date + timedelta(days=DRY_AFTER_DAYS)
+    return datetime.now() > dry_date
+
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -235,6 +246,7 @@ def get_my_topics(
         ).first()
 
         progress_data = get_topic_progress_data(user_topic)
+        is_dry = is_user_topic_dry(user_topic)
 
         result.append({
             "id": topic.id,
@@ -245,8 +257,10 @@ def get_my_topics(
             "rarity": topic.rarity,
             "image_url": get_tree_image_url(
                 topic.image_url,
-                user_topic.tree_state if user_topic else "seed"
+                user_topic.tree_state if user_topic else "seed",
+                is_dry
             ),
+            "is_dry": is_dry,
 
             "tree_state": user_topic.tree_state if user_topic else "seed",
             "review_count": user_topic.review_count if user_topic else 0,
@@ -277,6 +291,7 @@ def get_topic(
     ).first()
 
     progress_data = get_topic_progress_data(user_topic)
+    is_dry = is_user_topic_dry(user_topic)
 
     return {
         "id": topic.id,
@@ -287,8 +302,10 @@ def get_topic(
         "rarity": topic.rarity,
         "image_url": get_tree_image_url(
              topic.image_url,
-            user_topic.tree_state if user_topic else "seed"
+            user_topic.tree_state if user_topic else "seed",
+            is_dry
         ),
+        "is_dry": is_dry,
         "tree_state": user_topic.tree_state if user_topic else "seed",
         "review_count": user_topic.review_count if user_topic else 0,
 
@@ -706,9 +723,11 @@ def add_xp_to_topic(
         Topic.user_id == current_user.id
     ).first()
 
+    is_dry = is_user_topic_dry(user_topic)
     image_url = get_tree_image_url(
         topic.image_url if topic else None,
-        user_topic.tree_state
+        user_topic.tree_state,
+        is_dry
     )
 
     db.commit()
@@ -719,25 +738,29 @@ def add_xp_to_topic(
         "level": user_topic.level,
         "tree_state": user_topic.tree_state,
         "image_url": image_url,
+        "is_dry": is_dry,
         "current_max_xp": progress_data["current_max_xp"],
         "current_progress_xp": progress_data["current_progress_xp"],
         "progress_width": progress_data["progress_width"],
     }
 
 
-def get_tree_image_url(image_url: str | None, tree_state: str):
+def get_tree_image_url(image_url: str | None, tree_state: str, is_dry: bool = False):
     if not image_url:
         return None
 
-    state_to_suffix = {
-        "seed": "_small",
-        "young": "_medium",
-        "adult": "_big",
-    }
+    if is_dry:
+        target_suffix = "_dry"
+    else:
+        state_to_suffix = {
+            "seed": "_small",
+            "young": "_medium",
+            "adult": "_big",
+        }
 
-    target_suffix = state_to_suffix.get(tree_state, "_small")
+        target_suffix = state_to_suffix.get(tree_state, "_small")
 
-    for suffix in ["_small", "_medium", "_big"]:
+    for suffix in ["_small", "_medium", "_big", "_dry"]:
         if suffix in image_url:
             return image_url.replace(suffix, target_suffix)
 
