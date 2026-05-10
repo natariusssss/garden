@@ -21,7 +21,7 @@ from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 from sqlalchemy import func
 from sqlalchemy import text
-from crud import get_level_rewards_progress
+from crud import get_level_rewards_progress, subtract_topic_xp
 
 
 
@@ -239,11 +239,15 @@ def get_my_topics(
     topics = query.all()
     result = []
 
+    changed = False
     for topic in topics:
         user_topic = db.query(UserTopic).filter(
             UserTopic.user_id == current_user.id,
             UserTopic.topic_id == topic.id
         ).first()
+
+        if user_topic and subtract_topic_xp(user_topic):
+            changed = True
 
         progress_data = get_topic_progress_data(user_topic)
         is_dry = is_user_topic_dry(user_topic)
@@ -267,7 +271,8 @@ def get_my_topics(
             "last_reviewed": user_topic.last_reviewed if user_topic else None,
             **progress_data,
         })
-
+    if changed:
+        db.commit()
     return result
 
 

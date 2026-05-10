@@ -1,4 +1,4 @@
-from models import UserTopic, ReviewHistory, User, Friendship
+from models import UserTopic, ReviewHistory, User, Friendship, Topic
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from datetime import datetime, timedelta
@@ -27,6 +27,7 @@ def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
         user_topic.level = max(0, user_topic.level - 1)
     user_topic.review_count += 1
     user_topic.last_reviewed = datetime.now()
+    user_topic.last_xp_penalty_at = None
     user_topic.next_review_date=get_next_review_date(user_topic.level)
     user_topic.xp+=xp_earned
     review=ReviewHistory( user_id=user_id, topic_id=user_topic.topic_id, success=success, reviewed_at=datetime.now())
@@ -176,6 +177,21 @@ def get_level_rewards_progress(db: Session, user_id: int):
         })
     return result
 
+def subtract_topic_xp(db: Session, user_id: int, topic_id: int):
+    user_topic=(db.query(UserTopic).filter(UserTopic.user_id == user_id, UserTopic.topic_id == topic_id).first())
+    if not user_topic:
+        return None
+    if not user_topic.last_reviewed:
+        return user_topic
+    now = datetime.utcnow()
+    days_passed = (now - user_topic.last_reviewed).days
+    if days_passed >= 7:
+        penalty_days = days_passed - 6
+        penalty_xp = penalty_days * 100
+        user_topic.xp = max(user_topic.xp - penalty_xp, 0)
+        db.commit()
+        db.refresh(user_topic)
+    return user_topic
 
 
 

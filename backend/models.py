@@ -57,6 +57,7 @@ class UserTopic(Base):
     last_reviewed = Column(DateTime, default=datetime.now)
     review_count = Column(Integer, default=0, nullable=False)
     next_review_date = Column(DateTime, default=datetime.now)
+    last_xp_penalty_at = Column(DateTime, nullable=True)
     xp = Column(Integer, default=0)
     tree_state=Column(String(50), nullable=False, default="seed")
 
