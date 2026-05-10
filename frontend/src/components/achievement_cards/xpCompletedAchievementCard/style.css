@@ -1,0 +1,238 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap");
+
+.xp-completed-achievement-card,
+.xp-completed-achievement-card * {
+  box-sizing: border-box;
+}
+
+.xp-completed-achievement-card {
+  --achievement-accent: #ffc21a;
+  position: relative;
+  width: 100%;
+  min-height: 247px;
+  padding: 24px 28px 20px;
+  overflow: hidden;
+  border-radius: 23px;
+  font-family: "Montserrat", sans-serif;
+  color: #ffffff;
+  background:
+    linear-gradient(180deg, rgba(51, 48, 44, 0.76), rgba(38, 36, 33, 0.73)),
+    rgba(38, 35, 32, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(14px);
+}
+
+.xp-completed-achievement-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.72;
+  background:
+    radial-gradient(circle at 18% 15%, color-mix(in srgb, var(--achievement-accent) 18%, transparent), transparent 35%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 47%);
+}
+
+.xp-completed-achievement-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.xp-completed-achievement-card__count {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  height: 26px;
+  min-width: 58px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 13px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  border: 2px solid color-mix(in srgb, var(--achievement-accent) 54%, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 0 22px color-mix(in srgb, var(--achievement-accent) 10%, transparent);
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.xp-completed-achievement-card__main {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  align-items: center;
+  gap: 23px;
+  min-height: 125px;
+  padding-right: 34px;
+}
+
+.xp-completed-achievement-card__icon {
+  width: 98px;
+  height: 98px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--achievement-accent);
+  background:
+    radial-gradient(circle at 38% 28%, color-mix(in srgb, var(--achievement-accent) 26%, transparent), transparent 54%),
+    color-mix(in srgb, var(--achievement-accent) 14%, rgba(255, 255, 255, 0.02));
+  border: 1px solid color-mix(in srgb, var(--achievement-accent) 32%, transparent);
+  box-shadow:
+    0 16px 28px rgba(0, 0, 0, 0.23),
+    0 0 34px color-mix(in srgb, var(--achievement-accent) 10%, transparent);
+}
+
+.xp-completed-achievement-card__icon span {
+  color: #ffc21a;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+  text-shadow: 0 0 15px rgba(255, 194, 26, 0.16);
+}
+
+.xp-completed-achievement-card__content {
+  position: relative;
+  min-width: 0;
+  padding-top: 9px;
+}
+
+.xp-completed-achievement-card__reward {
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.xp-completed-achievement-card__reward--xp {
+  color: #ffc21a;
+  background: rgba(255, 194, 26, 0.17);
+}
+
+.xp-completed-achievement-card__title {
+  margin: 12px 0 7px;
+  color: #ffffff;
+  font-size: 22px;
+  line-height: 1.1;
+  font-weight: 800;
+  text-shadow: 0 7px 18px rgba(0, 0, 0, 0.24);
+}
+
+.xp-completed-achievement-card__description {
+  margin: 0;
+  max-width: 250px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 17px;
+  line-height: 1.39;
+  font-weight: 500;
+}
+
+.xp-completed-achievement-card__progress {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 8px;
+  margin: 19px 0 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.xp-completed-achievement-card__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--achievement-accent);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--achievement-accent) 34%, transparent);
+}
+
+.xp-completed-achievement-card__footer {
+  position: relative;
+  z-index: 1;
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.xp-completed-achievement-card__xp {
+  color: #ffc21a;
+  font-size: 23px;
+  line-height: 1;
+  font-weight: 900;
+  text-shadow: 0 0 15px rgba(255, 194, 26, 0.12);
+}
+
+.xp-completed-achievement-card__status {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 17px;
+  border-radius: 999px;
+  color: #8fd2ff;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(143, 210, 255, 0.14), transparent 65%),
+    rgba(116, 166, 191, 0.13);
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@media (max-width: 520px) {
+  .xp-completed-achievement-card {
+    padding: 22px 18px 18px;
+  }
+
+  .xp-completed-achievement-card__main {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 16px;
+    padding-right: 0;
+  }
+
+  .xp-completed-achievement-card__icon {
+    width: 86px;
+    height: 86px;
+  }
+
+  .xp-completed-achievement-card__count {
+    top: 18px;
+    right: 18px;
+  }
+
+  .xp-completed-achievement-card__title {
+    font-size: 18px;
+  }
+
+  .xp-completed-achievement-card__description {
+    font-size: 14px;
+  }
+}
+
+.xp-completed-achievement-card--completed {
+  min-height: 202px;
+}
+
+.xp-completed-achievement-card__footer--completed {
+  margin-top: 18px;
+}
+
+.xp-completed-achievement-card__status--done {
+  color: #d5ff9b;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(157, 216, 94, 0.17), transparent 65%),
+    rgba(119, 154, 75, 0.18);
+}

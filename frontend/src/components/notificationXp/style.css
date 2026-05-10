@@ -6,27 +6,27 @@
 
   width: 330px;
   min-height: 100px;
-  padding: 10px 15px;
+  padding: 13px 15px;
 
   display: flex;
   align-items: center;
   gap: 18px;
 
-  border-radius: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.06);
-
-  backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
-  -webkit-backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
+  border-radius: 25px;
+  border: 1.5px solid rgba(153, 199, 95, 0.26);
+  backdrop-filter: blur(25px) saturate(240%) brightness(1.12);
+  -webkit-backdrop-filter: blur(25px) saturate(240%) brightness(1.12);
   background:
     radial-gradient(
-      circle at 50% 22%,
-      rgba(154, 196, 75, 0.12),
-      transparent 36%
+      circle at 78% 18%,
+      rgba(217, 235, 124, 0.12),
+      transparent 30%
     ),
-    linear-gradient(180deg, rgba(49, 45, 40, 0.896), rgba(49, 45, 40, 0.896));
+    linear-gradient(180deg, rgba(69, 67, 54, 0.94), rgba(56, 54, 45, 0.94));
   box-shadow:
-    0 16px 38px rgba(0, 0, 0, 0.22),
-    0 0 24px rgba(168, 217, 87, 0.12),
+    0 18px 45px rgba(33, 30, 27, 0.25),
+    0 0 55px rgba(157, 210, 96, 0.17),
+    0 0 25px rgba(187, 231, 117, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   animation: xpToastIn 0.45s ease forwards;
@@ -39,7 +39,7 @@
 
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.82);
 
   font-size: 28px;
   line-height: 1;
@@ -47,63 +47,84 @@
 }
 
 .xp-toast__icon {
-  width: 55px;
-  height: 55px;
+  flex: 0 0 65px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  color: #a8d957;
-  font-size: 35px;
+  color: #d8f38e;
+  font-size: 45px;
 
-  border: 1px solid rgba(168, 217, 87, 0.55);
-  background: rgba(168, 217, 87, 0.08);
+  border: 1px solid rgba(174, 221, 102, 0.48);
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(186, 230, 111, 0.22),
+    rgba(126, 165, 66, 0.1) 65%,
+    rgba(126, 165, 66, 0.04) 100%
+  );
 
-  box-shadow: 0 0 22px rgba(168, 217, 87, 0.16);
+  box-shadow:
+    0 0 18px rgba(169, 218, 96, 0.18),
+    inset 0 0 12px rgba(194, 233, 136, 0.08);
+}
+
+.xp-toast__icon-star {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+  transform: translateY(1px);
 }
 
 .xp-toast__content {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
 }
 
 .xp-toast__label {
   width: fit-content;
-  padding: 5px 10px;
+  padding: 5px 11px;
 
   border-radius: 999px;
-  background: rgba(168, 217, 87, 0.18);
+  border: 1px solid rgba(177, 221, 104, 0.22);
+  background: rgba(158, 207, 84, 0.17);
+  box-shadow: 0 0 14px rgba(170, 219, 97, 0.1);
 
-  color: #b4df63;
+  color: #d7ef98;
   font-size: 12px;
   font-weight: 700;
 }
 
 .xp-toast__xp {
-  color: #a8d957;
+  color: #d3f081;
   font-size: 26px;
   font-weight: 900;
   line-height: 1;
+  text-shadow: 0 0 12px rgba(181, 224, 113, 0.22);
 }
 
 .xp-toast__text {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 16px;
   font-weight: 500;
 }
 
 .xp-toast__sparkles {
   position: absolute;
-  right: 50px;
-  bottom: 35px;
+  right: 48px;
+  bottom: 34px;
 
-  color: rgba(168, 217, 87, 0.8);
+  color: rgba(210, 239, 136, 0.82);
   font-size: 22px;
 
-  filter: drop-shadow(0 0 8px rgba(168, 217, 87, 0.5));
+  filter: drop-shadow(0 0 8px rgba(171, 218, 102, 0.4));
 }
 
 .xp-toast--closing {

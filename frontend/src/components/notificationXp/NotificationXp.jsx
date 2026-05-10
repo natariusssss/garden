@@ -31,7 +31,7 @@ export default function NotificationXp({
       </button>
 
       <div className="xp-toast__icon">
-        <span>✦</span>
+        <span className="xp-toast__icon-star">✦</span>
       </div>
 
       <div className="xp-toast__content">

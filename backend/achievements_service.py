@@ -12,7 +12,10 @@ def get_user_progress(db: Session, user_id):
     reviews_count=db.query(ReviewHistory).filter(ReviewHistory.user_id == user.id).count()
     topics_count=db.query(UserTopic).filter(UserTopic.user_id == user.id).count()
     user_xp=user.total_xp
-    friends_count=db.query(Friendship).filter(Friendship.status=="accepted", or_(Friendship.user_id==user.id, Friendship.user_id==user.id)).count()
+    friends_count = db.query(Friendship).filter(
+        Friendship.status == "accepted",
+        or_(Friendship.user_id == user.id, Friendship.friend_id == user.id)
+    ).count()
     days_streak=calculate_days_streak(db, user_id)
     return {
         "total_xp": user_xp,
@@ -91,6 +94,21 @@ def get_current_value_for_achievement(achievement, progress):
     else:
         return 0
 
+def get_reward_category(rewards):
+    """Главная категория карточки для фронта: plant имеет приоритет над xp."""
+    if any(reward.reward_type == "plant" for reward in rewards):
+        return "plant"
+    if any(reward.reward_type == "xp" for reward in rewards):
+        return "xp"
+    return None
+
+
+def get_progress_percent(current_value: int, condition_value: int):
+    if not condition_value or condition_value <= 0:
+        return 0
+    return min(100, round((current_value / condition_value) * 100, 2))
+
+
 def get_achievements_progress(db: Session, user_id: int):
     progress=get_user_progress(db, user_id)
     if progress is None:
@@ -115,6 +133,8 @@ def get_achievements_progress(db: Session, user_id: int):
             "condition_type": achievement.condition_type,
             "condition_value": achievement.condition_value,
             "current_value": current_value,
+            "progress_percent": get_progress_percent(current_value, achievement.condition_value),
+            "reward_category": get_reward_category(achievement.rewards),
             "is_unlocked": unlocked_entry is not None,
             "unlocked_at": unlocked_entry.unlocked_at if unlocked_entry else None,
             "rewards": rewards,
@@ -153,6 +173,7 @@ def plant_to_dict(plant):
         "rarity": plant.rarity,
         "tree_type": plant.tree_type,
         "image_url": plant.image_url,
+        "imgBig": plant.image_url,
     }
 
 

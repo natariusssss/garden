@@ -353,3 +353,22 @@ export async function sendFriendRequest(friendUsername, token) {
 
   return data;
 }
+
+export async function getAchievementsProgress() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/users/me/achievements/progress`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка загрузки достижений");
+  }
+
+  return data;
+}

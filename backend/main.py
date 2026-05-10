@@ -22,6 +22,9 @@ from fastapi import Request
 from sqlalchemy import func
 from sqlalchemy import text
 from crud import get_level_rewards_progress, subtract_topic_xp
+from seed_plants import seed_plants
+from seed_achievements import seed_achievements
+from seed_level_rewards import seed_level_rewards
 
 
 
@@ -34,6 +37,17 @@ engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread":
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base.metadata.create_all(bind=engine)
+
+def seed_initial_data():
+    db = SessionLocal()
+    try:
+        seed_plants(db)
+        seed_level_rewards(db)
+        seed_achievements(db)
+    finally:
+        db.close()
+
+seed_initial_data()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
@@ -246,7 +260,7 @@ def get_my_topics(
             UserTopic.topic_id == topic.id
         ).first()
 
-        if user_topic and subtract_topic_xp(user_topic):
+        if user_topic and subtract_topic_xp(db, current_user.id, topic.id):
             changed = True
 
         progress_data = get_topic_progress_data(user_topic)
@@ -693,6 +707,8 @@ def get_my_achievements_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    # Перед выдачей списка сначала проверяем, не появились ли новые выполненные достижения.
+    check_and_unlock_achievements(db, current_user.id)
     return get_achievements_progress(db, current_user.id)
 
 
@@ -711,7 +727,12 @@ def add_xp_to_topic(
     if not user_topic:
         raise HTTPException(status_code=404, detail="UserTopic not found")
 
-    user_topic.xp += max(0, payload.xp)
+    xp_to_add = max(0, payload.xp)
+    user_topic.xp += xp_to_add
+
+    user = db.get(User, current_user.id)
+    if user:
+        user.total_xp += xp_to_add
 
     progress_data = calculate_topic_progress_data(user_topic.xp)
     user_topic.level = progress_data["level"]
@@ -735,6 +756,8 @@ def add_xp_to_topic(
         is_dry
     )
 
+    new_achievements = check_and_unlock_achievements(db, current_user.id)
+
     db.commit()
     db.refresh(user_topic)
 
@@ -747,6 +770,7 @@ def add_xp_to_topic(
         "current_max_xp": progress_data["current_max_xp"],
         "current_progress_xp": progress_data["current_progress_xp"],
         "progress_width": progress_data["progress_width"],
+        "new_achievements": new_achievements,
     }
 
 
