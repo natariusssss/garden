@@ -6,6 +6,8 @@ import {
   acceptFriendRequest,
   rejectFriendRequest,
   deleteFriend,
+  searchUsers,
+  sendFriendRequest,
 } from "../../api/auth";
 import "./friends.css";
 
@@ -90,6 +92,9 @@ const MoreIcon = ({ className = "" }) => (
 export default function FriendsPage() {
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [users, setUsers] = useState([]);
+  const [sentRequests, setSentRequests] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -147,6 +152,44 @@ export default function FriendsPage() {
 
     setFriends((prev) => prev.filter((item) => item.id !== friend.id));
   };
+
+  const handleSearchUsers = async (value) => {
+    setSearchQuery(value);
+
+    if (!value.trim()) {
+      setUsers([]);
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    const result = await searchUsers(token, value);
+    setUsers(result);
+  };
+  const handleSendFriendRequest = async (username) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      await sendFriendRequest(username, token);
+
+      setSentRequests((prev) => [...prev, username]);
+    } catch (error) {
+      if (error.message === "Request already pending") {
+        setSentRequests((prev) => [...prev, username]);
+        return;
+      }
+
+      alert(error.message || "заявка уже была отправлена");
+    }
+  };
+
+  const isFriend = (username) => {
+    return friends.some((friend) => friend.username === username);
+  };
+
+  const isRequestSent = (username) => {
+    return sentRequests.includes(username);
+  };
+
   return (
     <div className="friends-page">
       <Header />
@@ -163,14 +206,64 @@ export default function FriendsPage() {
           <div className="friends-search-card">
             <h2 className="friends-search-title">Найти пользователя</h2>
 
-            <label className="friends-search-field">
-              <SearchIcon className="friends-search-icon" />
-              <input
-                type="text"
-                placeholder="Введите имя пользователя..."
-                aria-label="Глобальный поиск пользователей"
-              />
-            </label>
+            <div className="friends-search-wrapper">
+              <label className="friends-search-field">
+                <SearchIcon className="friends-search-icon" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(event) => handleSearchUsers(event.target.value)}
+                  placeholder="Введите имя пользователя..."
+                />
+              </label>
+
+              {searchQuery.trim() && (
+                <div className="friends-search-dropdown">
+                  {users.length > 0 ? (
+                    users.map((user) => (
+                      <div key={user.id} className="friends-search-result">
+                        <div className="friends-search-result-avatar">
+                          {getInitial(user.username)}
+                        </div>
+
+                        <div>
+                          <p className="friends-search-result-name">
+                            {user.username}
+                          </p>
+                          <p className="friends-search-result-email">
+                            {user.xp}
+                          </p>
+                        </div>
+                        <button
+                          className={`friends-send-request ${
+                            isFriend(user.username) ||
+                            isRequestSent(user.username)
+                              ? "friends-send-request-disabled"
+                              : "friends-send-request-enabled"
+                          }`}
+                          type="button"
+                          disabled={
+                            isFriend(user.username) ||
+                            isRequestSent(user.username)
+                          }
+                          onClick={() => handleSendFriendRequest(user.username)}
+                        >
+                          {isFriend(user.username)
+                            ? "Уже в друзьях"
+                            : isRequestSent(user.username)
+                              ? "Заявка отправлена"
+                              : "Добавить"}
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="friends-search-empty">
+                      Пользователи не найдены
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="friends-stat-card friends-stat-card-green">

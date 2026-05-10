@@ -312,3 +312,44 @@ export async function addXpToTopic(topicId, xp) {
 
   return data;
 }
+
+export async function searchUsers(token, query) {
+  const response = await fetch(
+    `${API_URL}/users/search?query=${encodeURIComponent(query)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка поиска пользователей");
+  }
+
+  return data;
+}
+
+export async function sendFriendRequest(friendUsername, token) {
+  const response = await fetch(`${API_URL}/friendships/request`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      friend_username: friendUsername,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка отправки заявки");
+  }
+
+  return data;
+}

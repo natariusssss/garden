@@ -66,37 +66,37 @@
   opacity: 0.25;
 }
 
-/* верхняя карточка */
+
 .profile-hero {
   --profile-glow: 216, 177, 90;
 }
 
-/* уровень */
+
 .profile-stat-card:nth-child(1) {
   --profile-glow: 216, 177, 90;
 }
 
-/* достижения */
+
 .profile-stat-card:nth-child(2) {
   --profile-glow: 216, 177, 90;
 }
 
-/* друзья - синий */
+
 .profile-stat-card:nth-child(3) {
   --profile-glow: 101, 174, 234;
 }
 
-/* рейтинг */
+
 .profile-stat-card:nth-child(4) {
   --profile-glow: 216, 177, 90;
 }
 
-/* нижняя плашка достижений */
+
 .profile-bottom-grid .profile-section-card:first-child {
   --profile-glow: 216, 177, 90;
 }
 
-/* нижняя плашка рейтинга  */
+
 .profile-bottom-grid .profile-section-card:last-child {
   --profile-glow: 101, 174, 234;
 }

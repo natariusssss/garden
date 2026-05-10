@@ -3,10 +3,11 @@
 .friends-page {
   position: relative;
   min-height: calc(1080px - var(--header-h));
-  overflow-x: clip;
+  overflow-x: visible;
   color: #ffffff;
   font-family: "Montserrat", sans-serif;
 }
+
 
 .friends-page,
 .friends-page * {
@@ -28,6 +29,7 @@
   width: min(1728px, calc(100% - 96px));
   margin: 0 auto;
   padding: 45px 0 96px;
+  overflow: visible;
 }
 
 .friends-hero {
@@ -53,6 +55,8 @@
 }
 
 .friends-top-grid {
+  position: relative;
+  z-index: 50;
   display: grid;
   grid-template-columns: minmax(760px, 1fr) 330px;
   gap: 24px;
@@ -72,12 +76,15 @@
     0 8px 18px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.035);
   backdrop-filter: blur(20px);
+
 }
 
 .friends-search-card {
   min-height: 22px;
   padding: 24px 34px 24px;
   gap: 33px;
+  position: relative;
+  overflow: visible;
 }
 
 .friends-search-title {
@@ -166,6 +173,100 @@
   font-size: 17px;
   line-height: 1;
 }
+
+
+.friends-search-wrapper {
+  position: relative;
+  
+}
+
+.friends-search-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+
+  background: #343131;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 12px;
+
+  max-height: 280px;
+  overflow-y: auto;
+
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+}
+
+.friends-search-result {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(76, 71, 65, 0.22);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.friends-search-result:last-child {
+  border-bottom: none;
+}
+
+.friends-search-result:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.friends-search-result-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: rgba(148, 190, 72, 0.25);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.friends-search-result-name {
+  margin: 0;
+  color: #fff;
+  font-weight: 800;
+}
+.friends-send-request-enabled {
+  margin-left: auto;
+  min-width: 112px;
+  padding: 0 20px;
+  color: rgba(255, 255, 255, 0.82);
+  border: 1px solid #46423d;
+  background: #3a3835;
+}
+
+.friends-send-request-enabled:hover {
+  background: #b1ca7e;
+  border-color: rgba(170, 200, 112, 0.55);
+  color: #ffffff;
+}
+
+.friends-search-empty {
+  margin: 0;
+  padding: 12px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+
+
+
+.friends-send-request-disabled {
+  margin-left: auto;
+  min-width: 112px;
+  padding: 0 20px;
+  background: #4c4c4c;
+  color: rgba(255,255,255,0.7);
+  cursor: default;
+}
+
 
 .friends-stat-card {
   min-height: 22px;
@@ -385,13 +486,20 @@
 .friends-profile-button,
 .friends-more-button,
 .friends-request-accept,
-.friends-request-reject {
+.friends-request-reject,
+.friends-send-request {
   height: 44px;
   border-radius: 10px;
   font-size: 15px;
   line-height: 1;
   font-weight: 800;
   color: #ffffff;
+}
+
+.friends-profile-button,
+.friends-more-button,
+.friends-request-accept,
+.friends-request-reject{
   cursor: pointer;
   transition:
     transform 0.2s ease,
@@ -403,7 +511,8 @@
 .friends-profile-button:hover,
 .friends-more-button:hover,
 .friends-request-accept:hover,
-.friends-request-reject:hover {
+.friends-request-reject:hover,
+.friends-send-request-enabled:hover {
   transform: translateY(-1px);
 }
 
@@ -579,3 +688,4 @@
     flex-wrap: wrap;
   }
 }
+
