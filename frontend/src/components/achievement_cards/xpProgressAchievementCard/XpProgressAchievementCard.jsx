@@ -1,8 +1,18 @@
 import "./style.css";
 
-export default function XpProgressAchievementCard({ title, description }) {
+export default function XpProgressAchievementCard({
+  title,
+  description,
+  current_value,
+  condition_value,
+}) {
+  const width_per = (current_value / condition_value) * 100;
   return (
     <article className="xp-progress-achievement-card xp-progress-achievement-card--xp">
+      <span className="xp-progress-achievement-card__count">
+        {width_per} / {condition_value}
+      </span>
+
       <div className="xp-progress-achievement-card__main">
         <div className="xp-progress-achievement-card__icon xp-progress-achievement-card__icon--xp">
           <span>XP</span>
@@ -17,14 +27,7 @@ export default function XpProgressAchievementCard({ title, description }) {
       </div>
 
       <div className="xp-progress-achievement-card__progress">
-        <span
-          className="xp-progress-achievement-card__progress-fill"
-          style={{ width: "60%" }}
-        />
-
-        <span className="xp-progress-achievement-card__progress-count">
-          12/20
-        </span>
+        <span style={{ width: `${width_per}%` }} />
       </div>
 
       <div className="xp-progress-achievement-card__footer">

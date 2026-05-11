@@ -80,7 +80,7 @@ achievements_data = [
         "icon_url": "",
         "condition_type": "level",
         "condition_value": 5,
-        "rewards": [{"type": "xp", "value": 50},],
+        "rewards": [{"type": "xp", "value": 50}],
     },
     {
         "code": "seven_days_streak",
@@ -91,6 +91,34 @@ achievements_data = [
         "condition_value": 7,
         "rewards": [{"type": "xp", "value": 100}, {"type": "plant", "value": "jacaranda"},],
     },
+    {
+        "code": "xp_50",
+        "title": "Первые 50 XP",
+        "description": "Набрать 50 XP",
+        "icon_url": "",
+        "condition_type": "total_xp",
+        "condition_value": 50,
+        "rewards": [{"type": "xp", "value": 15}],
+    },
+    {
+        "code": "reviews_5",
+        "title": "5 повторений",
+        "description": "Сделать 5 повторений",
+        "icon_url": "",
+        "condition_type": "reviews_count",
+        "condition_value": 5,
+        "rewards": [{"type": "xp", "value": 30}],
+    },
+    {
+        "code": "days_streak_3",
+        "title": "3 дня подряд",
+        "description": "Заниматься 3 дня подряд",
+        "icon_url": "",
+        "condition_type": "days_streak",
+        "condition_value": 3,
+        "rewards": [{"type": "xp", "value": 40}],
+    },
+    
 ]
 
 def seed_achievements(db: Session):

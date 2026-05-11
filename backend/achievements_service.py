@@ -8,7 +8,7 @@ def get_user_progress(db: Session, user_id):
     user=db.query(User).filter(User.id == user_id).first()
     if user is None:
         return None
-    level = int(sqrt(user.total_xp / 100) + 1)
+    level = int(sqrt(user.total_xp / 10000) + 1)
     reviews_count=db.query(ReviewHistory).filter(ReviewHistory.user_id == user.id).count()
     topics_count=db.query(UserTopic).filter(UserTopic.user_id == user.id).count()
     user_xp=user.total_xp
