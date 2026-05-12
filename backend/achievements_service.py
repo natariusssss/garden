@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from models import User, Achievement, UserAchievement, UserTopic, ReviewHistory, Friendship, AchievementReward, Plant, UserPlant
-from sqlalchemy import or_
+from sqlalchemy import or_, func
 from datetime import datetime, timedelta
 from math import sqrt
 
@@ -8,10 +8,18 @@ def get_user_progress(db: Session, user_id):
     user=db.query(User).filter(User.id == user_id).first()
     if user is None:
         return None
-    level = int(sqrt(user.total_xp / 10000) + 1)
-    reviews_count=db.query(ReviewHistory).filter(ReviewHistory.user_id == user.id).count()
+    level = int(sqrt((user.total_xp or 0) / 100) + 1)
+    # Повторения раньше могли сохраняться только в UserTopic.review_count,
+    # а новые повторения сохраняются ещё и в ReviewHistory.
+    # Берём max, чтобы не задвоить одни и те же повторения.
+    review_history_count = db.query(ReviewHistory).filter(ReviewHistory.user_id == user.id).count()
+    user_topics_review_count = db.query(func.coalesce(func.sum(UserTopic.review_count), 0)).filter(
+        UserTopic.user_id == user.id
+    ).scalar() or 0
+    reviews_count = max(review_history_count, user_topics_review_count)
+
     topics_count=db.query(UserTopic).filter(UserTopic.user_id == user.id).count()
-    user_xp=user.total_xp
+    user_xp=user.total_xp or 0
     friends_count = db.query(Friendship).filter(
         Friendship.status == "accepted",
         or_(Friendship.user_id == user.id, Friendship.friend_id == user.id)
@@ -47,35 +55,84 @@ def is_achievement_completed(achievement, progress):
         return False
 
 def unlock_achievement(db: Session, user_id: int, achievement: Achievement):
-    user_achievement = UserAchievement(user_id=user_id, achievement_id=achievement.id)
+    unlocked_at = datetime.now()
+    user_achievement = UserAchievement(
+        user_id=user_id,
+        achievement_id=achievement.id,
+        unlocked_at=unlocked_at,
+    )
     db.add(user_achievement)
     rewards = apply_achievement_rewards(db, user_id, achievement)
-    return rewards
+    return rewards, unlocked_at
+
+
+def achievement_to_progress_dict(db: Session, achievement: Achievement, progress, is_unlocked: bool, unlocked_at=None, rewards=None):
+    current_value = get_current_value_for_achievement(achievement, progress)
+
+    if rewards is None:
+        rewards = [
+            reward_to_dict(db, reward)
+            for reward in achievement.rewards
+        ]
+
+    return {
+        "id": achievement.id,
+        "code": achievement.code,
+        "title": achievement.title,
+        "description": achievement.description,
+        "icon_url": achievement.icon_url,
+        "condition_type": achievement.condition_type,
+        "condition_value": achievement.condition_value,
+        "current_value": current_value,
+        "progress_percent": get_progress_percent(current_value, achievement.condition_value),
+        "reward_category": get_reward_category(achievement.rewards),
+        "is_unlocked": is_unlocked,
+        "unlocked_at": unlocked_at,
+        "rewards": rewards,
+    }
+
 
 def check_and_unlock_achievements(db: Session, user_id):
-    progress=get_user_progress(db, user_id)
-    if progress is None:
-        return []
-    achievements=db.query(Achievement).all()
-    unlocked_ids=get_unlock_achievement_ids(db, user_id)
-    new_achievements=[]
-    for achievement in achievements:
-        if achievement.id in unlocked_ids:
-            continue
-        if is_achievement_completed(achievement, progress):
-            rewards = unlock_achievement(db, user_id, achievement)
-            new_achievements.append({
-                "id": achievement.id,
-                "code": achievement.code,
-                "title": achievement.title,
-                "description": achievement.description,
-                "icon_url": achievement.icon_url,
-                "condition_type": achievement.condition_type,
-                "condition_value": achievement.condition_value,
-                "rewards": rewards,
-            })
+    new_achievements = []
+
+    # Делаем несколько проходов, потому что награда за одно достижение может дать XP
+    # и сразу выполнить другое достижение по total_xp / level.
+    for _ in range(10):
+        progress = get_user_progress(db, user_id)
+        if progress is None:
+            return []
+
+        achievements = db.query(Achievement).all()
+        unlocked_ids = get_unlock_achievement_ids(db, user_id)
+        unlocked_this_pass = []
+
+        for achievement in achievements:
+            if achievement.id in unlocked_ids:
+                continue
+            if not is_achievement_completed(achievement, progress):
+                continue
+
+            rewards, unlocked_at = unlock_achievement(db, user_id, achievement)
+            unlocked_this_pass.append(
+                achievement_to_progress_dict(
+                    db=db,
+                    achievement=achievement,
+                    progress=progress,
+                    is_unlocked=True,
+                    unlocked_at=unlocked_at,
+                    rewards=rewards,
+                )
+            )
+
+        if not unlocked_this_pass:
+            break
+
+        new_achievements.extend(unlocked_this_pass)
+        db.flush()
+
     if new_achievements:
         db.commit()
+
     return new_achievements
 
 def get_current_value_for_achievement(achievement, progress):
@@ -118,27 +175,14 @@ def get_achievements_progress(db: Session, user_id: int):
     unlocked_map={item.achievement_id: item for item in user_achievements}
     result=[]
     for achievement in achievements:
-        current_value = get_current_value_for_achievement(achievement, progress)
         unlocked_entry=unlocked_map.get(achievement.id)
-        rewards = [
-            reward_to_dict(db, reward)
-            for reward in achievement.rewards
-        ]
-        result.append({
-            "id": achievement.id,
-            "code": achievement.code,
-            "title": achievement.title,
-            "description": achievement.description,
-            "icon_url": achievement.icon_url,
-            "condition_type": achievement.condition_type,
-            "condition_value": achievement.condition_value,
-            "current_value": current_value,
-            "progress_percent": get_progress_percent(current_value, achievement.condition_value),
-            "reward_category": get_reward_category(achievement.rewards),
-            "is_unlocked": unlocked_entry is not None,
-            "unlocked_at": unlocked_entry.unlocked_at if unlocked_entry else None,
-            "rewards": rewards,
-        })
+        result.append(achievement_to_progress_dict(
+            db=db,
+            achievement=achievement,
+            progress=progress,
+            is_unlocked=unlocked_entry is not None,
+            unlocked_at=unlocked_entry.unlocked_at if unlocked_entry else None,
+        ))
 
     return result
 
@@ -185,7 +229,7 @@ def apply_achievement_rewards(db: Session, user_id: int, achievement: Achievemen
     for reward in achievement.rewards:
         if reward.reward_type == "xp":
             xp_amount = int(reward.reward_value)
-            user.total_xp += xp_amount
+            user.total_xp = (user.total_xp or 0) + xp_amount
             given_rewards.append({
                 "type": "xp",
                 "value": xp_amount,

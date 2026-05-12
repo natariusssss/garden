@@ -142,6 +142,9 @@ const Card = () => {
         current_progress_xp: updated.current_progress_xp,
         progress_width: updated.progress_width,
         image_url: updated.image_url,
+        is_dry: updated.is_dry,
+        review_count: updated.review_count,
+        last_reviewed: updated.last_reviewed,
       }));
       setButtonTimer("disabled");
       setTime(0);

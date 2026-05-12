@@ -58,6 +58,21 @@ export default function Achieve() {
 
   useEffect(() => {
     loadAchieve();
+
+    const handleFocus = () => loadAchieve();
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadAchieve();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
   const loadAchieve = async () => {

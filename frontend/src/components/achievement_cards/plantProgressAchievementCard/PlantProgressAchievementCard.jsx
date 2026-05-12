@@ -21,19 +21,23 @@ export default function PlantProgressAchievementCard({
   img,
   rarity,
   name,
-  current_value,
-  condition_value,
+  current_value = 0,
+  condition_value = 1,
   rarity_name,
   xpReward = 0,
 }) {
-  const width_per = (current_value / condition_value) * 100;
+  const currentRarity = rarity || "common";
+  const currentRarityName = rarity_name || RARITY_META[currentRarity]?.label || "Обычное";
+  const safeCondition = condition_value || 1;
+  const safeCurrent = current_value || 0;
+  const width_per = Math.min(100, (safeCurrent / safeCondition) * 100);
 
   return (
     <article
-      className={`plant-progress-achievement-card plant-progress-achievement-card--${rarity}`}
+      className={`plant-progress-achievement-card plant-progress-achievement-card--${currentRarity}`}
     >
       <span className="plant-progress-achievement-card__count">
-        {current_value} / {condition_value}
+        {safeCurrent} / {condition_value}
       </span>
 
       <div className="plant-progress-achievement-card__main">
@@ -41,7 +45,7 @@ export default function PlantProgressAchievementCard({
           <img
             className="plant-progress-achievement-card__image"
             src={img}
-            alt="Сакура"
+            alt={name || "Растение"}
           />
         </div>
 
@@ -56,9 +60,9 @@ export default function PlantProgressAchievementCard({
               Растение
             </span>
             <span
-              className={`plant-progress-achievement-card__tag plant-progress-achievement-card__tag--${rarity}`}
+              className={`plant-progress-achievement-card__tag plant-progress-achievement-card__tag--${currentRarity}`}
             >
-              {rarity_name}
+              {currentRarityName}
             </span>
           </div>
         </div>

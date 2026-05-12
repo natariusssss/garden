@@ -209,7 +209,10 @@ class TopicXPResponse(BaseModel):
     progress_width: str
     image_url: Optional[str] = None
     is_dry: bool = False
+    review_count: int = 0
+    last_reviewed: Optional[datetime] = None
     new_achievements: list[AchievementProgressResponse] = []
+    new_level_rewards: list[dict] = []
 
 
 

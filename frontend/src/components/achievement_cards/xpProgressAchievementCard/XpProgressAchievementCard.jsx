@@ -3,14 +3,18 @@ import "./style.css";
 export default function XpProgressAchievementCard({
   title,
   description,
-  current_value,
-  condition_value,
+  current_value = 0,
+  condition_value = 1,
+  xpReward = 0,
 }) {
-  const width_per = (current_value / condition_value) * 100;
+  const safeCondition = condition_value || 1;
+  const safeCurrent = current_value || 0;
+  const width_per = Math.min(100, (safeCurrent / safeCondition) * 100);
+
   return (
     <article className="xp-progress-achievement-card xp-progress-achievement-card--xp">
       <span className="xp-progress-achievement-card__count">
-        {width_per} / {condition_value}
+        {safeCurrent} / {condition_value}
       </span>
 
       <div className="xp-progress-achievement-card__main">
@@ -31,7 +35,7 @@ export default function XpProgressAchievementCard({
       </div>
 
       <div className="xp-progress-achievement-card__footer">
-        <span className="xp-progress-achievement-card__xp">150 XP</span>
+        <span className="xp-progress-achievement-card__xp">+{xpReward} XP</span>
         <span className="xp-progress-achievement-card__status">В процессе</span>
       </div>
     </article>
