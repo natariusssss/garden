@@ -1,4 +1,4 @@
-from models import UserTopic, ReviewHistory, User, Friendship
+from models import UserTopic, ReviewHistory, User, Friendship, Topic
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, and_
 from datetime import datetime, timedelta
@@ -27,6 +27,7 @@ def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
         user_topic.level = max(0, user_topic.level - 1)
     user_topic.review_count += 1
     user_topic.last_reviewed = datetime.now()
+    user_topic.last_xp_penalty_at = None
     user_topic.next_review_date=get_next_review_date(user_topic.level)
     user_topic.xp+=xp_earned
     review=ReviewHistory( user_id=user_id, topic_id=user_topic.topic_id, success=success, reviewed_at=datetime.now())
@@ -176,6 +177,87 @@ def get_level_rewards_progress(db: Session, user_id: int):
         })
     return result
 
+XP_PENALTY_AFTER_DAYS = 7
+XP_PENALTY_PER_DAY = 100
+
+
+def get_current_max_xp_for_decay(level: int) -> int:
+    if level == 0:
+        return 100
+
+    return 100 * level + 20 * level
+
+
+def calculate_level_by_xp(xp: int) -> int:
+    total_xp = max(0, xp or 0)
+    level = 0
+
+    while total_xp >= get_current_max_xp_for_decay(level):
+        total_xp -= get_current_max_xp_for_decay(level)
+        level += 1
+
+    return level
+
+
+def get_tree_state_by_level(level: int) -> str:
+    if level >= 20:
+        return "adult"
+    if level >= 10:
+        return "young"
+    return "seed"
+
+
+def subtract_topic_xp(db: Session, user_id: int, topic_id: int):
+    user_topic = (
+        db.query(UserTopic)
+        .filter(
+            UserTopic.user_id == user_id,
+            UserTopic.topic_id == topic_id,
+        )
+        .first()
+    )
+
+    if not user_topic or not user_topic.last_reviewed:
+        return user_topic
+
+    now = datetime.now()
+    days_without_review = (now.date() - user_topic.last_reviewed.date()).days
+
+    if days_without_review < XP_PENALTY_AFTER_DAYS:
+        return user_topic
+
+    if (
+        user_topic.last_xp_penalty_at
+        and user_topic.last_xp_penalty_at.date() == now.date()
+    ):
+        return user_topic
+
+    if user_topic.last_xp_penalty_at:
+        penalty_days = (now.date() - user_topic.last_xp_penalty_at.date()).days
+    else:
+        penalty_days = days_without_review - XP_PENALTY_AFTER_DAYS + 1
+
+    if penalty_days <= 0:
+        return user_topic
+
+    old_xp = user_topic.xp or 0
+    penalty_xp = penalty_days * XP_PENALTY_PER_DAY
+
+    user_topic.xp = max(old_xp - penalty_xp, 0)
+    removed_xp = old_xp - user_topic.xp
+
+    user_topic.level = calculate_level_by_xp(user_topic.xp)
+    user_topic.tree_state = get_tree_state_by_level(user_topic.level)
+    user_topic.last_xp_penalty_at = now
+
+    user = db.get(User, user_id)
+    if user:
+        user.total_xp = max((user.total_xp or 0) - removed_xp, 0)
+
+    db.commit()
+    db.refresh(user_topic)
+
+    return user_topic
 
 
 

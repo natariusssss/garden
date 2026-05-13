@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
 from pydantic import BaseModel, EmailStr, field_validator
 import re
 
@@ -83,6 +83,23 @@ class UserAchievementResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+
+class PlantRewardResponse(BaseModel):
+    code: str
+    name: str
+    description: Optional[str] = None
+    rarity: str
+    tree_type: Optional[str] = None
+    image_url: Optional[str] = None
+    imgBig: Optional[str] = None
+
+
+class AchievementRewardResponse(BaseModel):
+    type: str
+    value: Union[str, int]
+    plant: Optional[PlantRewardResponse] = None
+
 class AchievementProgressResponse(BaseModel):
     id: int
     code: str
@@ -92,8 +109,11 @@ class AchievementProgressResponse(BaseModel):
     condition_type: str
     condition_value: int
     current_value: int
+    progress_percent: float = 0
+    reward_category: Optional[str] = None
     is_unlocked: bool
     unlocked_at: Optional[datetime] = None
+    rewards: list[AchievementRewardResponse] = []
 
     class Config:
         from_attributes = True
@@ -154,6 +174,8 @@ class ReviewResultResponse(BaseModel):
     review: ReviewHistoryResponse
     xp_earned: int
     new_level: int
+    new_achievements: list[AchievementProgressResponse] = []
+    new_level_rewards: list[dict] = []
 
 class UserStats(BaseModel):
     total_xp: int
@@ -193,6 +215,10 @@ class TopicXPResponse(BaseModel):
     progress_width: str
     image_url: Optional[str] = None
     is_dry: bool = False
+    review_count: int = 0
+    last_reviewed: Optional[datetime] = None
+    new_achievements: list[AchievementProgressResponse] = []
+    new_level_rewards: list[dict] = []
 
 
 

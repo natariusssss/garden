@@ -131,7 +131,7 @@ const ListCard = ({
             aria-label="Тема завершена на сегодня"
           >
             <img
-              src="/card-icons/topic-check.svg"
+              src={`${time > 168 ? "/card-icons/arrow_hard.svg" : time > 72 ? "/card-icons/arrow_medium.svg" : "/card-icons/topic-check.svg"}`}
               alt=""
               className="topic-card__check"
               aria-hidden="true"

@@ -11,7 +11,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models import Base, User, Topic, UserTopic, Friendship, UserAchievement, Achievement
+from models import Base, User, Topic, UserTopic, ReviewHistory, Friendship, UserAchievement, Achievement
 import schemas
 import crud
 from typing import Optional, List
@@ -21,7 +21,12 @@ from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 from sqlalchemy import func
 from sqlalchemy import text
-from crud import get_level_rewards_progress
+from crud import get_level_rewards_progress, subtract_topic_xp
+from seed_plants import seed_plants
+from seed_achievements import seed_achievements
+from seed_level_rewards import seed_level_rewards
+from utils import get_next_review_date
+from level_rewards_service import check_and_unlock_level_rewards
 
 
 
@@ -34,6 +39,34 @@ engine = create_engine(settings.DATABASE_URL, connect_args={"check_same_thread":
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base.metadata.create_all(bind=engine)
+
+
+def ensure_user_topic_decay_columns():
+    # create_all не добавляет новые колонки в уже существующую SQLite-БД,
+    # поэтому аккуратно добавляем поле для защиты от повторного списания XP.
+    if not settings.DATABASE_URL.startswith("sqlite"):
+        return
+
+    with engine.begin() as connection:
+        columns = connection.execute(text("PRAGMA table_info(user_topics)")).fetchall()
+        column_names = {column[1] for column in columns}
+
+        if "last_xp_penalty_at" not in column_names:
+            connection.execute(text("ALTER TABLE user_topics ADD COLUMN last_xp_penalty_at DATETIME"))
+
+
+ensure_user_topic_decay_columns()
+
+def seed_initial_data():
+    db = SessionLocal()
+    try:
+        seed_plants(db)
+        seed_level_rewards(db)
+        seed_achievements(db)
+    finally:
+        db.close()
+
+seed_initial_data()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
@@ -121,15 +154,15 @@ def get_topic_progress_data(user_topic: Optional[UserTopic]):
     return calculate_topic_progress_data(xp)
 
 
-DRY_AFTER_DAYS = 2
+DRY_AFTER_DAYS = 7
 
 
 def is_user_topic_dry(user_topic: Optional[UserTopic]) -> bool:
-    if not user_topic or not user_topic.next_review_date:
+    if not user_topic or not user_topic.last_reviewed:
         return False
 
-    dry_date = user_topic.next_review_date + timedelta(days=DRY_AFTER_DAYS)
-    return datetime.now() > dry_date
+    dry_date = user_topic.last_reviewed + timedelta(days=DRY_AFTER_DAYS)
+    return datetime.now() >= dry_date
 
 
 
@@ -245,6 +278,10 @@ def get_my_topics(
             UserTopic.topic_id == topic.id
         ).first()
 
+        if user_topic:
+            user_topic = subtract_topic_xp(db, current_user.id, topic.id)
+            db.refresh(user_topic)
+
         progress_data = get_topic_progress_data(user_topic)
         is_dry = is_user_topic_dry(user_topic)
 
@@ -267,7 +304,6 @@ def get_my_topics(
             "last_reviewed": user_topic.last_reviewed if user_topic else None,
             **progress_data,
         })
-
     return result
 
 
@@ -289,6 +325,10 @@ def get_topic(
         UserTopic.user_id == current_user.id,
         UserTopic.topic_id == topic.id
     ).first()
+
+    if user_topic:
+        user_topic = subtract_topic_xp(db, current_user.id, topic.id)
+        db.refresh(user_topic)
 
     progress_data = get_topic_progress_data(user_topic)
     is_dry = is_user_topic_dry(user_topic)
@@ -560,6 +600,12 @@ def accept_friend_request(
 
     friendship.status = "accepted"
     db.commit()
+
+    # После принятия заявки сразу проверяем достижения у обоих пользователей,
+    # потому что friends_count считается только по accepted-дружбам.
+    check_and_unlock_achievements(db, friendship.user_id)
+    check_and_unlock_achievements(db, friendship.friend_id)
+
     return {"message": "Friend request accepted"}
 
 
@@ -755,6 +801,8 @@ def get_my_achievements_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    # Перед выдачей списка сначала проверяем, не появились ли новые выполненные достижения.
+    check_and_unlock_achievements(db, current_user.id)
     return get_achievements_progress(db, current_user.id)
 
 
@@ -773,9 +821,35 @@ def add_xp_to_topic(
     if not user_topic:
         raise HTTPException(status_code=404, detail="UserTopic not found")
 
-    user_topic.xp += max(0, payload.xp)
+    topic = db.query(Topic).filter(
+        Topic.id == topic_id,
+        Topic.user_id == current_user.id
+    ).first()
 
-    progress_data = calculate_topic_progress_data(user_topic.xp)
+    xp_to_add = max(0, payload.xp)
+    now = datetime.now()
+
+    # ВАЖНО: повторение должно фиксироваться всегда при отправке таймера,
+    # даже если xp_to_add = 0. Иначе достижение "Первый шаг" остаётся 0/1.
+    user_topic.review_count = (user_topic.review_count or 0) + 1
+    user_topic.last_reviewed = now
+    user_topic.last_xp_penalty_at = None
+
+    db.add(ReviewHistory(
+        user_id=current_user.id,
+        topic_id=user_topic.topic_id,
+        success=True,
+        reviewed_at=now,
+    ))
+
+    if xp_to_add > 0:
+        user_topic.xp = (user_topic.xp or 0) + xp_to_add
+
+        user = db.get(User, current_user.id)
+        if user:
+            user.total_xp = (user.total_xp or 0) + xp_to_add
+
+    progress_data = calculate_topic_progress_data(user_topic.xp or 0)
     user_topic.level = progress_data["level"]
 
     if user_topic.level >= 20:
@@ -785,10 +859,12 @@ def add_xp_to_topic(
     else:
         user_topic.tree_state = "seed"
 
-    topic = db.query(Topic).filter(
-        Topic.id == topic_id,
-        Topic.user_id == current_user.id
-    ).first()
+    user_topic.next_review_date = get_next_review_date(user_topic.level)
+
+    db.flush()
+
+    new_achievements = check_and_unlock_achievements(db, current_user.id)
+    new_level_rewards = check_and_unlock_level_rewards(db, current_user.id)
 
     is_dry = is_user_topic_dry(user_topic)
     image_url = get_tree_image_url(
@@ -806,9 +882,13 @@ def add_xp_to_topic(
         "tree_state": user_topic.tree_state,
         "image_url": image_url,
         "is_dry": is_dry,
+        "review_count": user_topic.review_count,
+        "last_reviewed": user_topic.last_reviewed,
         "current_max_xp": progress_data["current_max_xp"],
         "current_progress_xp": progress_data["current_progress_xp"],
         "progress_width": progress_data["progress_width"],
+        "new_achievements": new_achievements,
+        "new_level_rewards": new_level_rewards,
     }
 
 

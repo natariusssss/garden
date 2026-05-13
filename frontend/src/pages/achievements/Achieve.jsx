@@ -1,187 +1,323 @@
-import "./achieve.css";
-import Header from "../../components/header/Header";
-import trophyImg from "./trphu.png";
-import lockImg from "./lock.png";
+import React, { useEffect } from "react";
+import "./style.css";
 
-export default function AchievePage() {
+import PlantProgressAchievementCard from "../../components/achievement_cards/plantProgressAchievementCard/PlantProgressAchievementCard";
+import XpProgressAchievementCard from "../../components/achievement_cards/xpProgressAchievementCard/XpProgressAchievementCard";
+import PlantCompletedAchievementCard from "../../components/achievement_cards/plantCompletedAchievementCard/PlantCompletedAchievementCard";
+import XpCompletedAchievementCard from "../../components/achievement_cards/xpCompletedAchievementCard/XpCompletedAchievementCard";
+import Header from "../../components/header/Header.jsx";
+import { getAchievementsProgress } from "../../api/auth.js";
+import { useState } from "react";
+
+const ICONS = {
+  ready: "/card-icons/ready.svg",
+  achieve: "/card-icons/achieve.svg",
+};
+
+const RARITY_META = {
+  common: {
+    label: "Обычное",
+  },
+  rare: {
+    label: "Редкое",
+  },
+  epic: {
+    label: "Эпическое",
+  },
+  legendary: {
+    label: "Легендарная",
+  },
+};
+
+const getRewards = (achieve) => {
+  if (!Array.isArray(achieve?.rewards)) {
+    return [];
+  }
+
+  return achieve.rewards;
+};
+
+const getXpReward = (achieve) =>
+  getRewards(achieve).find((reward) => reward.type === "xp");
+
+const getPlantReward = (achieve) =>
+  getRewards(achieve).find((reward) => reward.type === "plant");
+
+const isPlantAchievement = (achieve) => Boolean(getPlantReward(achieve));
+
+const isXpAchievement = (achieve) =>
+  !isPlantAchievement(achieve) && Boolean(getXpReward(achieve));
+
+const getRarityName = (rarity) => RARITY_META[rarity]?.label ?? "Обычное";
+
+export default function Achieve() {
+  const [completedAchievements, setCompletedAchievements] = useState([]);
+  const [progressAchievements, setProgressAchievements] = useState([]);
+  const [achieveFilter, setAchieveFilter] = useState("progress");
+  const [message, setMessage] = useState("Загрузка...");
+
+  useEffect(() => {
+    loadAchieve();
+
+    const handleFocus = () => loadAchieve();
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadAchieve();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  const loadAchieve = async () => {
+    try {
+      const data = await getAchievementsProgress();
+      const achievements = Array.isArray(data) ? data : [];
+
+      setCompletedAchievements(achievements.filter((item) => item.is_unlocked));
+
+      setProgressAchievements(achievements.filter((item) => !item.is_unlocked));
+      setMessage("");
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
   return (
     <>
       <Header />
-
       <main className="achievements-page">
         <section className="achievements-hero">
-          <h1 className="achievements-title">Достижения</h1>
+          <div className="achievements-hero__left">
+            <h1 className="achievements-title">Достижения</h1>
 
-          <div className="achievements-counter" aria-label="Получено достижений">
-            <span className="achievements-counter__icon" aria-hidden="true">♕</span>
+            <div className="achievements-tabs" aria-label="Фильтр достижений">
+              <button
+                type="button"
+                className={`achievements-tab ${achieveFilter === "progress" ? "achievements-tab--active" : ""}`}
+                onClick={() => setAchieveFilter("progress")}
+              >
+                Все
+              </button>
+              <button
+                type="button"
+                className={`achievements-tab ${achieveFilter === "completed" ? "achievements-tab--active" : ""}`}
+                onClick={() => setAchieveFilter("completed")}
+              >
+                Полученные
+              </button>
+            </div>
+          </div>
+
+          <div
+            className="achievements-counter"
+            aria-label="Количество полученных достижений"
+          >
+            <img className="achieve-icon" src={ICONS.achieve} />
             <span>Получено</span>
-            <strong>4/48</strong>
+            <strong>
+              {completedAchievements.length}/
+              {completedAchievements.length + progressAchievements.length}
+            </strong>
           </div>
         </section>
 
-        <section className="achievements-section" aria-labelledby="completed-achievements-title">
-          <h2 id="completed-achievements-title" className="achievements-section__title">
-            Полученные
-          </h2>
+        {achieveFilter === "progress" && (
+          <>
+            <section
+              className="achievements-section"
+              aria-labelledby="progress-xp-title"
+            >
+              <div className="achievements-section__head">
+                <div className="achieve-flex">
+                  <h2
+                    id="progress-xp-title"
+                    className="achievements-section__title"
+                  >
+                    <span className="achievements-section__accent achievements-section__accent--xp">
+                      Активность{" "}
+                    </span>
+                  </h2>
 
-          <div className="achievements-grid">
-            <article className="achievement-card achievement-card--complete" style={{ "--achievement-accent": "#9DBD5F" }}>
-              <div className="achievement-card__state" aria-hidden="true">✓</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <img className="achievement-icon__image" src={trophyImg} alt="7 дней подряд" />
-                </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">7 дней подряд</h3>
-                  <p className="achievement-card__description">Поливай тему 7 дней без пропусков</p>
+                  <p className="achievements-section__subtitle">
+                    Достижения, за которые начисляется опыт
+                  </p>
                 </div>
               </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">170 XP</span>
-                <span className="achievement-card__badge">Получено</span>
-              </div>
-            </article>
 
-            <article className="achievement-card achievement-card--complete" style={{ "--achievement-accent": "#9DBD5F" }}>
-              <div className="achievement-card__state" aria-hidden="true">✓</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <span className="achievement-icon__symbol achievement-icon__symbol--sprout" aria-hidden="true">✦</span>
-                </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">Первые 5 тем</h3>
-                  <p className="achievement-card__description">Создай и оформи 5 тем в саду</p>
-                </div>
+              <div className="achievements-grid achievements-grid--xp">
+                {progressAchievements
+                  .filter(
+                    (achieve) =>
+                      Array.isArray(achieve.rewards) &&
+                      achieve.rewards.length > 0 &&
+                      achieve.rewards.every((reward) => reward.type === "xp"),
+                  )
+                  .map((achieve) => (
+                    <XpProgressAchievementCard
+                      key={achieve.id}
+                      title={achieve.title}
+                      description={achieve.description}
+                      current_value={achieve.current_value}
+                      condition_value={achieve.condition_value}
+                      xpReward={
+                        achieve.rewards?.find((reward) => reward.type === "xp")
+                          ?.value ?? 0
+                      }
+                    />
+                  ))}
               </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">120 XP</span>
-                <span className="achievement-card__badge">Получено</span>
-              </div>
-            </article>
+            </section>
 
-            <article className="achievement-card achievement-card--complete" style={{ "--achievement-accent": "#E7B94F" }}>
-              <div className="achievement-card__state" aria-hidden="true">✓</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <span className="achievement-icon__symbol achievement-icon__symbol--spark" aria-hidden="true">★</span>
-                </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">Легендарный рост</h3>
-                  <p className="achievement-card__description">Доведи легендарную тему до 10 уровня</p>
-                </div>
-              </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">300 XP</span>
-                <span className="achievement-card__badge">Получено</span>
-              </div>
-            </article>
+            <section
+              className="achievements-section"
+              aria-labelledby="progress-plants-title"
+            >
+              <div className="achievements-section__head">
+                <div className="achieve-flex">
+                  <h2
+                    id="progress-plants-title"
+                    className="achievements-section__title"
+                  >
+                    <span className="achievements-section__accent achievements-section__accent--plant">
+                      Растения
+                    </span>
+                  </h2>
 
-            <article className="achievement-card achievement-card--complete" style={{ "--achievement-accent": "#9DBD5F" }}>
-              <div className="achievement-card__state" aria-hidden="true">✓</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <span className="achievement-icon__symbol achievement-icon__symbol--friends" aria-hidden="true">♥</span>
-                </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">Первый друг</h3>
-                  <p className="achievement-card__description">Добавь 1 друга в MindGarden</p>
+                  <p className="achievements-section__subtitle">
+                    Достижения, которые открывают новые растения
+                  </p>
                 </div>
               </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">80 XP</span>
-                <span className="achievement-card__badge">Получено</span>
-              </div>
-            </article>
-          </div>
-        </section>
 
-        <section className="achievements-section achievements-section--progress" aria-labelledby="progress-achievements-title">
-          <h2 id="progress-achievements-title" className="achievements-section__title">
-            В процессе
-          </h2>
+              <div className="achievements-grid achievements-grid--plants">
+                {progressAchievements
+                  .filter(
+                    (achieve) =>
+                      Array.isArray(achieve.rewards) &&
+                      achieve.rewards.some((reward) => reward.type === "plant"),
+                  )
+                  .map((achieve) => {
+                    const plantReward = achieve.rewards?.find(
+                      (reward) => reward.type === "plant",
+                    );
+                    const xpReward = getXpReward(achieve);
 
-          <div className="achievements-grid">
-            <article className="achievement-card achievement-card--progress" style={{ "--achievement-accent": "#9DBD5F" }}>
-              <div className="achievement-card__state" aria-hidden="true">9/14</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <img className="achievement-icon__image" src={lockImg} alt="14 дней подряд" />
-                </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">14 дней подряд</h3>
-                  <p className="achievement-card__description">Поливай тему 14 дней без пропусков</p>
-                </div>
+                    return (
+                      <PlantProgressAchievementCard
+                        key={achieve.id}
+                        title={achieve.title}
+                        description={achieve.description}
+                        img={plantReward?.plant?.image_url}
+                        rarity={plantReward?.plant?.rarity}
+                        name={plantReward?.plant?.name}
+                        current_value={achieve.current_value}
+                        condition_value={achieve.condition_value}
+                        rarity_name={
+                          RARITY_META[plantReward?.plant?.rarity]?.label
+                        }
+                        xpReward={xpReward?.value ?? 0}
+                      />
+                    );
+                  })}
               </div>
-              <div className="achievement-card__progress" aria-label="Прогресс 9/14">
-                <span style={{ width: "64%" }} />
-              </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">170 XP</span>
-                <span className="achievement-card__badge">В процессе</span>
-              </div>
-            </article>
+            </section>
+          </>
+        )}
 
-            <article className="achievement-card achievement-card--progress" style={{ "--achievement-accent": "#EAA71A" }}>
-              <div className="achievement-card__state" aria-hidden="true">12/20</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <span className="achievement-icon__symbol achievement-icon__symbol--repeat" aria-hidden="true">↻</span>
-                </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">20 повторений</h3>
-                  <p className="achievement-card__description">Повтори действия 20 раз</p>
-                </div>
-              </div>
-              <div className="achievement-card__progress" aria-label="Прогресс 12/20">
-                <span style={{ width: "60%" }} />
-              </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">120 XP</span>
-                <span className="achievement-card__badge">В процессе</span>
-              </div>
-            </article>
+        {achieveFilter === "completed" && (
+          <>
+            <section
+              className="achievements-section"
+              aria-labelledby="completed-xp-title"
+            >
+              <div className="achievements-section__head">
+                <div className="achieve-flex">
+                  <h2
+                    id="completed-xp-title"
+                    className="achievements-section__title"
+                  >
+                    <span className="achievements-section__accent achievements-section__accent--xp">
+                      Активность{" "}
+                    </span>
+                  </h2>
 
-            <article className="achievement-card achievement-card--progress" style={{ "--achievement-accent": "#65AEEA" }}>
-              <div className="achievement-card__state" aria-hidden="true">6/10</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <span className="achievement-icon__symbol achievement-icon__symbol--book" aria-hidden="true">▣</span>
-                </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">Коллекционер</h3>
-                  <p className="achievement-card__description">Собери 10 тем в коллекцию</p>
+                  <p className="achievements-section__subtitle">
+                    Достижения, за которые начисляется опыт
+                  </p>
                 </div>
               </div>
-              <div className="achievement-card__progress" aria-label="Прогресс 6/10">
-                <span style={{ width: "60%" }} />
-              </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">150 XP</span>
-                <span className="achievement-card__badge">В процессе</span>
-              </div>
-            </article>
 
-            <article className="achievement-card achievement-card--progress" style={{ "--achievement-accent": "#9DBD5F" }}>
-              <div className="achievement-card__state" aria-hidden="true">1/3</div>
-              <div className="achievement-card__body">
-                <div className="achievement-card__icon">
-                  <span className="achievement-icon__symbol achievement-icon__symbol--leaf" aria-hidden="true">☘</span>
+              <div className="achievements-grid achievements-grid--xp achievements-grid--completed-xp">
+                {completedAchievements
+                  .filter(isXpAchievement)
+                  .map((achieve) => {
+                    const xpReward = getXpReward(achieve);
+
+                    return (
+                      <XpCompletedAchievementCard
+                        key={achieve.id}
+                        title={achieve.title}
+                        description={achieve.description}
+                        xpReward={xpReward?.value ?? 0}
+                      />
+                    );
+                  })}
+              </div>
+            </section>
+
+            <section
+              className="achievements-section"
+              aria-labelledby="completed-plants-title"
+            >
+              <div className="achievements-section__head">
+                <div className="achieve-flex">
+                  <h2
+                    id="completed-plants-title"
+                    className="achievements-section__title"
+                  >
+                    <span className="achievements-section__accent achievements-section__accent--plant">
+                      Растения
+                    </span>
+                  </h2>
+
+                  <p className="achievements-section__subtitle">
+                    Достижения, которые открывают новые растения
+                  </p>
                 </div>
-                <div className="achievement-card__content">
-                  <h3 className="achievement-card__title">Нужный функционал</h3>
-                  <p className="achievement-card__description">Добавь 1 фильтр в свой сад</p>
-                </div>
               </div>
-              <div className="achievement-card__progress" aria-label="Прогресс 1/3">
-                <span style={{ width: "33%" }} />
+
+              <div className="achievements-grid achievements-grid--plants achievements-grid--completed-plants">
+                {completedAchievements
+                  .filter(isPlantAchievement)
+                  .map((achieve) => {
+                    const plantReward = getPlantReward(achieve);
+                    const xpReward = getXpReward(achieve);
+                    const plant = plantReward?.plant;
+
+                    return (
+                      <PlantCompletedAchievementCard
+                        key={achieve.id}
+                        title={achieve.title}
+                        description={achieve.description}
+                        img={plant?.image_url}
+                        rarity={plant?.rarity}
+                        name={plant?.name}
+                        rarity_name={getRarityName(plant?.rarity)}
+                        xpReward={xpReward?.value ?? 0}
+                      />
+                    );
+                  })}
               </div>
-              <div className="achievement-card__footer">
-                <span className="achievement-card__xp">80 XP</span>
-                <span className="achievement-card__badge">В процессе</span>
-              </div>
-            </article>
-          </div>
-        </section>
+            </section>
+          </>
+        )}
       </main>
     </>
   );
