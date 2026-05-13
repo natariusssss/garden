@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/header/Header";
-import { getMe, getFriends, getUserStats } from "../../api/auth";
+import { getMe, getFriends, getUserStats, updateProfile } from "../../api/auth";
+import EditProfileModal from "../../components/modalsEditProfile/EditProfileModal";
 import "./profile.css";
 
 export default function ProfilePage() {
@@ -9,6 +10,7 @@ export default function ProfilePage() {
   const [friends, setFriends] = useState([]);
   const [stats, setStats] = useState(null);
   const [message, setMessage] = useState("Загрузка профиля...");
+  const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,7 +54,7 @@ export default function ProfilePage() {
 
     localStorage.removeItem("token");
     navigate("/");
-
+    
   };
 
   return (
@@ -73,7 +75,12 @@ export default function ProfilePage() {
               <div className="profile-main-info">
                 <div className="profile-title-row">
                   <h1>{user?.username || "Пользователь"}</h1>
-                  <button className="profile-edit-button" aria-hidden="true">✎</button>
+                  <button
+                    className="profile-edit-button"
+                    onClick={() => setIsEditProfileOpen(true)}
+                  >
+                    ✎
+                  </button>
                 </div>
 
                 <p className="profile-user-tag">@{user?.username || "user"}</p>
@@ -88,7 +95,9 @@ export default function ProfilePage() {
                     <span className="profile-meta-icon">▣</span>
                     Участник с {formatJoinDate(user?.created_at)}
                   </span>
-                  <button onClick={handleLogout} className="profile-btn-logout">Выйти</button>
+                  <button onClick={handleLogout} className="profile-btn-logout">
+                    Выйти
+                  </button>
                 </div>
               </div>
 
@@ -101,9 +110,14 @@ export default function ProfilePage() {
               </div>
             </article>
 
-            <section className="profile-stats-grid" aria-label="Статистика профиля">
+            <section
+              className="profile-stats-grid"
+              aria-label="Статистика профиля"
+            >
               <article className="profile-stat-card profile-panel profile-stat-card--wide">
-                <span className="profile-stat-icon profile-stat-icon--green">✚</span>
+                <span className="profile-stat-icon profile-stat-icon--green">
+                  ✚
+                </span>
                 <div className="profile-level-box">
                   <div className="title-lvl">
                     <strong className="lvl">67</strong>
@@ -117,15 +131,23 @@ export default function ProfilePage() {
               </article>
 
               <article className="profile-stat-card profile-panel">
-                <span className="profile-stat-icon profile-stat-icon--green">◷</span>
+                <span className="profile-stat-icon profile-stat-icon--green">
+                  ◷
+                </span>
                 <div>
                   <strong>67 ч</strong>
-                  <span>Общее время<br />фокусировки</span>
+                  <span>
+                    Общее время
+                    <br />
+                    фокусировки
+                  </span>
                 </div>
               </article>
 
               <article className="profile-stat-card profile-panel">
-                <span className="profile-stat-icon profile-stat-icon--gold">☆</span>
+                <span className="profile-stat-icon profile-stat-icon--gold">
+                  ☆
+                </span>
                 <div>
                   <strong>67</strong>
                   <span>XP заработано</span>
@@ -133,7 +155,9 @@ export default function ProfilePage() {
               </article>
 
               <article className="profile-stat-card profile-panel">
-                <span className="profile-stat-icon profile-stat-icon--green">⚇</span>
+                <span className="profile-stat-icon profile-stat-icon--green">
+                  ⚇
+                </span>
                 <div>
                   <strong>{friends.length}</strong>
                   <span>Друзей</span>
@@ -142,10 +166,7 @@ export default function ProfilePage() {
             </section>
 
             <section className="profile-bottom-grid">
-              
-              <article className="profile-panel profile-section-card profile-achievements-card">
-              
-              </article>
+              <article className="profile-panel profile-section-card profile-achievements-card"></article>
 
               <aside className="profile-panel profile-section-card profile-rating-card">
                 <div className="profile-section-header">
@@ -159,7 +180,9 @@ export default function ProfilePage() {
                       .sort((a, b) => (b.total_xp ?? 0) - (a.total_xp ?? 0))
                       .map((friend, index) => (
                         <div key={friend.id} className="profile-rating-item">
-                          <span className={`profile-rating-rank profile-rating-rank--${index + 1}`}>
+                          <span
+                            className={`profile-rating-rank profile-rating-rank--${index + 1}`}
+                          >
                             {index + 1}
                           </span>
                           <span className="profile-rating-avatar">
@@ -178,6 +201,30 @@ export default function ProfilePage() {
               </aside>
             </section>
           </section>
+        )}
+
+        {isEditProfileOpen && (
+          <EditProfileModal
+            user={user}
+            onClose={() => setIsEditProfileOpen(false)}
+            onSave={async (payload) => {
+              const token = localStorage.getItem("token");
+
+              const usernameChanged = payload.username !== user?.username;
+
+              const updatedUser = await updateProfile(token, payload);
+
+              if (usernameChanged) {
+                localStorage.removeItem("token");
+                setIsEditProfileOpen(false);
+                window.location.href = "/";
+                return;
+              }
+
+              setUser(updatedUser);
+              setIsEditProfileOpen(false);
+            }}
+          />
         )}
       </main>
     </div>

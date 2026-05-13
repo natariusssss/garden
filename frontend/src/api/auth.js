@@ -333,6 +333,24 @@ export async function searchUsers(token, query) {
   return data;
 }
 
+export async function updateProfile(token, payload) {
+  const response = await fetch(`${API_URL}/users/me/update`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка обновления профиля");
+  }
+
+  return data;
+}
 export async function sendFriendRequest(friendUsername, token) {
   const response = await fetch(`${API_URL}/friendships/request`, {
     method: "POST",
