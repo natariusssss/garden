@@ -29,6 +29,12 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class UserProfileUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+    
+
 class Token(BaseModel):
     access_token: str
     token_type: str

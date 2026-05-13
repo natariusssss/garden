@@ -374,7 +374,74 @@ def delete_topic(
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+@app.put("/users/me/update")
+def update_my_profile(
+    payload: schemas.UserProfileUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if payload.username:
+        existing = db.query(User).filter(
+            User.username == payload.username,
+            User.id != current_user.id
+        ).first()
 
+        if existing:
+            raise HTTPException(status_code=400, detail="Username already taken")
+
+        current_user.username = payload.username
+
+    if payload.email:
+        existing = db.query(User).filter(
+            User.email == payload.email,
+            User.id != current_user.id
+        ).first()
+
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already taken")
+
+        current_user.email = payload.email
+
+    if payload.password:
+        if len(payload.password) < 6:
+            raise HTTPException(
+                status_code=400,
+                detail="Password must be at least 6 characters"
+            )
+
+    current_user.password = get_password(payload.password)
+
+    db.commit()
+    db.refresh(current_user)
+
+    return current_user
+
+
+@app.get("/users/search")
+def search_users(
+    query: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    search = query.strip()
+
+    if not search:
+        return []
+
+    users = db.query(User).filter(
+        User.username.ilike(f"{search}%"),
+        User.id != current_user.id
+    ).limit(10).all()
+
+    return [
+        {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": user.created_at,
+        }
+        for user in users
+    ]
 
 @app.get("/")
 def root():
@@ -446,8 +513,8 @@ def send_friend_request(
         raise HTTPException(status_code=400, detail="Cannot add yourself")
 
     existing = db.query(Friendship).filter(
-        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend.id)) |
-        ((Friendship.user_id == friend.id) & (Friendship.friend_id == current_user.id))
+        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend.id)) & (Friendship.status.in_(["pending", "accepted"])) |
+        ((Friendship.user_id == friend.id) & (Friendship.friend_id == current_user.id)) & (Friendship.status.in_(["pending", "accepted"]))
     ).first()
 
     if existing:
