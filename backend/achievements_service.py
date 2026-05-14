@@ -2,16 +2,14 @@ from sqlalchemy.orm import Session
 from models import User, Achievement, UserAchievement, UserTopic, ReviewHistory, Friendship, AchievementReward, Plant, UserPlant
 from sqlalchemy import or_, func
 from datetime import datetime, timedelta
-from math import sqrt
+from level_utils import calculate_account_level
 
 def get_user_progress(db: Session, user_id):
     user=db.query(User).filter(User.id == user_id).first()
     if user is None:
         return None
-    level = int(sqrt((user.total_xp or 0) / 100) + 1)
-    # Повторения раньше могли сохраняться только в UserTopic.review_count,
-    # а новые повторения сохраняются ещё и в ReviewHistory.
-    # Берём max, чтобы не задвоить одни и те же повторения.
+    level = calculate_account_level(user.total_xp or 0)
+
     review_history_count = db.query(ReviewHistory).filter(ReviewHistory.user_id == user.id).count()
     user_topics_review_count = db.query(func.coalesce(func.sum(UserTopic.review_count), 0)).filter(
         UserTopic.user_id == user.id
@@ -95,8 +93,6 @@ def achievement_to_progress_dict(db: Session, achievement: Achievement, progress
 def check_and_unlock_achievements(db: Session, user_id):
     new_achievements = []
 
-    # Делаем несколько проходов, потому что награда за одно достижение может дать XP
-    # и сразу выполнить другое достижение по total_xp / level.
     for _ in range(10):
         progress = get_user_progress(db, user_id)
         if progress is None:

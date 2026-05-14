@@ -27,6 +27,7 @@ from seed_achievements import seed_achievements
 from seed_level_rewards import seed_level_rewards
 from utils import get_next_review_date
 from level_rewards_service import check_and_unlock_level_rewards
+from level_utils import calculate_account_level
 
 
 
@@ -42,8 +43,7 @@ Base.metadata.create_all(bind=engine)
 
 
 def ensure_user_topic_decay_columns():
-    # create_all не добавляет новые колонки в уже существующую SQLite-БД,
-    # поэтому аккуратно добавляем поле для защиты от повторного списания XP.
+
     if not settings.DATABASE_URL.startswith("sqlite"):
         return
 
@@ -586,8 +586,6 @@ def accept_friend_request(
     friendship.status = "accepted"
     db.commit()
 
-    # После принятия заявки сразу проверяем достижения у обоих пользователей,
-    # потому что friends_count считается только по accepted-дружбам.
     check_and_unlock_achievements(db, friendship.user_id)
     check_and_unlock_achievements(db, friendship.friend_id)
 
@@ -628,8 +626,8 @@ def get_friends(
         friend_id = f.friend_id if f.user_id == current_user.id else f.user_id
         friend = db.query(User).filter(User.id == friend_id).first()
 
-        total_xp = db.query(func.sum(UserTopic.xp)).filter(UserTopic.user_id == friend.id).scalar() or 0
-        level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
+        total_xp = friend.total_xp or 0
+        level = calculate_account_level(total_xp)
 
         result.append({
             "id": friend.id,
@@ -688,8 +686,8 @@ def friends_leaderboard(
     result = []
     for uid in friends_ids:
         user = db.query(User).filter(User.id == uid).first()
-        total_xp = db.query(func.sum(UserTopic.xp)).filter(UserTopic.user_id == uid).scalar() or 0
-        level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
+        total_xp = user.total_xp or 0
+        level = calculate_account_level(total_xp)
 
         result.append({
             "user_id": uid,
@@ -727,8 +725,8 @@ def get_friend_progress(
 
     topics = db.query(Topic).filter(Topic.user_id == friend_id).all()
 
-    total_xp = db.query(func.sum(UserTopic.xp)).filter(UserTopic.user_id == friend_id).scalar() or 0
-    total_level = int((total_xp ** 0.5) / 10) + 1 if total_xp > 0 else 1
+    total_xp = friend.total_xp or 0
+    total_level = calculate_account_level(total_xp)
 
     topics_progress = []
     for topic in topics:
@@ -786,7 +784,7 @@ def get_my_achievements_progress(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # Перед выдачей списка сначала проверяем, не появились ли новые выполненные достижения.
+
     check_and_unlock_achievements(db, current_user.id)
     return get_achievements_progress(db, current_user.id)
 
@@ -814,8 +812,7 @@ def add_xp_to_topic(
     xp_to_add = max(0, payload.xp)
     now = datetime.now()
 
-    # ВАЖНО: повторение должно фиксироваться всегда при отправке таймера,
-    # даже если xp_to_add = 0. Иначе достижение "Первый шаг" остаётся 0/1.
+
     user_topic.review_count = (user_topic.review_count or 0) + 1
     user_topic.last_reviewed = now
     user_topic.last_xp_penalty_at = None

@@ -13,6 +13,7 @@ from utils import get_next_review_date
 from math import sqrt
 from level_rewards_service import check_and_unlock_level_rewards
 from models import LevelReward, UserLevelReward
+from level_utils import calculate_account_progress_data, calculate_account_level
 
 def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
     user_topic=db.query(UserTopic).filter(UserTopic.id == user_topic_id, UserTopic.user_id == user_id
@@ -50,29 +51,12 @@ def get_due_topics(db: Session, user_id: int):
     repeat_topics=db.query(UserTopic).filter(UserTopic.user_id==user_id, or_(
         UserTopic.next_review_date<=datetime.now(), UserTopic.next_review_date==None)).all()
     return repeat_topics
-def get_current_max_xp(level: int) -> int:
-    if level == 0:
-        return 100
-    return 100 * level + 20 * level
 def calculate_user_progress_data(xp: int):
-    total_xp = max(0, xp or 0)
+    return calculate_account_progress_data(xp)
 
-    level = 0
-    current_progress_xp = total_xp
-    while current_progress_xp >= get_current_max_xp(level):
-        current_progress_xp -= get_current_max_xp(level)
-        level += 1
-    current_max_xp = get_current_max_xp(level)
-    return {
-        "level": level,
-        "total_xp": total_xp,
-        "current_progress_xp": current_progress_xp,
-        "current_max_xp": current_max_xp,
-        "progress_width": f"{round((current_progress_xp / current_max_xp) * 100, 2)}%",
-    }
 
 def calculate_user_level(xp: int) -> int:
-    return calculate_user_progress_data(xp)["level"]
+    return calculate_account_level(xp)
 def get_user_stats(db: Session, user_id: int):
     user = db.get(User, user_id)
     if not user:

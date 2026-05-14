@@ -1,9 +1,10 @@
-from math import sqrt
 from sqlalchemy.orm import Session
 from models import User, Plant, UserPlant, LevelReward, UserLevelReward
+from level_utils import calculate_account_level
+
 
 def calculate_user_level(xp: int) -> int:
-    return int(sqrt(xp / 100) + 1)
+    return calculate_account_level(xp)
 
 def plant_to_dict(plant):
     if not plant:
@@ -45,6 +46,8 @@ def check_and_unlock_level_rewards(db: Session, user_id: int):
         new_rewards.append({
             "id": reward.id,
             "level": reward.level,
+            "account_level": current_level,
+            "previous_level": max(reward.level - 1, 1),
             "title": reward.title,
             "description": reward.description,
             "plant": plant_to_dict(plant),

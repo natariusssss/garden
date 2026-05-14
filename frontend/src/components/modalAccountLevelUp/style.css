@@ -1,0 +1,629 @@
+.account-level-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+  overflow: hidden;
+
+  font-family: "Montserrat", "Raleway", sans-serif;
+
+  background: transparent;
+  isolation: isolate;
+}
+
+.account-level-modal-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background: rgba(7, 7, 6, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.account-level-modal-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.account-level-modal {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  width: 500px;
+  min-height: 690px;
+  max-height: calc(100vh - 48px);
+  padding: 52px 64px 38px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  text-align: center;
+  color: #f7f7f2;
+
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+
+  backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
+  -webkit-backdrop-filter: blur(25px) saturate(250%) brightness(1.18);
+
+  background:
+    radial-gradient(
+      circle at 50% 22%,
+      rgba(154, 196, 75, 0.12),
+      transparent 36%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(49, 45, 40, 0.896),
+      rgba(49, 45, 40, 0.896)
+    );
+
+  box-shadow:
+    0 0 90px #000000,
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.account-level-modal__title {
+  margin: 0;
+  font-size: 38px;
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #fff;
+}
+
+.account-level-modal__number {
+  margin-top: 26px;
+  font-size: 86px;
+  line-height: 0.9;
+  font-weight: 950;
+  color: #fff;
+  text-shadow: 0 0 22px rgba(154, 214, 78, 0.45);
+}
+
+.account-level-modal__label {
+  margin-top: 6px;
+  font-size: 40px;
+  line-height: 1;
+  font-weight: 900;
+  color: #fff;
+}
+
+.account-level-modal__change {
+  margin-top: 22px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.account-level-modal__green,
+.account-level-modal__arrow {
+  color: #b1ca7e;
+}
+
+.account-level-modal__arrow {
+  display: block;
+  width: 36px;
+  height: auto;
+}
+
+.account-level-modal__divider {
+  width: 100%;
+  height: 1px;
+  margin: 28px auto 20px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+}
+
+.account-level-modal__text {
+  max-width: 330px;
+  margin: 0 auto 18px;
+
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.account-level-modal__plant-card {
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  width: 100%;
+  min-height: 224px;
+  margin: 0 auto 28px;
+  padding: 22px 24px;
+
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: center;
+  column-gap: 22px;
+
+  isolation: isolate;
+
+  --account-plant-rarity-color: #699606;
+  --account-plant-rarity-soft: rgba(105, 150, 6, 0.14);
+  --account-plant-rarity-border: rgba(255, 255, 255, 0.1);
+  --account-plant-rarity-shadow: rgba(105, 150, 6, 0.1);
+
+  border-radius: 22px;
+  border: 1px solid var(--account-plant-rarity-border);
+
+  background:
+    radial-gradient(
+      circle at 24% 50%,
+      var(--account-plant-rarity-soft),
+      transparent 42%
+    ),
+    rgba(255, 255, 255, 0.075);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 rgba(0, 0, 0, 0);
+}
+
+.account-level-modal__plant-card::before,
+.account-level-modal__plant-card::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.account-level-modal__plant-card::before {
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  opacity: 0.75;
+}
+
+.account-level-modal__plant-card::after {
+  z-index: 2;
+  opacity: 0;
+}
+
+/* common */
+
+.account-level-modal__plant-card--common {
+  --account-plant-rarity-color: #699606;
+  --account-plant-rarity-soft: rgba(105, 150, 6, 0.12);
+  --account-plant-rarity-border: rgba(255, 255, 255, 0.1);
+  --account-plant-rarity-shadow: rgba(105, 150, 6, 0.14);
+}
+
+.account-level-modal__plant-card--common::before {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.055),
+      transparent 48%
+    ),
+    radial-gradient(
+      circle at 20% 84%,
+      rgba(105, 150, 6, 0.16),
+      transparent 36%
+    );
+}
+
+/* rare */
+
+.account-level-modal__plant-card--rare {
+  --account-plant-rarity-color: #538fea;
+  --account-plant-rarity-soft: rgba(83, 143, 234, 0.15);
+  --account-plant-rarity-border: rgba(83, 143, 234, 0.42);
+  --account-plant-rarity-shadow: rgba(83, 143, 234, 0.23);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 22px rgba(83, 143, 234, 0.12);
+}
+
+.account-level-modal__plant-card--rare::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(83, 143, 234, 0.2),
+      transparent 34%,
+      transparent 70%,
+      rgba(83, 143, 234, 0.1)
+    ),
+    radial-gradient(
+      circle at 76% 20%,
+      rgba(83, 143, 234, 0.18),
+      transparent 34%
+    );
+}
+
+.account-level-modal__plant-card--rare::after {
+  left: -30%;
+  top: -45%;
+  width: 34%;
+  height: 190%;
+
+  opacity: 0.38;
+  transform: rotate(22deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+
+  animation: account-level-rare-shine 5.8s ease-in-out infinite;
+}
+
+/* epic */
+
+.account-level-modal__plant-card--epic {
+  --account-plant-rarity-color: #7851a9;
+  --account-plant-rarity-soft: rgba(120, 81, 169, 0.2);
+  --account-plant-rarity-border: rgba(120, 81, 169, 0.5);
+  --account-plant-rarity-shadow: rgba(120, 81, 169, 0.28);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 26px rgba(120, 81, 169, 0.18);
+}
+
+.account-level-modal__plant-card--epic::before {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(120, 81, 169, 0.2),
+      transparent 34%,
+      transparent 70%,
+      rgba(120, 81, 169, 0.1)
+    ),
+    radial-gradient(
+      circle at 76% 20%,
+      rgba(120, 81, 169, 0.18),
+      transparent 34%
+    );
+}
+
+.account-level-modal__plant-card--epic::after {
+  left: -30%;
+  top: -45%;
+  width: 34%;
+  height: 190%;
+
+  opacity: 0.38;
+  transform: rotate(22deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+
+  animation: account-level-rare-shine 5.8s ease-in-out infinite;
+}
+
+/* legendary */
+
+.account-level-modal__plant-card--legendary {
+  --account-plant-rarity-color: #e65480;
+  --account-plant-rarity-soft: rgba(230, 84, 128, 0.22);
+  --account-plant-rarity-border: rgba(230, 84, 128, 0.58);
+  --account-plant-rarity-shadow: rgba(230, 84, 128, 0.28);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 28px rgba(230, 84, 128, 0.2);
+}
+
+.account-level-modal__plant-card--legendary::before {
+  background:
+    radial-gradient(
+      circle at 24% 52%,
+      rgba(255, 158, 188, 0.36),
+      rgba(230, 84, 128, 0.2) 30%,
+      transparent 58%
+    ),
+    radial-gradient(
+      circle at 74% 26%,
+      rgba(255, 233, 161, 0.14),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 84% 74%,
+      rgba(230, 84, 128, 0.2),
+      transparent 28%
+    );
+
+  animation: account-level-legendary-glow 4s ease-in-out infinite;
+}
+
+.account-level-modal__plant-card--legendary::after {
+  left: -30%;
+  top: -45%;
+  width: 34%;
+  height: 190%;
+
+  opacity: 0.38;
+  transform: rotate(22deg);
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
+
+  animation: account-level-rare-shine 5.8s ease-in-out infinite;
+}
+
+/* image */
+
+.account-level-modal__plant-card--rare .account-level-modal__plant-image {
+  filter:
+    drop-shadow(0 16px 20px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 12px rgba(83, 143, 234, 0.28));
+}
+
+.account-level-modal__plant-card--epic .account-level-modal__plant-image {
+  filter:
+    drop-shadow(0 16px 20px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 15px rgba(205, 151, 255, 0.32));
+}
+
+.account-level-modal__plant-card--legendary .account-level-modal__plant-image {
+  filter:
+    drop-shadow(0 16px 20px rgba(0, 0, 0, 0.36))
+    drop-shadow(0 0 17px rgba(230, 84, 128, 0.34));
+}
+
+.account-level-modal__plant-card--rare .account-level-modal__plant-info strong,
+.account-level-modal__plant-card--epic .account-level-modal__plant-info strong,
+.account-level-modal__plant-card--legendary .account-level-modal__plant-info strong {
+  text-shadow: 0 0 16px var(--account-plant-rarity-shadow);
+}
+
+.account-level-modal__plant-glow {
+  position: absolute;
+  left: 36px;
+  top: 50%;
+
+  width: 132px;
+  height: 96px;
+
+  transform: translateY(-50%);
+  border-radius: 999px;
+  filter: blur(22px);
+  opacity: 0.62;
+}
+
+.account-level-modal__plant-glow--common {
+  background: rgba(105, 150, 6, 0.26);
+}
+
+.account-level-modal__plant-glow--rare {
+  background: rgba(83, 143, 234, 0.26);
+}
+
+.account-level-modal__plant-glow--epic {
+  background: rgba(120, 81, 169, 0.28);
+}
+
+.account-level-modal__plant-glow--legendary {
+  background: rgba(230, 84, 128, 0.3);
+}
+
+.account-level-modal__plant-image {
+  position: relative;
+  z-index: 1;
+
+  justify-self: center;
+
+  width: 132px;
+  height: 132px;
+  object-fit: contain;
+
+  filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.36));
+}
+
+/* text */
+
+.account-level-modal__plant-info {
+  position: relative;
+  z-index: 1;
+
+  min-width: 0;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+
+  text-align: left;
+}
+
+.account-level-modal__plant-caption {
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.account-level-modal__plant-info strong {
+  max-width: 100%;
+
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+
+  font-size: 24px;
+  line-height: 1.04;
+  font-weight: 900;
+  color: #fff;
+}
+
+.account-level-modal__plant-description {
+  display: block;
+
+  max-width: 100%;
+  margin: 2px 0 4px;
+
+  overflow: visible;
+
+  font-size: 11px;
+  line-height: 1.42;
+  font-weight: 400;
+  text-align: left;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* rarity */
+
+.account-level-modal__rarity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  align-self: flex-start;
+
+  min-width: 117px;
+  height: 22px;
+  padding: 0 14px;
+  box-sizing: border-box;
+
+  border-radius: 13px;
+
+  font-size: 14px;
+  line-height: 128%;
+  font-weight: 700;
+  color: #ffffff;
+
+  box-shadow: 0 0 6.3px var(--account-plant-rarity-color);
+}
+
+.account-level-modal__rarity--common {
+  background: #699606;
+}
+
+.account-level-modal__rarity--rare {
+  background: #538fea;
+}
+
+.account-level-modal__rarity--epic {
+  background: #7851a9;
+}
+
+.account-level-modal__rarity--legendary {
+  background: #e65480;
+}
+
+/* button */
+
+.account-level-modal__button {
+  width: 100%;
+  height: 62px;
+
+  border: 0;
+  border-radius: 15px;
+  cursor: pointer;
+
+  color: #202020;
+  font-size: 20px;
+  font-weight: 900;
+
+  background: #b1ca7e;
+  box-shadow: 0 12px 30px rgba(128, 193, 70, 0.22);
+}
+
+/* animations */
+
+@keyframes account-level-rare-shine {
+  0%,
+  58% {
+    transform: translateX(0) rotate(22deg);
+  }
+
+  78%,
+  100% {
+    transform: translateX(430%) rotate(22deg);
+  }
+}
+
+@keyframes account-level-legendary-glow {
+  0%,
+  100% {
+    opacity: 0.62;
+    transform: scale(0.98);
+  }
+
+  50% {
+    opacity: 0.95;
+    transform: scale(1.03);
+  }
+}
+
+/* adaptive */
+
+@media (max-width: 760px) {
+  .account-level-modal {
+    width: min(100%, 420px);
+    min-height: auto;
+    padding: 34px 24px 28px;
+  }
+
+  .account-level-modal__title {
+    font-size: 31px;
+  }
+
+  .account-level-modal__number {
+    font-size: 74px;
+  }
+
+  .account-level-modal__plant-card {
+    grid-template-columns: 1fr;
+    row-gap: 12px;
+
+    min-height: auto;
+    padding: 22px 20px;
+  }
+
+  .account-level-modal__plant-glow {
+    left: 50%;
+    top: 72px;
+    transform: translateX(-50%);
+  }
+
+  .account-level-modal__plant-info {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .account-level-modal__plant-description {
+    max-width: 100%;
+  }
+}

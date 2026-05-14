@@ -9,6 +9,7 @@ import ModalsLevelUp from "../../components/modalsLevelUp/ModalsLevelUp.jsx";
 import ModalNewPlantState from "../../components/modalNewPlantState/ModalNewPlantState.jsx";
 import StagesGrowth from "../../components/stagesGrowth/StagesGrowth.jsx";
 import NotificationXp from "../../components/notificationXp/NotificationXp.jsx";
+import ModalAccountLevelUp from "../../components/modalAccountLevelUp/ModalAccountLevelUp.jsx";
 
 const ICONS = {
   settings: "/card-icons/settings.svg",
@@ -110,6 +111,11 @@ const Card = () => {
   const [levelUpInfo, setLevelUpInfo] = useState(null);
   const [flagStateChange, setFlagStateChange] = useState(false);
   const [notificationXp, setNotificationXp] = useState(null);
+  const [isModalAccountLevelUpOpen, setIsModalAccountLevelUpOpen] =
+    useState(false);
+  const [accountLevelRewardInfo, setAccountLevelRewardInfo] = useState(null);
+  const [accountLevelRewardQueue, setAccountLevelRewardQueue] = useState([]);
+  const [pendingPlantStateModal, setPendingPlantStateModal] = useState(false);
   const handleAddXp = async (event) => {
     event.preventDefault();
 
@@ -117,11 +123,22 @@ const Card = () => {
       const xpUp = formatTimer(time).total * 2000;
       const updated = await addXpToTopic(id, xpUp);
       const isPlantStateChanged = updated.tree_state !== infoPlant.tree_state;
+      const newLevelRewards = Array.isArray(updated.new_level_rewards)
+        ? updated.new_level_rewards
+        : [];
+      const hasTopicLevelUp = updated.level > infoPlant.level;
+      const hasAccountLevelReward = newLevelRewards.length > 0;
+
       setNotificationXp({
         xp: xpUp || 0,
         text: "Выполнение задачи",
       });
-      if (updated.level > infoPlant.level) {
+
+      setAccountLevelRewardQueue(newLevelRewards);
+      setAccountLevelRewardInfo(newLevelRewards[0] || null);
+      setPendingPlantStateModal(isPlantStateChanged);
+
+      if (hasTopicLevelUp) {
         setLevelUpInfo({
           oldLevel: infoPlant.level,
           newLevel: updated.level,
@@ -131,6 +148,10 @@ const Card = () => {
 
         setFlagStateChange(isPlantStateChanged);
         setIsModalLevelUpOpen(true);
+      } else if (hasAccountLevelReward) {
+        setIsModalAccountLevelUpOpen(true);
+      } else if (isPlantStateChanged) {
+        setIsModalNewPlantState(true);
       }
 
       setInfoPlant((prev) => ({
@@ -189,6 +210,25 @@ const Card = () => {
       clearInterval(timerId);
     };
   }, [buttonTimer, saveTime]);
+
+  const handleCloseAccountLevelUpModal = () => {
+    const nextQueue = accountLevelRewardQueue.slice(1);
+
+    if (nextQueue.length > 0) {
+      setAccountLevelRewardQueue(nextQueue);
+      setAccountLevelRewardInfo(nextQueue[0]);
+      return;
+    }
+
+    setIsModalAccountLevelUpOpen(false);
+    setAccountLevelRewardQueue([]);
+    setAccountLevelRewardInfo(null);
+
+    if (pendingPlantStateModal) {
+      setIsModalNewPlantState(true);
+      setPendingPlantStateModal(false);
+    }
+  };
 
   const rarityClass = getRarityClass(infoPlant.rarity);
 
@@ -574,10 +614,17 @@ const Card = () => {
           currentProgress={levelUpInfo.currentProgress}
           onClose={() => {
             setIsModalLevelUpOpen(false);
-            setIsModalNewPlantState(flagStateChange);
+
+            if (accountLevelRewardInfo) {
+              setIsModalAccountLevelUpOpen(true);
+            } else {
+              setIsModalNewPlantState(flagStateChange);
+              setPendingPlantStateModal(false);
+            }
           }}
         />
       )}
+
       {isModalNewPlantState && (
         <ModalNewPlantState
           img={infoPlant.image_url}
@@ -591,6 +638,12 @@ const Card = () => {
           xp={notificationXp.xp}
           text={notificationXp.text}
           onClose={() => setNotificationXp(null)}
+        />
+      )}
+      {isModalAccountLevelUpOpen && accountLevelRewardInfo && (
+        <ModalAccountLevelUp
+          reward={accountLevelRewardInfo}
+          onClose={handleCloseAccountLevelUpModal}
         />
       )}
     </>
