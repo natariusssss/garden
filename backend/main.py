@@ -414,42 +414,27 @@ def delete_topic(
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
-@app.put("/users/me/update")
+@app.put("/users/me/update", response_model=schemas.UserResponse)
 def update_my_profile(
     payload: schemas.UserProfileUpdate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     if payload.username:
+        username = payload.username.strip()
+
         existing = db.query(User).filter(
-            User.username == payload.username,
+            User.username == username,
             User.id != current_user.id
         ).first()
 
         if existing:
             raise HTTPException(status_code=400, detail="Username already taken")
 
-        current_user.username = payload.username
+        current_user.username = username
 
-    if payload.email:
-        existing = db.query(User).filter(
-            User.email == payload.email,
-            User.id != current_user.id
-        ).first()
-
-        if existing:
-            raise HTTPException(status_code=400, detail="Email already taken")
-
-        current_user.email = payload.email
-
-    if payload.password:
-        if len(payload.password) < 6:
-            raise HTTPException(
-                status_code=400,
-                detail="Password must be at least 6 characters"
-            )
-
-    current_user.password = get_password(payload.password)
+    if payload.description is not None:
+        current_user.description = payload.description.strip()
 
     db.commit()
     db.refresh(current_user)

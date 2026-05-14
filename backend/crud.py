@@ -50,9 +50,29 @@ def get_due_topics(db: Session, user_id: int):
     repeat_topics=db.query(UserTopic).filter(UserTopic.user_id==user_id, or_(
         UserTopic.next_review_date<=datetime.now(), UserTopic.next_review_date==None)).all()
     return repeat_topics
+def get_current_max_xp(level: int) -> int:
+    if level == 0:
+        return 100
+    return 100 * level + 20 * level
+def calculate_user_progress_data(xp: int):
+    total_xp = max(0, xp or 0)
+
+    level = 0
+    current_progress_xp = total_xp
+    while current_progress_xp >= get_current_max_xp(level):
+        current_progress_xp -= get_current_max_xp(level)
+        level += 1
+    current_max_xp = get_current_max_xp(level)
+    return {
+        "level": level,
+        "total_xp": total_xp,
+        "current_progress_xp": current_progress_xp,
+        "current_max_xp": current_max_xp,
+        "progress_width": f"{round((current_progress_xp / current_max_xp) * 100, 2)}%",
+    }
+
 def calculate_user_level(xp: int) -> int:
-    level=int(sqrt(xp/100)+1)
-    return level
+    return calculate_user_progress_data(xp)["level"]
 def get_user_stats(db: Session, user_id: int):
     user = db.get(User, user_id)
     if not user:
@@ -67,9 +87,14 @@ def get_user_stats(db: Session, user_id: int):
             streak=1
         elif last_review.reviewed_at.date() == today - timedelta(days=1):
             streak=1
-    level=calculate_user_level(user.total_xp)
-    return {'total_xp': user.total_xp, 'streak': streak, 'level': level, 'topics_count': topics_count,
-            'reviews_count': reviews_count}
+    progress_data = calculate_user_progress_data(user.total_xp)
+
+    return {
+        "streak": streak,
+        "topics_count": topics_count,
+        "reviews_count": reviews_count,
+        **progress_data,
+    }
 def get_review_history(db: Session, user_id: int, limit=50):
     review_his=db.query(ReviewHistory).filter(ReviewHistory.user_id==user_id).order_by(ReviewHistory.reviewed_at.desc()).limit(limit).all()
     return review_his

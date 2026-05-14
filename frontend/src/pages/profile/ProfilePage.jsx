@@ -54,8 +54,12 @@ export default function ProfilePage() {
 
     localStorage.removeItem("token");
     navigate("/");
-    
   };
+  const level = stats?.level ?? 0;
+  const totalXp = stats?.total_xp ?? 0;
+  const currentXp = stats?.current_progress_xp ?? 0;
+  const maxXp = stats?.current_max_xp ?? 100;
+  const progressWidth = `${Math.min((currentXp / maxXp) * 100, 100)}%`;
 
   return (
     <div className="profile-page">
@@ -85,9 +89,7 @@ export default function ProfilePage() {
 
                 <p className="profile-user-tag">@{user?.username || "user"}</p>
                 <p className="profile-bio">
-                  Фокусируюсь на росте каждый день.
-                  <br />
-                  Маленькие шаги — большие результаты.
+                  {user?.description || "Описание профиля пока не добавлено"}
                 </p>
 
                 <div className="profile-meta-row">
@@ -120,13 +122,17 @@ export default function ProfilePage() {
                 </span>
                 <div className="profile-level-box">
                   <div className="title-lvl">
-                    <strong className="lvl">67</strong>
+                    <strong className="lvl">{level}</strong>
                     <span className="lvl-tit">уровень</span>
                   </div>
                   <div className="profile-xp-bar" aria-hidden="true">
-                    <span style={{ width: "68%" }} />
+                    <span style={{ width: stats?.progress_width || "0%" }} />
                   </div>
-                  <small>67 XP</small>
+
+                  <small>
+                    {stats?.current_progress_xp ?? 0} /{" "}
+                    {stats?.current_max_xp ?? 100} XP
+                  </small>
                 </div>
               </article>
 
@@ -149,7 +155,7 @@ export default function ProfilePage() {
                   ☆
                 </span>
                 <div>
-                  <strong>67</strong>
+                  <strong>{totalXp}</strong>
                   <span>XP заработано</span>
                 </div>
               </article>

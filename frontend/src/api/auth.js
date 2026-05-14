@@ -390,3 +390,20 @@ export async function getAchievementsProgress() {
 
   return data;
 }
+
+export async function getFriendProgress(friendId, token) {
+  const response = await fetch(`${API_URL}/friends/${friendId}/progress`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка загрузки профиля друга");
+  }
+
+  return data;
+}

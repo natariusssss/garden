@@ -689,3 +689,73 @@
   }
 }
 
+/*/ profil' druga/*/
+.friend-profile-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.friend-profile-dashboard .profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.friend-profile-bottom {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.friend-topics-card {
+  width: 100%;
+  min-height: 340px;
+}
+
+@media (max-width: 1100px) {
+  .friend-profile-dashboard .profile-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.friend-back-row {
+  margin-bottom: 22px;
+}
+
+.friend-back-button {
+  height: 48px;
+  padding: 0 22px;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+
+  border-radius: 14px;
+  border: 1px solid #46423d;
+  background: #3a3835;
+
+  color: rgba(255, 255, 255, 0.88);
+  font-family: "Montserrat", sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.friend-back-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(170, 200, 112, 0.55);
+  box-shadow: 0 0 18px rgba(170, 200, 112, 0.12);
+  color: #ffffff;
+}
+
+.friend-back-arrow {
+  color: #aac870;
+  font-size: 20px;
+  line-height: 1;
+}

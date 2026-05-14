@@ -59,81 +59,26 @@
   gap: 34px;
   margin-top: 22px;
 }
-.edit-profile-textarea{
-  width:100%;
-  min-height:120px;
-  resize:none;
 
-  padding:18px;
-
-  border:2px solid #626262;
-  border-radius:24px;
-
-  background:#463f3c;
-  color:white;
-
-  font-size:18px;
-  font-family:"Montserrat",sans-serif;
-
-  margin-top:10px;
+.edit-profile-actions button:first-child {
+  width: 216px;
+  height: 52px;
+  border: none;
+  border-radius: 16px;
+  background: #b1ca7e;
+  color: #202020;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.edit-profile-textarea:focus{
-  outline:none;
-  border-color:#788b55;
-}
-
-.edit-profile-actions{
-  margin-top:35px;
-
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  gap:24px;
-}
-
-.edit-profile-save{
-  width:210px;
-  height:62px;
-
-  border:none;
-  border-radius:24px;
-
-  background:#b1ca7e;
-  color:#202020;
-
-  font-size:23px;
-  font-weight:800;
-
-  cursor:pointer;
-
-  transition:.25s;
-}
-
-.edit-profile-save:hover{
-  transform:translateY(-2px);
-  box-shadow:0 0 25px rgba(177,202,126,.2);
-}
-
-.edit-profile-cancel{
-  width:180px;
-  height:62px;
-
-  border:none;
-  background:transparent;
-
-  color:#a0a0a0;
-
-  font-size:22px;
-  font-weight:700;
-
-  cursor:pointer;
-
-  transition:.25s;
-}
-
-.edit-profile-cancel:hover{
-  color:white;
+.edit-profile-actions button:last-child {
+  border: none;
+  background: transparent;
+  color: #a0a0a0;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 @media (max-width: 640px) {

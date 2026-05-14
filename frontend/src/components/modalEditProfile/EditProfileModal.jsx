@@ -3,20 +3,27 @@ import "./editProfileModal.css";
 
 export default function EditProfileModal({ user, onClose, onSave }) {
   const [username, setUsername] = useState(user?.username || "");
-  const [description, setDescription] = useState(user?.description || "");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const confirmed = window.confirm(
-      "Вы действительно хотите изменить профиль?",
-    );
+    const trimmedUsername = username.trim();
 
+    if (!trimmedUsername) {
+      alert("Никнейм не может быть пустым");
+      return;
+    }
+
+    if (trimmedUsername === user?.username) {
+      onClose();
+      return;
+    }
+
+    const confirmed = window.confirm("Вы действительно хотите поменять ник?");
     if (!confirmed) return;
 
     await onSave({
-      username,
-      description,
+      username: trimmedUsername,
     });
   };
 
@@ -37,27 +44,10 @@ export default function EditProfileModal({ user, onClose, onSave }) {
             placeholder="Введите никнейм"
           />
         </label>
-        <label>
-          Описание профиля
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            maxLength={100}
-            placeholder="Расскажите немного о себе..."
-            className="edit-profile-textarea"
-          />
-        </label>
 
         <div className="edit-profile-actions">
-          <button className="edit-profile-save" type="submit">
-            Сохранить
-          </button>
-
-          <button
-            className="edit-profile-cancel"
-            type="button"
-            onClick={onClose}
-          >
+          <button type="submit">Сохранить</button>
+          <button type="button" onClick={onClose}>
             Отмена
           </button>
         </div>

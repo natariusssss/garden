@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "../../components/header/Header";
 import {
   getFriends,
@@ -284,9 +285,12 @@ export default function FriendsPage() {
             {friends.length > 0 ? (
               friends.map((friend) => (
                 <article key={friend.id} className="friends-item">
-                  <div className="friends-item-icon" aria-hidden="true">
+                  <Link
+                    to={`/friends/${friend.id}`}
+                    className="friends-item-icon"
+                  >
                     <span>{getInitial(friend.username)}</span>
-                  </div>
+                  </Link>
 
                   <div className="friends-item-info">
                     <p className="friends-item-username">{friend.username}</p>

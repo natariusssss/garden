@@ -26,13 +26,13 @@ class UserResponse(BaseModel):
     username: str
     email: EmailStr
     created_at: datetime
+    description: Optional[str] = None
     class Config:
         from_attributes = True
 
 class UserProfileUpdate(BaseModel):
     username: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
+    description: Optional[str] = None
     
 
 class Token(BaseModel):
@@ -179,10 +179,13 @@ class ReviewResultResponse(BaseModel):
 
 class UserStats(BaseModel):
     total_xp: int
-    level: int
-    reviews_count: int
-    topics_count: int
     streak: int
+    level: int
+    topics_count: int
+    reviews_count: int
+    current_progress_xp: int
+    current_max_xp: int
+    progress_width: str
 
 class FriendshipRequestCreate(BaseModel):
     friend_username: str
