@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional, Union
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, EmailStr, field_validator, Field
 import re
+
 
 class UserCreate(BaseModel):
     username: str
@@ -11,7 +12,9 @@ class UserCreate(BaseModel):
     @field_validator("username")
     def validate_username(cls, v):
         if not re.match(r"^[a-zA-Z0-9_]+$", v):
-            raise ValueError("Username must contain only letters, numbers and underscore")
+            raise ValueError(
+                "Username must contain only letters, numbers and underscore"
+            )
         return v
 
     @field_validator("password")
@@ -27,17 +30,20 @@ class UserResponse(BaseModel):
     email: EmailStr
     created_at: datetime
     description: Optional[str] = None
+
     class Config:
         from_attributes = True
+
 
 class UserProfileUpdate(BaseModel):
     username: Optional[str] = None
     description: Optional[str] = None
-    
+
 
 class Token(BaseModel):
     access_token: str
     token_type: str
+
 
 class LoginForm(BaseModel):
     login: str
@@ -51,8 +57,10 @@ class TopicBase(BaseModel):
     rarity: Optional[str] = "common"
     image_url: Optional[str] = ""
 
+
 class TopicCreate(TopicBase):
     pass
+
 
 class TopicUpdate(BaseModel):
     name: Optional[str] = None
@@ -60,6 +68,7 @@ class TopicUpdate(BaseModel):
     tree_type: Optional[str] = None
     rarity: Optional[str] = None
     image_url: Optional[str] = None
+
 
 class AchievementResponse(BaseModel):
     id: int
@@ -73,6 +82,7 @@ class AchievementResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class UserAchievementResponse(BaseModel):
     id: int
     user_id: int
@@ -82,7 +92,6 @@ class UserAchievementResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 
 class PlantRewardResponse(BaseModel):
@@ -99,6 +108,7 @@ class AchievementRewardResponse(BaseModel):
     type: str
     value: Union[str, int]
     plant: Optional[PlantRewardResponse] = None
+
 
 class AchievementProgressResponse(BaseModel):
     id: int
@@ -118,6 +128,7 @@ class AchievementProgressResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class TopicResponse(BaseModel):
     id: int
     user_id: int
@@ -129,22 +140,26 @@ class TopicResponse(BaseModel):
     current_max_xp: int = 100
     current_progress_xp: int = 0
     progress_width: str = "0%"
-    
+
     review_count: int = 0
     tree_state: str = "seed"
     tree_type: Optional[str] = None
     rarity: Optional[str] = None
     image_url: Optional[str] = None
     is_dry: bool = False
-    new_achievements: list[AchievementResponse] = []
+
+    new_achievements: list[AchievementProgressResponse] = Field(default_factory=list)
 
     last_reviewed: Optional[datetime] = None
+
     class Config:
         from_attributes = True
+
 
 class UserTopicCreate(BaseModel):
     topic_id: int
     level: Optional[int] = 0
+
 
 class UserTopicResponse(BaseModel):
     id: int
@@ -155,11 +170,14 @@ class UserTopicResponse(BaseModel):
     last_reviewed: Optional[datetime] = None
     next_review_date: Optional[datetime] = None
     xp: int
+
     class Config:
         from_attributes = True
 
+
 class ReviewCreate(BaseModel):
     success: bool
+
 
 class ReviewHistoryResponse(BaseModel):
     id: int
@@ -167,8 +185,10 @@ class ReviewHistoryResponse(BaseModel):
     topic_id: int
     reviewed_at: datetime
     success: bool
+
     class Config:
         from_attributes = True
+
 
 class ReviewResultResponse(BaseModel):
     review: ReviewHistoryResponse
@@ -176,6 +196,7 @@ class ReviewResultResponse(BaseModel):
     new_level: int
     new_achievements: list[AchievementProgressResponse] = []
     new_level_rewards: list[dict] = []
+
 
 class UserStats(BaseModel):
     total_xp: int
@@ -187,8 +208,10 @@ class UserStats(BaseModel):
     current_max_xp: int
     progress_width: str
 
+
 class FriendshipRequestCreate(BaseModel):
     friend_username: str
+
 
 class FriendshipResponse(BaseModel):
     id: int
@@ -202,12 +225,14 @@ class FriendshipResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class FriendStatus(BaseModel):
     status: str
 
 
 class TopicXPAdd(BaseModel):
     xp: int
+
 
 class TopicXPResponse(BaseModel):
     xp: int
@@ -222,9 +247,3 @@ class TopicXPResponse(BaseModel):
     last_reviewed: Optional[datetime] = None
     new_achievements: list[AchievementProgressResponse] = []
     new_level_rewards: list[dict] = []
-
-
-
-
-
-

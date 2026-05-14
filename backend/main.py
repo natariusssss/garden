@@ -587,9 +587,12 @@ def accept_friend_request(
     db.commit()
 
     check_and_unlock_achievements(db, friendship.user_id)
-    check_and_unlock_achievements(db, friendship.friend_id)
+    new_achievements = check_and_unlock_achievements(db, friendship.friend_id)
 
-    return {"message": "Friend request accepted"}
+    return {
+        "message": "Friend request accepted",
+        "new_achievements": new_achievements,
+    }
 
 
 @app.put("/friendships/reject/{request_id}")

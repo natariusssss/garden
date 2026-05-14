@@ -1,4 +1,19 @@
 const API_URL = "http://127.0.0.1:8001";
+const ACHIEVEMENT_UNLOCK_EVENT = "garden:achievement-unlocked";
+
+function emitAchievementNotifications(data) {
+  const achievements = Array.isArray(data?.new_achievements)
+    ? data.new_achievements
+    : [];
+
+  if (achievements.length === 0 || typeof window === "undefined") return;
+
+  window.dispatchEvent(
+    new CustomEvent(ACHIEVEMENT_UNLOCK_EVENT, {
+      detail: { achievements },
+    })
+  );
+}
 
 export async function registerUser(payload) {
   const response = await fetch(`${API_URL}/register`, {
@@ -104,6 +119,7 @@ export async function createTopic({
     throw new Error(data.detail || "Failed to create topic");
   }
 
+  emitAchievementNotifications(data);
   return data;
 }
 
@@ -193,6 +209,7 @@ export async function acceptFriendRequest(requestId, token) {
     throw new Error(data.detail || "Ошибка принятия заявки");
   }
 
+  emitAchievementNotifications(data);
   return data;
 }
 
@@ -310,6 +327,7 @@ export async function addXpToTopic(topicId, xp) {
     throw new Error(data.detail || "Failed to add XP");
   }
 
+  emitAchievementNotifications(data);
   return data;
 }
 
@@ -386,6 +404,25 @@ export async function getAchievementsProgress() {
 
   if (!response.ok) {
     throw new Error(data.detail || "Ошибка загрузки достижений");
+  }
+
+  return data;
+}
+
+export async function getLevelRewardsProgress() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/level-rewards`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка загрузки наград за уровни");
   }
 
   return data;

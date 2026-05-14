@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from models import Plant
+
 plants_data = [
     {
         "code": "birch",
@@ -154,14 +155,6 @@ plants_data = [
         "image_url": "/lotos/lotos_big.png",
     },
     {
-        "code": "rainbow_eucalyptus",
-        "name": "Радужный эвкалипт",
-        "description": "Высокое дерево с гладким многоцветным стволом, вытянутой кроной и длинными зелеными листьями.",
-        "rarity": "legendary",
-        "tree_type": "дерево",
-        "image_url": "/rainbow_eucalyptus/rainbow_eucalyptus_big.png",
-    },
-    {
         "code": "wise_oak",
         "name": "Мудрый дуб",
         "description": "Старинный дуб с крепким стволом, выразительными ветвями и густой плотной листвой.",
@@ -198,7 +191,7 @@ plants_data = [
 
 def seed_plants(db: Session):
     for item in plants_data:
-        plant=db.query(Plant).filter(Plant.code == item["code"]).first()
+        plant = db.query(Plant).filter(Plant.code == item["code"]).first()
         if plant:
             plant.name = item["name"]
             plant.description = item["description"]
@@ -208,4 +201,3 @@ def seed_plants(db: Session):
         else:
             db.add(Plant(**item))
     db.commit()
-

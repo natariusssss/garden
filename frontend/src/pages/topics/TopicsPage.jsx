@@ -57,6 +57,7 @@ const TopicsPage = () => {
                     current_max_xp={topic.current_max_xp}
                     progress_width={topic.progress_width}
                     last_reviewed={topic.last_reviewed}
+                    is_dry={topic.is_dry}
                   />
                 );
               })}

@@ -25,6 +25,10 @@ export default function PlantProgressAchievementCard({
   condition_value = 1,
   rarity_name,
   xpReward = 0,
+  hideProgress = false,
+  hideDescription = false,
+  unlockLabel = "Открывает растение",
+  statusText = "В процессе",
 }) {
   const currentRarity = rarity || "common";
   const currentRarityName = rarity_name || RARITY_META[currentRarity]?.label || "Обычное";
@@ -34,11 +38,13 @@ export default function PlantProgressAchievementCard({
 
   return (
     <article
-      className={`plant-progress-achievement-card plant-progress-achievement-card--${currentRarity}`}
+      className={`plant-progress-achievement-card plant-progress-achievement-card--${currentRarity} ${hideProgress ? "plant-progress-achievement-card--without-progress" : ""} ${hideDescription ? "plant-progress-achievement-card--without-description" : ""}`}
     >
-      <span className="plant-progress-achievement-card__count">
-        {safeCurrent} / {condition_value}
-      </span>
+      {!hideProgress && (
+        <span className="plant-progress-achievement-card__count">
+          {safeCurrent} / {condition_value}
+        </span>
+      )}
 
       <div className="plant-progress-achievement-card__main">
         <div className="plant-progress-achievement-card__picture">
@@ -51,9 +57,11 @@ export default function PlantProgressAchievementCard({
 
         <div className="plant-progress-achievement-card__content">
           <h3 className="plant-progress-achievement-card__title">{title}</h3>
-          <p className="plant-progress-achievement-card__description">
-            {description}
-          </p>
+          {!hideDescription && description && (
+            <p className="plant-progress-achievement-card__description">
+              {description}
+            </p>
+          )}
 
           <div className="plant-progress-achievement-card__tags">
             <span className="plant-progress-achievement-card__tag plant-progress-achievement-card__tag--plant">
@@ -68,14 +76,16 @@ export default function PlantProgressAchievementCard({
         </div>
       </div>
 
-      <div className="plant-progress-achievement-card__progress plant-progress-achievement-card__progress--plant">
-        <span style={{ width: `${width_per}%` }} />
-      </div>
+      {!hideProgress && (
+        <div className="plant-progress-achievement-card__progress plant-progress-achievement-card__progress--plant">
+          <span style={{ width: `${width_per}%` }} />
+        </div>
+      )}
 
       <div className="plant-progress-achievement-card__footer">
         <div className="plant-progress-achievement-card__unlock">
           <span>
-            Открывает растение
+            {unlockLabel}
             <strong>{name}</strong>
           </span>
         </div>
@@ -87,7 +97,7 @@ export default function PlantProgressAchievementCard({
             </span>
           )}
           <span className="plant-progress-achievement-card__status">
-            В процессе
+            {statusText}
           </span>
         </div>
       </div>

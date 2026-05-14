@@ -6,7 +6,10 @@ import XpProgressAchievementCard from "../../components/achievement_cards/xpProg
 import PlantCompletedAchievementCard from "../../components/achievement_cards/plantCompletedAchievementCard/PlantCompletedAchievementCard";
 import XpCompletedAchievementCard from "../../components/achievement_cards/xpCompletedAchievementCard/XpCompletedAchievementCard";
 import Header from "../../components/header/Header.jsx";
-import { getAchievementsProgress } from "../../api/auth.js";
+import {
+  getAchievementsProgress,
+  getLevelRewardsProgress,
+} from "../../api/auth.js";
 import { useState } from "react";
 
 const ICONS = {
@@ -50,9 +53,13 @@ const isXpAchievement = (achieve) =>
 
 const getRarityName = (rarity) => RARITY_META[rarity]?.label ?? "Обычное";
 
+const getLevelRewardTitle = (reward) =>
+  `${reward?.level ?? "?"} уровень аккаунта`;
+
 export default function Achieve() {
   const [completedAchievements, setCompletedAchievements] = useState([]);
   const [progressAchievements, setProgressAchievements] = useState([]);
+  const [levelRewards, setLevelRewards] = useState([]);
   const [achieveFilter, setAchieveFilter] = useState("progress");
   const [message, setMessage] = useState("Загрузка...");
 
@@ -77,17 +84,34 @@ export default function Achieve() {
 
   const loadAchieve = async () => {
     try {
-      const data = await getAchievementsProgress();
-      const achievements = Array.isArray(data) ? data : [];
+      const [achievementsData, levelRewardsData] = await Promise.all([
+        getAchievementsProgress(),
+        getLevelRewardsProgress(),
+      ]);
+
+      const achievements = Array.isArray(achievementsData)
+        ? achievementsData
+        : [];
+      const accountLevelRewards = Array.isArray(levelRewardsData)
+        ? levelRewardsData
+        : [];
 
       setCompletedAchievements(achievements.filter((item) => item.is_unlocked));
 
       setProgressAchievements(achievements.filter((item) => !item.is_unlocked));
+      setLevelRewards(accountLevelRewards);
       setMessage("");
     } catch (error) {
       setMessage(error.message);
     }
   };
+
+  const unlockedLevelRewardsCount = levelRewards.filter(
+    (reward) => reward.is_unlocked,
+  ).length;
+  const completedItemsCount = completedAchievements.length + unlockedLevelRewardsCount;
+  const totalItemsCount =
+    completedAchievements.length + progressAchievements.length + levelRewards.length;
 
   return (
     <>
@@ -122,8 +146,7 @@ export default function Achieve() {
             <img className="achieve-icon" src={ICONS.achieve} />
             <span>Получено</span>
             <strong>
-              {completedAchievements.length}/
-              {completedAchievements.length + progressAchievements.length}
+              {completedItemsCount}/{totalItemsCount}
             </strong>
           </div>
         </section>
@@ -228,6 +251,51 @@ export default function Achieve() {
                   })}
               </div>
             </section>
+
+            <section
+              className="achievements-section achievements-section--level-rewards"
+              aria-labelledby="progress-level-plants-title"
+            >
+              <div className="achievements-section__head">
+                <div className="achieve-flex">
+                  <h2
+                    id="progress-level-plants-title"
+                    className="achievements-section__title"
+                  >
+                    <span className="achievements-section__accent achievements-section__accent--level-plant">
+                      Растения за уровень аккаунта
+                    </span>
+                  </h2>
+
+                  <p className="achievements-section__subtitle">
+                    Растения, которые открываются за повышение уровня аккаунта
+                  </p>
+                </div>
+              </div>
+
+              <div className="achievements-grid achievements-grid--level-plants">
+                {levelRewards
+                  .filter((reward) => !reward.is_unlocked)
+                  .map((reward) => {
+                    const plant = reward.plant;
+
+                    return (
+                      <PlantProgressAchievementCard
+                        key={`level-reward-${reward.id}`}
+                        title={getLevelRewardTitle(reward)}
+                        img={plant?.image_url}
+                        rarity={plant?.rarity}
+                        name={plant?.name}
+                        rarity_name={getRarityName(plant?.rarity)}
+                        hideProgress
+                        unlockLabel="Откроется растение"
+                        statusText="В процессе"
+                        hideDescription
+                      />
+                    );
+                  })}
+              </div>
+            </section>
           </>
         )}
 
@@ -311,6 +379,49 @@ export default function Achieve() {
                         name={plant?.name}
                         rarity_name={getRarityName(plant?.rarity)}
                         xpReward={xpReward?.value ?? 0}
+                      />
+                    );
+                  })}
+              </div>
+            </section>
+
+            <section
+              className="achievements-section achievements-section--level-rewards"
+              aria-labelledby="completed-level-plants-title"
+            >
+              <div className="achievements-section__head">
+                <div className="achieve-flex">
+                  <h2
+                    id="completed-level-plants-title"
+                    className="achievements-section__title"
+                  >
+                    <span className="achievements-section__accent achievements-section__accent--level-plant">
+                      Растения за уровень аккаунта
+                    </span>
+                  </h2>
+
+                  <p className="achievements-section__subtitle">
+                    Уже открытые растения за уровни аккаунта
+                  </p>
+                </div>
+              </div>
+
+              <div className="achievements-grid achievements-grid--level-plants achievements-grid--completed-level-plants">
+                {levelRewards
+                  .filter((reward) => reward.is_unlocked)
+                  .map((reward) => {
+                    const plant = reward.plant;
+
+                    return (
+                      <PlantCompletedAchievementCard
+                        key={`completed-level-reward-${reward.id}`}
+                        title={getLevelRewardTitle(reward)}
+                        img={plant?.image_url}
+                        rarity={plant?.rarity}
+                        name={plant?.name}
+                        rarity_name={getRarityName(plant?.rarity)}
+                        unlockLabel="Открыто за уровень"
+                        hideDescription
                       />
                     );
                   })}

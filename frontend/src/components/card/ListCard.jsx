@@ -92,10 +92,18 @@ const ListCard = ({
   current_max_xp,
   progress_width,
   last_reviewed,
+  is_dry,
 }) => {
   const rarityClass = getRarityClass(rarity);
   const rarityMeta = RARITY_META[rarityClass];
   const time = TimePassed(last_reviewed);
+
+  const statusIcon = is_dry
+    ? "/card-icons/arrow_hard.svg"
+    : time >= 72
+      ? "/card-icons/arrow_medium.svg"
+      : "/card-icons/topic-check.svg";
+
   return (
     <article
       className={`topic-card topic-card--${rarityClass}`}
@@ -131,7 +139,7 @@ const ListCard = ({
             aria-label="Тема завершена на сегодня"
           >
             <img
-              src={`${time > 168 ? "/card-icons/arrow_hard.svg" : time > 72 ? "/card-icons/arrow_medium.svg" : "/card-icons/topic-check.svg"}`}
+              src={statusIcon}
               alt=""
               className="topic-card__check"
               aria-hidden="true"

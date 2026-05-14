@@ -13,12 +13,15 @@ export default function PlantCompletedAchievementCard({
   name,
   rarity_name = "Обычное",
   xpReward = 0,
+  hideDescription = false,
+  unlockLabel = "Открыто растение",
+  statusText = "Получено",
 }) {
   const currentRarity = rarity || "common";
 
   return (
     <article
-      className={`plant-completed-achievement-card plant-completed-achievement-card--${currentRarity} plant-completed-achievement-card--completed`}
+      className={`plant-completed-achievement-card plant-completed-achievement-card--${currentRarity} plant-completed-achievement-card--completed ${hideDescription ? "plant-completed-achievement-card--without-description" : ""}`}
     >
       <img
         className="plant-completed-achievement-card__check"
@@ -37,9 +40,11 @@ export default function PlantCompletedAchievementCard({
 
         <div className="plant-completed-achievement-card__content">
           <h3 className="plant-completed-achievement-card__title">{title}</h3>
-          <p className="plant-completed-achievement-card__description">
-            {description}
-          </p>
+          {!hideDescription && description && (
+            <p className="plant-completed-achievement-card__description">
+              {description}
+            </p>
+          )}
 
           <div className="plant-completed-achievement-card__tags">
             <span className="plant-completed-achievement-card__tag plant-completed-achievement-card__tag--plant">
@@ -57,7 +62,7 @@ export default function PlantCompletedAchievementCard({
       <div className="plant-completed-achievement-card__footer plant-completed-achievement-card__footer--completed">
         <div className="plant-completed-achievement-card__unlock">
           <span>
-            Открыто растение
+            {unlockLabel}
             <strong>{name}</strong>
           </span>
         </div>
@@ -69,7 +74,7 @@ export default function PlantCompletedAchievementCard({
             </span>
           )}
           <span className="plant-completed-achievement-card__status plant-completed-achievement-card__status--done">
-            Получено
+            {statusText}
           </span>
         </div>
       </div>

@@ -199,6 +199,15 @@
     color-mix(in srgb, var(--achievement-accent) 20%, transparent);
 }
 
+.plant-completed-achievement-card--without-description .plant-completed-achievement-card__content {
+  grid-template-rows: auto auto;
+  row-gap: 10px;
+}
+
+.plant-completed-achievement-card--without-description .plant-completed-achievement-card__title {
+  max-width: 230px;
+}
+
 .plant-completed-achievement-card__footer {
   position: relative;
   z-index: 1;

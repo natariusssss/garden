@@ -337,3 +337,90 @@
     justify-content: flex-start;
   }
 }
+
+.plant-progress-achievement-card--without-progress {
+  min-height: 190px;
+  padding: 18px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__main {
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 106px;
+  padding-right: 0;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__picture {
+  width: 104px;
+  height: 104px;
+  border-radius: 20px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__image {
+  width: 92px;
+  height: 92px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__content {
+  min-height: 106px;
+  height: 106px;
+  row-gap: 7px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__title {
+  max-width: 230px;
+  font-size: 18px;
+  line-height: 1.1;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__tag {
+  height: 25px;
+  padding: 0 12px;
+  font-size: 13px;
+}
+
+.plant-progress-achievement-card--without-description .plant-progress-achievement-card__content {
+  grid-template-rows: auto auto;
+  row-gap: 10px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__footer {
+  margin-top: 14px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__unlock {
+  font-size: 13px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__unlock strong {
+  font-size: 14px;
+}
+
+.plant-progress-achievement-card--without-progress .plant-progress-achievement-card__status {
+  min-height: 30px;
+  padding: 0 13px;
+  font-size: 13px;
+}
+
+@media (max-width: 520px) {
+  .plant-progress-achievement-card--without-progress .plant-progress-achievement-card__main {
+    grid-template-columns: 86px minmax(0, 1fr);
+    gap: 16px;
+  }
+
+  .plant-progress-achievement-card--without-progress .plant-progress-achievement-card__picture {
+    width: 86px;
+    height: 86px;
+  }
+
+  .plant-progress-achievement-card--without-progress .plant-progress-achievement-card__image {
+    width: 68px;
+    height: 68px;
+  }
+
+  .plant-progress-achievement-card--without-progress .plant-progress-achievement-card__content {
+    min-height: 86px;
+    height: auto;
+  }
+}

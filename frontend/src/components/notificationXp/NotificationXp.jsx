@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import "./style.css";
 
-export default function NotificationXp({
-  xp,
-  text = "Опыт зачислен",
-  onClose,
-}) {
+const NotificationXp = ({ xp, text, onClose }) => {
   const [isClosing, setIsClosing] = useState(false);
 
   const closeWithAnimation = () => {
@@ -13,7 +9,7 @@ export default function NotificationXp({
 
     setTimeout(() => {
       onClose();
-    }, 450);
+    }, 420);
   };
 
   useEffect(() => {
@@ -25,22 +21,30 @@ export default function NotificationXp({
   }, []);
 
   return (
-    <div className={`xp-toast ${isClosing ? "xp-toast--closing" : ""}`}>
-      <button className="xp-toast__close" onClick={closeWithAnimation}>
+    <article
+      className={`xp-toast ${isClosing ? "xp-toast--closing" : ""}`}
+      aria-label="Начислен опыт"
+    >
+      <button
+        className="xp-toast__close"
+        type="button"
+        onClick={closeWithAnimation}
+        aria-label="Закрыть уведомление"
+      >
         ×
       </button>
 
-      <div className="xp-toast__icon">
+      <div className="xp-toast__icon" aria-hidden="true">
         <span className="xp-toast__icon-star">✦</span>
       </div>
 
       <div className="xp-toast__content">
-        <div className="xp-toast__label">Опыт зачислен</div>
-        <div className="xp-toast__xp">+{xp} XP</div>
-        <div className="xp-toast__text">{text}</div>
+        <span className="xp-toast__label">Опыт зачислен</span>
+        <strong className="xp-toast__value">+{xp} XP</strong>
+        <p className="xp-toast__text">{text}</p>
       </div>
-
-      <div className="xp-toast__sparkles">✦</div>
-    </div>
+    </article>
   );
-}
+};
+
+export default NotificationXp;
