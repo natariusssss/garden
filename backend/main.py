@@ -1176,12 +1176,54 @@ def add_topic_xp_by_time(
     user_topic = db.query(UserTopic).filter(UserTopic.user_id == current_user.id, UserTopic.topic_id == topic_id).first()
     if not user_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
+    topic = db.query(Topic).filter(Topic.id == topic_id, Topic.user_id == current_user.id).first()
     xp_earned = calculate_topic_xp_by_time(duration_seconds)
-    user_topic.xp += xp_earned
+    now = datetime.now()
+    user_topic.xp = (user_topic.xp or 0) + xp_earned
+    user_topic.review_count = (user_topic.review_count or 0) + 1
+    user_topic.last_reviewed = now
+    user_topic.last_xp_penalty_at = None
+    db.add(ReviewHistory(
+        user_id=current_user.id,
+        topic_id=user_topic.topic_id,
+        success=True,
+        reviewed_at=now,
+    ))
+    user = db.get(User, current_user.id)
+    if user:
+        user.total_xp = (user.total_xp or 0) + xp_earned
+    progress_data = calculate_topic_progress_data(user_topic.xp or 0)
+    user_topic.level = progress_data["level"]
+    if user_topic.level >= 20:
+        user_topic.tree_state = "adult"
+    elif user_topic.level >= 10:
+        user_topic.tree_state = "young"
+    else:
+        user_topic.tree_state = "seed"
+    user_topic.next_review_date = get_next_review_date(user_topic.level)
+    db.flush()
+    new_achievements = check_and_unlock_achievements(db, current_user.id)
+    new_level_rewards = check_and_unlock_level_rewards(db, current_user.id)
+    is_dry = is_user_topic_dry(user_topic)
+    image_url = get_tree_image_url(
+        topic.image_url if topic else None,
+        user_topic.tree_state,
+        is_dry
+    )
     db.commit()
     db.refresh(user_topic)
     return {
         "xp_earned": xp_earned,
-        "total_xp": user_topic.xp,
-        "level": user_topic.level
+        "xp": user_topic.xp,
+        "level": user_topic.level,
+        "tree_state": user_topic.tree_state,
+        "image_url": image_url,
+        "is_dry": is_dry,
+        "review_count": user_topic.review_count,
+        "last_reviewed": user_topic.last_reviewed,
+        "current_max_xp": progress_data["current_max_xp"],
+        "current_progress_xp": progress_data["current_progress_xp"],
+        "progress_width": progress_data["progress_width"],
+        "new_achievements": new_achievements,
+        "new_level_rewards": new_level_rewards,
     }
