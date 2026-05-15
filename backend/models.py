@@ -13,6 +13,7 @@ class User(Base):
     password = Column(String(255), nullable=False)
     created_at = Column(DateTime, default=datetime.now)
     total_xp = Column(Integer, default=0)
+    description = Column(Text, nullable=True)
 
     user_topics = relationship("UserTopic", back_populates="user")
     review_history = relationship("ReviewHistory", back_populates="user")
