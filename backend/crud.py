@@ -14,6 +14,7 @@ from math import sqrt
 from level_rewards_service import check_and_unlock_level_rewards
 from models import LevelReward, UserLevelReward
 from level_utils import calculate_account_progress_data, calculate_account_level
+import math
 
 def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
     user_topic=db.query(UserTopic).filter(UserTopic.id == user_topic_id, UserTopic.user_id == user_id
@@ -268,7 +269,12 @@ def subtract_topic_xp(db: Session, user_id: int, topic_id: int):
 
     return user_topic
 
-
+def calculate_topic_xp_by_time(duration_seconds: int) -> int:
+    if duration_seconds <= 0:
+        return 0
+    minutes = duration_seconds / 60
+    xp = round(8 * math.sqrt(minutes))
+    return xp
 
 
 

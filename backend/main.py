@@ -35,7 +35,7 @@ from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 from sqlalchemy import func
 from sqlalchemy import text
-from crud import get_level_rewards_progress, subtract_topic_xp
+from crud import get_level_rewards_progress, subtract_topic_xp, calculate_topic_xp_by_time
 from seed_plants import seed_plants
 from seed_achievements import seed_achievements
 from seed_level_rewards import seed_level_rewards
@@ -1164,3 +1164,24 @@ def get_my_level_rewards(
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
+
+@app.post("/topics/{topic_id}/study-time")
+def add_topic_xp_by_time(
+    topic_id: int,
+    duration_seconds: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    user_topic = db.query(UserTopic).filter(UserTopic.user_id == current_user.id, UserTopic.topic_id == topic_id).first()
+    if not user_topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+    xp_earned = calculate_topic_xp_by_time(duration_seconds)
+    user_topic.xp += xp_earned
+    db.commit()
+    db.refresh(user_topic)
+    return {
+        "xp_earned": xp_earned,
+        "total_xp": user_topic.xp,
+        "level": user_topic.level
+    }
