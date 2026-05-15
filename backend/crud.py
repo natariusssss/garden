@@ -17,30 +17,37 @@ from level_utils import calculate_account_progress_data, calculate_account_level
 import math
 
 def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
-    user_topic=db.query(UserTopic).filter(UserTopic.id == user_topic_id, UserTopic.user_id == user_id
-    ).first()
+    user_topic = db.query(UserTopic).filter(UserTopic.id == user_topic_id, UserTopic.user_id == user_id).first()
     if not user_topic:
         return None
+    now = datetime.now()
     if success:
-        xp_earned=10
-        user_topic.level+=1
+        xp_earned = 10
     else:
-        xp_earned=5
-        user_topic.level = max(0, user_topic.level - 1)
-    user_topic.review_count += 1
-    user_topic.last_reviewed = datetime.now()
+        xp_earned = 5
+    user_topic.xp = (user_topic.xp or 0) + xp_earned
+    user_topic.level = calculate_level_by_xp(user_topic.xp)
+    user_topic.tree_state = get_tree_state_by_level(user_topic.level)
+    user_topic.review_count = (user_topic.review_count or 0) + 1
+    user_topic.last_reviewed = now
     user_topic.last_xp_penalty_at = None
-    user_topic.next_review_date=get_next_review_date(user_topic.level)
-    user_topic.xp+=xp_earned
-    review=ReviewHistory( user_id=user_id, topic_id=user_topic.topic_id, success=success, reviewed_at=datetime.now())
+    user_topic.next_review_date = get_next_review_date(user_topic.level)
+    review = ReviewHistory(
+        user_id=user_id,
+        topic_id=user_topic.topic_id,
+        success=success,
+        reviewed_at=now
+    )
     db.add(review)
-    user=db.get(User, user_id)
+    user = db.get(User, user_id)
     if user:
-        user.total_xp+=xp_earned
-    db.commit()
-    new_achievements=check_and_unlock_achievements(db, user_id)
+        user.total_xp = (user.total_xp or 0) + xp_earned
+    db.flush()
+    new_achievements = check_and_unlock_achievements(db, user_id)
     new_level_rewards = check_and_unlock_level_rewards(db, user_id)
+    db.commit()
     db.refresh(review)
+    db.refresh(user_topic)
     return {
         "review": review,
         "xp_earned": xp_earned,
