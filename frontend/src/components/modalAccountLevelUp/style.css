@@ -156,9 +156,9 @@
   box-sizing: border-box;
 
   width: 100%;
-  min-height: 224px;
+  min-height: 190px;
   margin: 0 auto 28px;
-  padding: 22px 24px;
+  padding: 20px 24px;
 
   display: grid;
   grid-template-columns: 132px minmax(0, 1fr);
@@ -207,7 +207,6 @@
   opacity: 0;
 }
 
-/* common */
 
 .account-level-modal__plant-card--common {
   --account-plant-rarity-color: #699606;
@@ -230,7 +229,7 @@
     );
 }
 
-/* rare */
+
 
 .account-level-modal__plant-card--rare {
   --account-plant-rarity-color: #538fea;
@@ -278,7 +277,7 @@
   animation: account-level-rare-shine 5.8s ease-in-out infinite;
 }
 
-/* epic */
+
 
 .account-level-modal__plant-card--epic {
   --account-plant-rarity-color: #7851a9;
@@ -326,7 +325,6 @@
   animation: account-level-rare-shine 5.8s ease-in-out infinite;
 }
 
-/* legendary */
 
 .account-level-modal__plant-card--legendary {
   --account-plant-rarity-color: #e65480;
@@ -380,7 +378,6 @@
   animation: account-level-rare-shine 5.8s ease-in-out infinite;
 }
 
-/* image */
 
 .account-level-modal__plant-card--rare .account-level-modal__plant-image {
   filter:
@@ -449,8 +446,6 @@
   filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.36));
 }
 
-/* text */
-
 .account-level-modal__plant-info {
   position: relative;
   z-index: 1;
@@ -502,7 +497,6 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* rarity */
 
 .account-level-modal__rarity {
   display: flex;
@@ -542,8 +536,6 @@
   background: #e65480;
 }
 
-/* button */
-
 .account-level-modal__button {
   width: 100%;
   height: 62px;
@@ -560,7 +552,6 @@
   box-shadow: 0 12px 30px rgba(128, 193, 70, 0.22);
 }
 
-/* animations */
 
 @keyframes account-level-rare-shine {
   0%,
@@ -586,8 +577,6 @@
     transform: scale(1.03);
   }
 }
-
-/* adaptive */
 
 @media (max-width: 760px) {
   .account-level-modal {

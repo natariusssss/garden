@@ -155,3 +155,67 @@
   background: #e75480;
   box-shadow: 0 0 6.3px #e75480;
 }
+
+.topic-modal__plant-card--locked {
+  cursor: not-allowed;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.topic-modal__plant-card--locked:hover {
+  transform: none;
+}
+
+.topic-modal__plant-card--locked .topic-modal__plant-visual,
+.topic-modal__plant-card--locked .topic-modal__plant-name,
+.topic-modal__plant-card--locked .topic-modal__badge {
+  opacity: 0.55;
+  filter: grayscale(0.65);
+}
+
+.topic-modal__plant-card--locked .topic-modal__plant-glow {
+  opacity: 0.38;
+}
+
+.topic-modal__plant-lock {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 18px;
+  background: rgba(22, 19, 18, 0.32);
+  backdrop-filter: blur(1px);
+  color: #ffffff;
+  text-align: center;
+  pointer-events: none;
+}
+
+.topic-modal__plant-lock-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.topic-modal__plant-lock-icon img {
+  width: 20px;
+  height: 20px;
+  display: block;
+  object-fit: contain;
+}
+
+.topic-modal__plant-lock small {
+  max-width: 125px;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.86);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}

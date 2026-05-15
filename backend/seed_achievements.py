@@ -53,7 +53,7 @@ achievements_data = [
         "icon_url": "",
         "condition_type": "total_xp",
         "condition_value": 1000,
-        "rewards": [{"type": "plant", "value": "rainbow_eucalyptus"},],
+        "rewards": [{"type": "xp", "value": 100}],
     },
     {
         "code": "first_friend",

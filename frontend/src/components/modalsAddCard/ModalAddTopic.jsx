@@ -1,10 +1,30 @@
 import { createPortal } from "react-dom";
 import "./style.css";
-import { createTopic, updateTopicById } from "../../api/auth";
-import { useEffect, useRef, useState } from "react";
-import sakuraBig from "../../assets/sakura/sakura_big.png";
-import plants from "../../data/plants.js";
+import { createTopic, getPlantsCatalog, updateTopicById } from "../../api/auth";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CarouselCard from "../carouselCard/CarouselCard.jsx";
+
+const getPlantUnlockText = (plant) => {
+  if (!plant || plant.is_unlocked) return "";
+
+  if (plant.unlock_text) return plant.unlock_text;
+
+  if (plant.unlock_type === "level") {
+    return `${plant.required_level} уровень`;
+  }
+
+  if (plant.unlock_type === "achievement") {
+    return plant.achievement_title
+      ? `Достижение: ${plant.achievement_title}`
+      : "Достижение";
+  }
+
+  if (plant.unlock_type === "mixed") {
+    return "за уровень / достижение";
+  }
+
+  return "заблокировано";
+};
 
 const ModalAddTopic = ({
   onClose,
@@ -19,62 +39,110 @@ const ModalAddTopic = ({
   const [description, setDescription] = useState("");
   const [message, setMessage] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("all");
-  const [selectedPlant, setSelectedPlant] = useState(plants[0].id);
+  const [plants, setPlants] = useState([]);
+  const [selectedPlant, setSelectedPlant] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [buttonModeName, setButtonModeName] = useState("Создать тему");
   const [editTitle, setEditTitle] = useState("Создать тему");
+  const [isPlantsLoading, setIsPlantsLoading] = useState(true);
+
+  const slideDirectionRef = useRef("");
 
   useEffect(() => {
     if (mode === "edit") {
       setTopicName(name || "");
       setDescription(descriptionEdit || "");
       setButtonModeName("Сохранить");
-      setEditTitle(title || "");
+      setEditTitle(title || "Редактировать тему");
     }
   }, [mode, name, descriptionEdit, title]);
 
-  const currentPlant = plants.find((plant) => plant.id === selectedPlant);
-  const image_url = plants.find((plant) => plant.id === selectedPlant).imgSmall;
-  const rarity = plants.find((plant) => plant.id === selectedPlant).rarity;
-  const tree_type = plants.find((plant) => plant.id === selectedPlant).name;
+  useEffect(() => {
+    const loadPlants = async () => {
+      try {
+        setIsPlantsLoading(true);
+        const data = await getPlantsCatalog();
+        const catalog = Array.isArray(data) ? data : [];
 
-  const slideDirectionRef = useRef("");
+        setPlants(catalog);
 
-  const filtredPlants =
-    selectedFilter === "all"
-      ? plants
-      : plants.filter((plant) => plant.rarityClass === selectedFilter);
+        const firstUnlockedPlant = catalog.find((plant) => plant.is_unlocked);
+        setSelectedPlant(firstUnlockedPlant?.id || catalog[0]?.id || null);
+      } catch (error) {
+        setMessage(error.message || "Ошибка загрузки растений");
+      } finally {
+        setIsPlantsLoading(false);
+      }
+    };
+
+    loadPlants();
+  }, []);
+
+  const currentPlant = useMemo(() => {
+    return plants.find((plant) => plant.id === selectedPlant) || null;
+  }, [plants, selectedPlant]);
+
+  const filtredPlants = useMemo(() => {
+    const filtered =
+      selectedFilter === "all"
+        ? plants
+        : plants.filter((plant) => plant.rarityClass === selectedFilter);
+
+    return [...filtered].sort((firstPlant, secondPlant) => {
+      if (firstPlant.is_unlocked === secondPlant.is_unlocked) return 0;
+      return firstPlant.is_unlocked ? -1 : 1;
+    });
+  }, [plants, selectedFilter]);
 
   const sliceArray = filtredPlants.slice(currentPage * 4, currentPage * 4 + 4);
+
+  const handleFilterClick = (filter) => {
+    setSelectedFilter(filter);
+    setCurrentPage(0);
+  };
+
+  const handlePlantClick = (plant) => {
+    if (!plant.is_unlocked) return;
+
+    setMessage("");
+    setSelectedPlant(plant.id);
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setMessage("");
+
+    if (!currentPlant) {
+      setMessage("Сначала выберите растение");
+      return;
+    }
+
+    if (!currentPlant.is_unlocked) {
+      setMessage("Нельзя выбрать заблокированное растение");
+      return;
+    }
+
+    const payload = {
+      name: topicName,
+      description,
+      plant_code: currentPlant.code || currentPlant.id,
+      image_url: currentPlant.imgSmall || currentPlant.image_url || "",
+      rarity: currentPlant.rarity,
+      tree_type: currentPlant.name,
+    };
+
     if (mode === "edit") {
       try {
-        await updateTopicById(id, {
-          name: topicName,
-          description,
-          image_url,
-          rarity,
-          tree_type,
-        });
+        await updateTopicById(id, payload);
         await onCreated();
         onClose();
       } catch (error) {
-        setMessage(error.message || "Ошибка добавления темы");
+        setMessage(error.message || "Ошибка сохранения темы");
       }
     } else {
       try {
-        await createTopic({
-          name: topicName,
-          description,
-          image_url,
-          rarity,
-          tree_type,
-        });
+        await createTopic(payload);
         await onCreated();
-
         onClose();
       } catch (error) {
         setMessage(error.message || "Ошибка добавления темы");
@@ -159,7 +227,11 @@ const ModalAddTopic = ({
             </div>
 
             <div className="topic-modal__actions">
-              <button className="topic-modal__submit" type="submit">
+              <button
+                className="topic-modal__submit"
+                type="submit"
+                disabled={isPlantsLoading || !currentPlant?.is_unlocked}
+              >
                 {buttonModeName}
               </button>
 
@@ -185,31 +257,35 @@ const ModalAddTopic = ({
             <article className="topic-modal__selected-card" key={selectedPlant}>
               <div className="topic-modal__selected-visual">
                 <div className="topic-modal__selected-glow"></div>
-                <img
-                  src={currentPlant?.imgBig}
-                  alt="Растение"
-                  className="topic-modal__selected-image"
-                />
+                {currentPlant?.imgBig ? (
+                  <img
+                    src={currentPlant.imgBig}
+                    alt="Растение"
+                    className="topic-modal__selected-image"
+                  />
+                ) : (
+                  <div className="topic-modal__plant-image-placeholder"></div>
+                )}
               </div>
 
               <div className="topic-modal__selected-info">
                 <div className="topic-modal__selected-topline">
                   <h4 className="topic-modal__selected-name">
-                    {currentPlant?.name}
+                    {currentPlant?.name || "Растение"}
                   </h4>
                   <span
-                    className={`topic-modal__badge topic-modal__badge--featured topic-modal__badge--featured-${currentPlant?.rarityClass}`}
+                    className={`topic-modal__badge topic-modal__badge--featured topic-modal__badge--featured-${currentPlant?.rarityClass || "common"}`}
                   >
-                    {currentPlant?.rarity}
+                    {currentPlant?.rarity || "Обычное"}
                   </span>
                 </div>
 
                 <p className="topic-modal__selected-description">
-                  {currentPlant?.description}
+                  {currentPlant?.description || "Загрузка растений..."}
                 </p>
 
                 <p className="topic-modal__selected-type">
-                  Вид: {currentPlant?.type}
+                  Вид: {currentPlant?.type || "—"}
                 </p>
 
                 <div className="topic-modal__chosen">
@@ -225,9 +301,9 @@ const ModalAddTopic = ({
             </article>
 
             <section className="topic-modal__plants">
-              <h3 className="topic-modal__plants-title">Доступные растения</h3>
+              <h3 className="topic-modal__plants-title">Растения</h3>
               <p className="topic-modal__plants-subtitle">
-                Выберите растение для вашей темы
+                Открытые можно выбрать, закрытые показаны с замком
               </p>
               <span className="topic-modal__plants-count">
                 {filtredPlants.length} растений
@@ -236,46 +312,31 @@ const ModalAddTopic = ({
               <div className="topic-modal__filters" aria-hidden="true">
                 <span
                   className={`topic-modal__filter topic-modal__filter--all ${selectedFilter === "all" ? "topic-modal__filter--active" : ""} `}
-                  onClick={() => {
-                    setSelectedFilter("all");
-                    setCurrentPage(0);
-                  }}
+                  onClick={() => handleFilterClick("all")}
                 >
                   Все
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--common ${selectedFilter === "common" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => {
-                    setSelectedFilter("common");
-                    setCurrentPage(0);
-                  }}
+                  onClick={() => handleFilterClick("common")}
                 >
                   Обычное
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--rare ${selectedFilter === "rare" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => {
-                    setSelectedFilter("rare");
-                    setCurrentPage(0);
-                  }}
+                  onClick={() => handleFilterClick("rare")}
                 >
                   Редкое
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--epic ${selectedFilter === "epic" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => {
-                    setSelectedFilter("epic");
-                    setCurrentPage(0);
-                  }}
+                  onClick={() => handleFilterClick("epic")}
                 >
                   Эпическое
                 </span>
                 <span
                   className={`topic-modal__filter topic-modal__filter--legendary ${selectedFilter === "legendary" ? "topic-modal__filter--active" : ""}`}
-                  onClick={() => {
-                    setSelectedFilter("legendary");
-                    setCurrentPage(0);
-                  }}
+                  onClick={() => handleFilterClick("legendary")}
                 >
                   Легендарное
                 </span>
@@ -302,27 +363,27 @@ const ModalAddTopic = ({
 
                 <div
                   className={`topic-modal__cards topic-modal__cards--${slideDirectionRef.current}`}
-                  key={`${currentPage}`}
+                  key={`${currentPage}-${selectedFilter}`}
                 >
-                  {sliceArray.map((plant, index) => {
-                    return (
-                      <div
-                        key={plant.id}
-                        className="topic-modal__card-appear"
-                        style={{ animationDelay: `${index * 0.08}s` }}
-                      >
-                        <CarouselCard
-                          onClick={() => setSelectedPlant(plant.id)}
-                          id={plant.id}
-                          selected={selectedPlant == plant.id}
-                          name={plant.name}
-                          rarity={plant.rarity}
-                          rarityClass={plant.rarityClass}
-                          img_small={plant.imgBig}
-                        />
-                      </div>
-                    );
-                  })}
+                  {sliceArray.map((plant, index) => (
+                    <div
+                      key={plant.id}
+                      className="topic-modal__card-appear"
+                      style={{ animationDelay: `${index * 0.08}s` }}
+                    >
+                      <CarouselCard
+                        onClick={() => handlePlantClick(plant)}
+                        id={plant.id}
+                        selected={selectedPlant === plant.id}
+                        name={plant.name}
+                        rarity={plant.rarity}
+                        rarityClass={plant.rarityClass}
+                        img_small={plant.imgBig}
+                        locked={!plant.is_unlocked}
+                        unlockText={getPlantUnlockText(plant)}
+                      />
+                    </div>
+                  ))}
                 </div>
 
                 <button

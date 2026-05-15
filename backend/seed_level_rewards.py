@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import LevelReward
+from models import LevelReward, UserLevelReward, UserPlant
 level_rewards_data=[
     {
         "level":5,
@@ -81,6 +81,30 @@ level_rewards_data=[
     }
 ]
 
+def cleanup_level_only_plant_unlocks(db: Session):
+    level_reward = db.query(LevelReward).filter(
+        LevelReward.plant_code == "rainbow_eucalyptus"
+    ).first()
+
+    if not level_reward:
+        return
+
+    users_with_level_reward = {
+        item.user_id
+        for item in db.query(UserLevelReward).filter(
+            UserLevelReward.level_reward_id == level_reward.id
+        ).all()
+    }
+
+    stale_user_plants = db.query(UserPlant).filter(
+        UserPlant.plant_code == "rainbow_eucalyptus"
+    ).all()
+
+    for user_plant in stale_user_plants:
+        if user_plant.user_id not in users_with_level_reward:
+            db.delete(user_plant)
+
+
 def seed_level_rewards(db: Session):
     for item in level_rewards_data:
         reward = db.query(LevelReward).filter(LevelReward.level == item["level"]).first()
@@ -90,4 +114,7 @@ def seed_level_rewards(db: Session):
             reward.description = item["description"]
         else:
             db.add(LevelReward(**item))
+
+    db.flush()
+    cleanup_level_only_plant_unlocks(db)
     db.commit()

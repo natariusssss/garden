@@ -499,13 +499,15 @@
 
 .topic-modal__plants-subtitle {
   position: absolute;
-  left: 328px;
+  left: 170px;
   top: 8px;
+  width: 420px;
   margin: 0;
   font-weight: 300;
   font-size: 12px;
   line-height: 15px;
   color: #ffffff;
+  white-space: nowrap;
 }
 
 .topic-modal__plants-count {

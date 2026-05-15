@@ -53,6 +53,7 @@ class LoginForm(BaseModel):
 class TopicBase(BaseModel):
     name: str
     description: Optional[str] = None
+    plant_code: Optional[str] = None
     tree_type: Optional[str] = "default"
     rarity: Optional[str] = "common"
     image_url: Optional[str] = ""
@@ -65,6 +66,7 @@ class TopicCreate(TopicBase):
 class TopicUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    plant_code: Optional[str] = None
     tree_type: Optional[str] = None
     rarity: Optional[str] = None
     image_url: Optional[str] = None

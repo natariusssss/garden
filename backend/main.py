@@ -11,7 +11,21 @@ from sqlalchemy.orm import sessionmaker, Session
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from models import Base, User, Topic, UserTopic, ReviewHistory, Friendship, UserAchievement, Achievement
+from models import (
+    Base,
+    User,
+    Topic,
+    UserTopic,
+    ReviewHistory,
+    Friendship,
+    UserAchievement,
+    Achievement,
+    AchievementReward,
+    Plant,
+    UserPlant,
+    LevelReward,
+    UserLevelReward,
+)
 import schemas
 import crud
 from typing import Optional, List
@@ -166,6 +180,182 @@ def is_user_topic_dry(user_topic: Optional[UserTopic]) -> bool:
 
 
 
+INITIAL_PLANT_CODES = {"birch", "thuja", "oak"}
+
+RARITY_LABELS = {
+    "common": "Обычное",
+    "rare": "Редкое",
+    "epic": "Эпическое",
+    "legendary": "Легендарное",
+}
+
+
+def get_rarity_label(rarity: str | None) -> str:
+    if not rarity:
+        return "Обычное"
+
+    value = str(rarity).lower()
+    return RARITY_LABELS.get(value, rarity)
+
+
+def get_image_variants(image_url: str | None):
+    if not image_url:
+        return set()
+
+    variants = {image_url}
+    suffixes = ["_small", "_medium", "_middle", "_big", "_dry"]
+
+    for suffix in suffixes:
+        if suffix in image_url:
+            for target_suffix in suffixes:
+                variants.add(image_url.replace(suffix, target_suffix))
+
+    return variants
+
+
+def get_plant_by_payload(db: Session, payload):
+    plant_code = getattr(payload, "plant_code", None)
+
+    if plant_code:
+        return db.query(Plant).filter(Plant.code == plant_code).first()
+
+    image_url = getattr(payload, "image_url", None)
+    if image_url:
+        plants = db.query(Plant).all()
+        for plant in plants:
+            if image_url in get_image_variants(plant.image_url):
+                return plant
+
+    tree_type = getattr(payload, "tree_type", None)
+    if tree_type:
+        return db.query(Plant).filter(Plant.name == tree_type).first()
+
+    return None
+
+
+def is_plant_unlocked_for_user(db: Session, user_id: int, plant_code: str) -> bool:
+    return plant_code in get_unlocked_plant_codes_for_user(db, user_id)
+
+
+def get_unlocked_plant_codes_for_user(db: Session, user_id: int):
+    unlocked_codes = set(INITIAL_PLANT_CODES)
+
+    user_plants = db.query(UserPlant).filter(
+        UserPlant.user_id == user_id
+    ).all()
+    unlocked_codes.update(item.plant_code for item in user_plants)
+
+    achievement_plant_codes = (
+        db.query(AchievementReward.reward_value)
+        .join(UserAchievement, UserAchievement.achievement_id == AchievementReward.achievement_id)
+        .filter(
+            UserAchievement.user_id == user_id,
+            AchievementReward.reward_type == "plant",
+        )
+        .all()
+    )
+    unlocked_codes.update(code for (code,) in achievement_plant_codes)
+
+    level_plant_codes = (
+        db.query(LevelReward.plant_code)
+        .join(UserLevelReward, UserLevelReward.level_reward_id == LevelReward.id)
+        .filter(UserLevelReward.user_id == user_id)
+        .all()
+    )
+    unlocked_codes.update(code for (code,) in level_plant_codes)
+
+    return unlocked_codes
+
+
+def require_unlocked_plant(db: Session, user_id: int, plant: Plant | None):
+    if not plant:
+        raise HTTPException(status_code=404, detail="Plant not found")
+
+    if not is_plant_unlocked_for_user(db, user_id, plant.code):
+        raise HTTPException(status_code=403, detail="Plant is locked")
+
+    return plant
+
+
+def get_default_initial_plant(db: Session):
+    return db.query(Plant).filter(Plant.code == "birch").first()
+
+
+def get_catalog_unlock_sources(db: Session):
+    level_rewards = db.query(LevelReward).all()
+    level_by_plant = {reward.plant_code: reward for reward in level_rewards}
+
+    achievement_rewards = (
+        db.query(AchievementReward, Achievement)
+        .join(Achievement, Achievement.id == AchievementReward.achievement_id)
+        .filter(AchievementReward.reward_type == "plant")
+        .all()
+    )
+
+    achievement_by_plant = {}
+    for reward, achievement in achievement_rewards:
+        achievement_by_plant.setdefault(reward.reward_value, achievement)
+
+    return level_by_plant, achievement_by_plant
+
+
+def build_unlock_text(level_reward, achievement):
+    parts = []
+
+    if level_reward:
+        parts.append(f"{level_reward.level} уровень")
+
+    if achievement:
+        parts.append(f"достижение: {achievement.title}")
+
+    return " / ".join(parts)
+
+
+def plant_to_catalog_item(plant: Plant, is_unlocked: bool, level_reward=None, achievement=None):
+    if plant.code in INITIAL_PLANT_CODES:
+        unlock_type = "initial"
+    elif level_reward and achievement:
+        unlock_type = "mixed"
+    elif level_reward:
+        unlock_type = "level"
+    elif achievement:
+        unlock_type = "achievement"
+    else:
+        unlock_type = "unknown"
+
+    image_url = plant.image_url
+
+    return {
+        "id": plant.code,
+        "code": plant.code,
+        "name": plant.name,
+        "description": plant.description,
+        "rarity": get_rarity_label(plant.rarity),
+        "rarityClass": plant.rarity,
+        "type": plant.tree_type,
+        "tree_type": plant.tree_type,
+        "image_url": image_url,
+        "imgBig": get_tree_image_url(image_url, "adult") if image_url else None,
+        "imgMedium": get_tree_image_url(image_url, "young") if image_url else None,
+        "imgSmall": get_tree_image_url(image_url, "seed") if image_url else None,
+        "imgDry": get_tree_image_url(image_url, "adult", True) if image_url else None,
+        "is_unlocked": is_unlocked,
+        "is_locked": not is_unlocked,
+        "unlock_type": unlock_type,
+        "unlock_text": build_unlock_text(level_reward, achievement),
+        "required_level": level_reward.level if level_reward else None,
+        "achievement_title": achievement.title if achievement else None,
+        "achievement_description": achievement.description if achievement else None,
+    }
+
+
+def apply_plant_to_topic(db_topic: Topic, plant: Plant):
+    db_topic.tree_type = plant.name
+    db_topic.rarity = get_rarity_label(plant.rarity)
+    db_topic.image_url = plant.image_url
+
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -213,20 +403,45 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Request = N
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
+@app.get("/plants/catalog")
+def get_plants_catalog(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    check_and_unlock_level_rewards(db, current_user.id)
+
+    unlocked_codes = get_unlocked_plant_codes_for_user(db, current_user.id)
+
+    level_by_plant, achievement_by_plant = get_catalog_unlock_sources(db)
+    plants = db.query(Plant).order_by(Plant.id).all()
+
+    return [
+        plant_to_catalog_item(
+            plant=plant,
+            is_unlocked=plant.code in unlocked_codes,
+            level_reward=level_by_plant.get(plant.code),
+            achievement=achievement_by_plant.get(plant.code),
+        )
+        for plant in plants
+    ]
+
+
 @app.post("/topics/create", response_model=schemas.TopicResponse, status_code=status.HTTP_201_CREATED)
 def create_topic(
     topic: schemas.TopicCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    selected_plant = get_plant_by_payload(db, topic) or get_default_initial_plant(db)
+    selected_plant = require_unlocked_plant(db, current_user.id, selected_plant)
 
     db_topic = Topic(
         user_id=current_user.id,
         name=topic.name,
         description=topic.description,
-        tree_type=topic.tree_type,
-        rarity=topic.rarity,
-        image_url=topic.image_url,
+        tree_type=selected_plant.name,
+        rarity=get_rarity_label(selected_plant.rarity),
+        image_url=selected_plant.image_url,
     )
     db.add(db_topic)
     db.commit()
@@ -252,9 +467,15 @@ def create_topic(
         "description": db_topic.description,
         "tree_type": db_topic.tree_type,
         "rarity": db_topic.rarity,
-        "image_url": db_topic.image_url,
+        "image_url": get_tree_image_url(
+            db_topic.image_url,
+            db_user_topic.tree_state,
+            False,
+        ),
+        "is_dry": False,
         "tree_state": db_user_topic.tree_state,
         "review_count": db_user_topic.review_count,
+        "last_reviewed": db_user_topic.last_reviewed,
         "new_achievements": new_achievements,
 
         **progress_data,
@@ -366,12 +587,20 @@ def update_topic(
 
     if not db_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
-    if topic.tree_type is not None:
-        db_topic.tree_type = topic.tree_type
-    if topic.rarity is not None:
-        db_topic.rarity = topic.rarity
-    if topic.image_url is not None:
-        db_topic.image_url = topic.image_url
+
+    selected_plant = get_plant_by_payload(db, topic)
+    plant_fields_were_sent = (
+        topic.plant_code is not None
+        or topic.tree_type is not None
+        or topic.rarity is not None
+        or topic.image_url is not None
+    )
+
+    if selected_plant:
+        selected_plant = require_unlocked_plant(db, current_user.id, selected_plant)
+        apply_plant_to_topic(db_topic, selected_plant)
+    elif plant_fields_were_sent:
+        raise HTTPException(status_code=404, detail="Plant not found")
 
     if topic.name is not None:
         db_topic.name = topic.name
@@ -380,7 +609,33 @@ def update_topic(
 
     db.commit()
     db.refresh(db_topic)
-    return db_topic
+
+    user_topic = db.query(UserTopic).filter(
+        UserTopic.user_id == current_user.id,
+        UserTopic.topic_id == db_topic.id
+    ).first()
+
+    progress_data = get_topic_progress_data(user_topic)
+    is_dry = is_user_topic_dry(user_topic)
+
+    return {
+        "id": db_topic.id,
+        "user_id": db_topic.user_id,
+        "name": db_topic.name,
+        "description": db_topic.description,
+        "tree_type": db_topic.tree_type,
+        "rarity": db_topic.rarity,
+        "image_url": get_tree_image_url(
+            db_topic.image_url,
+            user_topic.tree_state if user_topic else "seed",
+            is_dry,
+        ),
+        "is_dry": is_dry,
+        "tree_state": user_topic.tree_state if user_topic else "seed",
+        "review_count": user_topic.review_count if user_topic else 0,
+        "last_reviewed": user_topic.last_reviewed if user_topic else None,
+        **progress_data,
+    }
 
 @app.delete("/topics/delete/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_topic(

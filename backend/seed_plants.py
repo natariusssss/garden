@@ -163,6 +163,14 @@ plants_data = [
         "image_url": "/wise_oak/wise_oak_big.png",
     },
     {
+        "code": "rainbow_eucalyptus",
+        "name": "Радужный эвкалипт",
+        "description": "Высокое дерево с гладким многоцветным стволом, вытянутой кроной и длинными зелеными листьями.",
+        "rarity": "legendary",
+        "tree_type": "дерево",
+        "image_url": "/rainbow_eucalyptus/rainbow_eucalyptus_big.png",
+    },
+    {
         "code": "lily",
         "name": "Лилия",
         "description": "Изящный цветок с тонким зеленым стеблем, вытянутыми листьями и крупными мягкими лепестками.",

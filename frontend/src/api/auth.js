@@ -92,6 +92,7 @@ export async function getTopics() {
 export async function createTopic({
   name,
   description,
+  plant_code = null,
   tree_type = "default",
   rarity = "common",
   image_url = "",
@@ -107,6 +108,7 @@ export async function createTopic({
     body: JSON.stringify({
       name,
       description,
+      plant_code,
       tree_type,
       rarity,
       image_url,
@@ -120,6 +122,25 @@ export async function createTopic({
   }
 
   emitAchievementNotifications(data);
+  return data;
+}
+
+export async function getPlantsCatalog() {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/plants/catalog`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Ошибка загрузки растений");
+  }
+
   return data;
 }
 

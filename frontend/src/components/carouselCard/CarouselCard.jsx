@@ -1,6 +1,6 @@
 import "./style.css";
 
-const carouselCard = ({
+const CarouselCard = ({
   selected,
   id,
   name,
@@ -8,6 +8,8 @@ const carouselCard = ({
   rarityClass,
   img_small,
   onClick,
+  locked = false,
+  unlockText = "",
 }) => {
   return (
     <article
@@ -15,7 +17,8 @@ const carouselCard = ({
       key={id}
       className={`topic-modal__plant-card${
         selected ? " topic-modal__plant-card--selected" : ""
-      }`}
+      }${locked ? " topic-modal__plant-card--locked" : ""}`}
+      aria-disabled={locked}
     >
       <div className="topic-modal__plant-visual">
         <div className="topic-modal__plant-glow"></div>
@@ -37,8 +40,17 @@ const carouselCard = ({
       >
         {rarity}
       </span>
+
+      {locked && (
+        <div className="topic-modal__plant-lock">
+          <span className="topic-modal__plant-lock-icon" aria-hidden="true">
+            <img src="/card-icons/lock.svg" alt="" />
+          </span>
+          <small>{unlockText || "заблокировано"}</small>
+        </div>
+      )}
     </article>
   );
 };
 
-export default carouselCard;
+export default CarouselCard;
