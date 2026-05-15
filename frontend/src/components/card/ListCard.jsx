@@ -97,6 +97,7 @@ const ListCard = ({
   const rarityClass = getRarityClass(rarity);
   const rarityMeta = RARITY_META[rarityClass];
   const time = TimePassed(last_reviewed);
+  const progressNumber = parseFloat(progress_width) || 0;
 
   const statusIcon = is_dry
     ? "/card-icons/arrow_hard.svg"
@@ -205,10 +206,12 @@ const ListCard = ({
         <h2 className="topic-card__name">{name}</h2>
 
         <div className="topic-card__progress">
-          <div
-            className="topic-card__progress-fill"
-            style={{ "--progress-width": progress_width || "0%" }}
-          />
+          {progressNumber > 0 && (
+            <div
+              className="topic-card__progress-fill"
+              style={{ "--progress-width": progress_width }}
+            />
+          )}
           <span className="topic-card__progress-text">
             {current_progress_xp} / {current_max_xp}
           </span>

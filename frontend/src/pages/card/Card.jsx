@@ -120,7 +120,7 @@ const Card = () => {
     event.preventDefault();
 
     try {
-      const xpUp = formatTimer(time).total * 2000;
+      const xpUp = formatTimer(time).total * 2200;
       const updated = await addXpToTopic(id, xpUp);
       const isPlantStateChanged = updated.tree_state !== infoPlant.tree_state;
       const newLevelRewards = Array.isArray(updated.new_level_rewards)

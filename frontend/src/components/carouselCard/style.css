@@ -16,16 +16,20 @@
   position: relative;
   width: 161.91px;
   height: 240.63px;
-  border-radius: 24px;
-  background: linear-gradient(180deg, #4a4340 0%, #433c39 100%);
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent;
+  border-radius: 19px;
+  background: rgba(58, 56, 53, 0.54);
+  border: 2px solid rgba(62, 57, 53, 0.36);
+  box-shadow:
+    0 0 55px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transition:
     transform 1s ease,
     border-color 1s ease,
     box-shadow 1s ease;
-  
 }
 
 .topic-modal__plant-card:hover {
@@ -33,9 +37,9 @@
 }
 
 .topic-modal__plant-card--selected {
-  border-color: #b1ca7e;
-  box-shadow: 0 0 0 1px rgba(177, 202, 126, 0.18);
-  
+  border-color: rgba(177, 202, 126, 0.44);
+  box-shadow:
+    0 0 22px rgba(177, 202, 126, 0.13)
 }
 
 .topic-modal__plant-visual {
@@ -158,7 +162,7 @@
 
 .topic-modal__plant-card--locked {
   cursor: not-allowed;
-  border-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(62, 57, 53, 0.36);
 }
 
 .topic-modal__plant-card--locked:hover {
@@ -186,8 +190,9 @@
   justify-content: center;
   gap: 7px;
   padding: 18px;
-  background: rgba(22, 19, 18, 0.32);
-  backdrop-filter: blur(1px);
+  background: rgba(22, 19, 18, 0.254);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
   color: #ffffff;
   text-align: center;
   pointer-events: none;
@@ -200,8 +205,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(58, 56, 53, 0.54);
+  border: 2px solid rgba(62, 57, 53, 0.36);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 .topic-modal__plant-lock-icon img {
