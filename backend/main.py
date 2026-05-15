@@ -1070,7 +1070,6 @@ def add_xp_to_topic(
     xp_to_add = max(0, payload.xp)
     now = datetime.now()
 
-
     user_topic.review_count = (user_topic.review_count or 0) + 1
     user_topic.last_reviewed = now
     user_topic.last_xp_penalty_at = None
@@ -1085,9 +1084,11 @@ def add_xp_to_topic(
     if xp_to_add > 0:
         user_topic.xp = (user_topic.xp or 0) + xp_to_add
 
-        user = db.get(User, current_user.id)
-        if user:
-            user.total_xp = (user.total_xp or 0) + xp_to_add
+    old_account_level = 0
+    user = db.get(User, current_user.id)
+    if user:
+        old_account_level = calculate_account_level(user.total_xp or 0)
+        user.total_xp = (user.total_xp or 0) + xp_to_add
 
     progress_data = calculate_topic_progress_data(user_topic.xp or 0)
     user_topic.level = progress_data["level"]
@@ -1104,7 +1105,11 @@ def add_xp_to_topic(
     db.flush()
 
     new_achievements = check_and_unlock_achievements(db, current_user.id)
-    new_level_rewards = check_and_unlock_level_rewards(db, current_user.id)
+    new_level_rewards = check_and_unlock_level_rewards(
+        db,
+        current_user.id,
+        previous_account_level=old_account_level
+    )
 
     is_dry = is_user_topic_dry(user_topic)
     image_url = get_tree_image_url(
@@ -1161,11 +1166,6 @@ def get_my_level_rewards(
 ):
     return get_level_rewards_progress(db, current_user.id)
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
-
-
 @app.post("/topics/{topic_id}/study-time")
 def add_topic_xp_by_time(
     topic_id: int,
@@ -1189,8 +1189,10 @@ def add_topic_xp_by_time(
         success=True,
         reviewed_at=now,
     ))
+    old_account_level = 0
     user = db.get(User, current_user.id)
     if user:
+        old_account_level = calculate_account_level(user.total_xp or 0)
         user.total_xp = (user.total_xp or 0) + xp_earned
     progress_data = calculate_topic_progress_data(user_topic.xp or 0)
     user_topic.level = progress_data["level"]
@@ -1203,7 +1205,11 @@ def add_topic_xp_by_time(
     user_topic.next_review_date = get_next_review_date(user_topic.level)
     db.flush()
     new_achievements = check_and_unlock_achievements(db, current_user.id)
-    new_level_rewards = check_and_unlock_level_rewards(db, current_user.id)
+    new_level_rewards = check_and_unlock_level_rewards(
+        db,
+        current_user.id,
+        previous_account_level=old_account_level
+    )
     is_dry = is_user_topic_dry(user_topic)
     image_url = get_tree_image_url(
         topic.image_url if topic else None,
@@ -1227,3 +1233,7 @@ def add_topic_xp_by_time(
         "new_achievements": new_achievements,
         "new_level_rewards": new_level_rewards,
     }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="127.0.0.1", port=8000)

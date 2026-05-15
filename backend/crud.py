@@ -39,12 +39,18 @@ def create_review(db: Session, user_id: int, user_topic_id: int, success: bool):
         reviewed_at=now
     )
     db.add(review)
+    old_account_level = 0
     user = db.get(User, user_id)
     if user:
+        old_account_level = calculate_account_level(user.total_xp or 0)
         user.total_xp = (user.total_xp or 0) + xp_earned
     db.flush()
     new_achievements = check_and_unlock_achievements(db, user_id)
-    new_level_rewards = check_and_unlock_level_rewards(db, user_id)
+    new_level_rewards = check_and_unlock_level_rewards(
+        db,
+        user_id,
+        previous_account_level=old_account_level
+    )
     db.commit()
     db.refresh(review)
     db.refresh(user_topic)
