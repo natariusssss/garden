@@ -12,8 +12,8 @@
   --rarity-color: #699606;
   --rarity-glow: rgba(105, 150, 6, 0.24);
   --rarity-soft: rgba(105, 150, 6, 0.12);
-  --glass-bg: rgba(44, 40, 39, 0.5);
-  --glass-bg-strong: rgba(58, 56, 53, 0.673);
+  --glass-bg: rgba(61, 55, 54, 0.5);
+  --glass-bg-strong: rgba(65, 60, 58, 0.812);
   --glass-border: rgba(62, 57, 53, 0.537);
   --glass-border-light: rgba(255, 255, 255, 0.07);
   --progress-width: 0%;
@@ -349,7 +349,7 @@
 
 .topic-card--rare {
   --rarity-color: #538fea;
-  --rarity-glow: rgba(83, 143, 234, 0.26);
+  --rarity-glow: rgba(0, 102, 255, 0.26);
   --rarity-soft: rgba(83, 143, 234, 0.12);
   --rarity-border: #538fea;
   --rarity-card-shadow: 0 0 28px 7px rgba(83, 143, 234, 0.14);
@@ -370,14 +370,14 @@
   pointer-events: none;
   background: radial-gradient(
     circle at 50% 52%,
-    rgba(83, 143, 234, 0.62) 0%,
-    rgba(83, 143, 234, 0.42) 28%,
-    rgba(83, 143, 234, 0.22) 52%,
-    rgba(83, 143, 234, 0.08) 72%,
+    rgba(90, 154, 249, 0.82) 0%,
+    rgba(91, 150, 238, 0.62) 28%,
+    rgba(83, 143, 234, 0.1) 52%,
+    rgba(83, 143, 234, 0.02) 72%,
     transparent 88%
   );
-  filter: blur(66px);
-  opacity: 0.8;
+  filter: blur(20px);
+  opacity: 0.9;
 }
 
 

@@ -1,8 +1,12 @@
 import sys
 import os
+
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from setconf import settings
-from achievements_service import check_and_unlock_achievements, get_achievements_progress
+from achievements_service import (
+    check_and_unlock_achievements,
+    get_achievements_progress,
+)
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy import create_engine
@@ -35,15 +39,17 @@ from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 from sqlalchemy import func
 from sqlalchemy import text
-from crud import get_level_rewards_progress, subtract_topic_xp, calculate_topic_xp_by_time
+from crud import (
+    get_level_rewards_progress,
+    subtract_topic_xp,
+    calculate_topic_xp_by_time,
+)
 from seed_plants import seed_plants
 from seed_achievements import seed_achievements
 from seed_level_rewards import seed_level_rewards
 from utils import get_next_review_date
 from level_rewards_service import check_and_unlock_level_rewards
 from level_utils import calculate_account_level
-
-
 
 limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
@@ -66,10 +72,13 @@ def ensure_user_topic_decay_columns():
         column_names = {column[1] for column in columns}
 
         if "last_xp_penalty_at" not in column_names:
-            connection.execute(text("ALTER TABLE user_topics ADD COLUMN last_xp_penalty_at DATETIME"))
+            connection.execute(
+                text("ALTER TABLE user_topics ADD COLUMN last_xp_penalty_at DATETIME")
+            )
 
 
 ensure_user_topic_decay_columns()
+
 
 def seed_initial_data():
     db = SessionLocal()
@@ -80,10 +89,12 @@ def seed_initial_data():
     finally:
         db.close()
 
+
 seed_initial_data()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
+
 
 def get_db():
     db = SessionLocal()
@@ -102,9 +113,9 @@ def get_password(password):
 
 
 def authenticate_user(db, login: str, password: str):
-    user = db.query(User).filter(
-        (User.username == login) | (User.email == login)
-    ).first()
+    user = (
+        db.query(User).filter((User.username == login) | (User.email == login)).first()
+    )
     if not user or not verify_password(password, user.password):
         return False
     return user
@@ -117,9 +128,13 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+):
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         username: str = payload.get("sub")
         if username is None:
             raise HTTPException(status_code=401, detail="Invalid token")
@@ -131,13 +146,12 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise HTTPException(status_code=401, detail="User not found")
     return user
 
+
 def get_current_max_xp(level: int) -> int:
     if level == 0:
         return 100
 
     return 100 * level + 20 * level
-
-
 
 
 def calculate_topic_progress_data(xp: int):
@@ -177,7 +191,6 @@ def is_user_topic_dry(user_topic: Optional[UserTopic]) -> bool:
 
     dry_date = user_topic.last_reviewed + timedelta(days=DRY_AFTER_DAYS)
     return datetime.now() >= dry_date
-
 
 
 INITIAL_PLANT_CODES = {"birch", "thuja", "oak"}
@@ -240,14 +253,15 @@ def is_plant_unlocked_for_user(db: Session, user_id: int, plant_code: str) -> bo
 def get_unlocked_plant_codes_for_user(db: Session, user_id: int):
     unlocked_codes = set(INITIAL_PLANT_CODES)
 
-    user_plants = db.query(UserPlant).filter(
-        UserPlant.user_id == user_id
-    ).all()
+    user_plants = db.query(UserPlant).filter(UserPlant.user_id == user_id).all()
     unlocked_codes.update(item.plant_code for item in user_plants)
 
     achievement_plant_codes = (
         db.query(AchievementReward.reward_value)
-        .join(UserAchievement, UserAchievement.achievement_id == AchievementReward.achievement_id)
+        .join(
+            UserAchievement,
+            UserAchievement.achievement_id == AchievementReward.achievement_id,
+        )
         .filter(
             UserAchievement.user_id == user_id,
             AchievementReward.reward_type == "plant",
@@ -311,7 +325,9 @@ def build_unlock_text(level_reward, achievement):
     return " / ".join(parts)
 
 
-def plant_to_catalog_item(plant: Plant, is_unlocked: bool, level_reward=None, achievement=None):
+def plant_to_catalog_item(
+    plant: Plant, is_unlocked: bool, level_reward=None, achievement=None
+):
     if plant.code in INITIAL_PLANT_CODES:
         unlock_type = "initial"
     elif level_reward and achievement:
@@ -355,7 +371,6 @@ def apply_plant_to_topic(db_topic: Topic, plant: Plant):
     db_topic.image_url = plant.image_url
 
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -369,39 +384,50 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.post("/register", response_model=schemas.UserResponse)
 @limiter.limit("10/hour")
-def register(user: schemas.UserCreate,request: Request, db: Session = Depends(get_db)):
+def register(user: schemas.UserCreate, request: Request, db: Session = Depends(get_db)):
     if not user.username or not user.email or not user.password:
         raise HTTPException(status_code=400, detail="All fields are required")
-    existing = db.query(User).filter(
-        (User.username == user.username) | (User.email == user.email)
-    ).first()
+    existing = (
+        db.query(User)
+        .filter((User.username == user.username) | (User.email == user.email))
+        .first()
+    )
     if existing:
         raise HTTPException(status_code=400, detail="User already exists")
 
     new_user = User(
-        username=user.username,
-        email=user.email,
-        password=get_password(user.password)
+        username=user.username, email=user.email, password=get_password(user.password)
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return new_user
 
+
 @app.post("/token", response_model=schemas.Token)
 @limiter.limit("5/minute")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Request = None, db: Session = Depends(get_db)):
-    user = db.query(User).filter(
-        (User.username == form_data.username) | (User.email == form_data.username)
-    ).first()
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    request: Request = None,
+    db: Session = Depends(get_db),
+):
+    user = (
+        db.query(User)
+        .filter(
+            (User.username == form_data.username) | (User.email == form_data.username)
+        )
+        .first()
+    )
 
     if not user or not verify_password(form_data.password, user.password):
         raise HTTPException(status_code=401, detail="Wrong login or password")
 
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 @app.get("/plants/catalog")
 def get_plants_catalog(
@@ -426,11 +452,15 @@ def get_plants_catalog(
     ]
 
 
-@app.post("/topics/create", response_model=schemas.TopicResponse, status_code=status.HTTP_201_CREATED)
+@app.post(
+    "/topics/create",
+    response_model=schemas.TopicResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def create_topic(
     topic: schemas.TopicCreate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     selected_plant = get_plant_by_payload(db, topic) or get_default_initial_plant(db)
     selected_plant = require_unlocked_plant(db, current_user.id, selected_plant)
@@ -477,16 +507,13 @@ def create_topic(
         "review_count": db_user_topic.review_count,
         "last_reviewed": db_user_topic.last_reviewed,
         "new_achievements": new_achievements,
-
         **progress_data,
     }
 
 
-
 @app.get("/topics/list", response_model=List[schemas.TopicResponse])
 def get_my_topics(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
     query = db.query(Topic).filter(Topic.user_id == current_user.id)
 
@@ -494,10 +521,13 @@ def get_my_topics(
     result = []
 
     for topic in topics:
-        user_topic = db.query(UserTopic).filter(
-            UserTopic.user_id == current_user.id,
-            UserTopic.topic_id == topic.id
-        ).first()
+        user_topic = (
+            db.query(UserTopic)
+            .filter(
+                UserTopic.user_id == current_user.id, UserTopic.topic_id == topic.id
+            )
+            .first()
+        )
 
         if user_topic:
             user_topic = subtract_topic_xp(db, current_user.id, topic.id)
@@ -506,25 +536,26 @@ def get_my_topics(
         progress_data = get_topic_progress_data(user_topic)
         is_dry = is_user_topic_dry(user_topic)
 
-        result.append({
-            "id": topic.id,
-            "user_id": topic.user_id,
-            "name": topic.name,
-            "description": topic.description,
-            "tree_type": topic.tree_type,
-            "rarity": topic.rarity,
-            "image_url": get_tree_image_url(
-                topic.image_url,
-                user_topic.tree_state if user_topic else "seed",
-                is_dry
-            ),
-            "is_dry": is_dry,
-
-            "tree_state": user_topic.tree_state if user_topic else "seed",
-            "review_count": user_topic.review_count if user_topic else 0,
-            "last_reviewed": user_topic.last_reviewed if user_topic else None,
-            **progress_data,
-        })
+        result.append(
+            {
+                "id": topic.id,
+                "user_id": topic.user_id,
+                "name": topic.name,
+                "description": topic.description,
+                "tree_type": topic.tree_type,
+                "rarity": topic.rarity,
+                "image_url": get_tree_image_url(
+                    topic.image_url,
+                    user_topic.tree_state if user_topic else "seed",
+                    is_dry,
+                ),
+                "is_dry": is_dry,
+                "tree_state": user_topic.tree_state if user_topic else "seed",
+                "review_count": user_topic.review_count if user_topic else 0,
+                "last_reviewed": user_topic.last_reviewed if user_topic else None,
+                **progress_data,
+            }
+        )
     return result
 
 
@@ -532,20 +563,22 @@ def get_my_topics(
 def get_topic(
     topic_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    topic = db.query(Topic).filter(
-        Topic.id == topic_id,
-        Topic.user_id == current_user.id
-    ).first()
+    topic = (
+        db.query(Topic)
+        .filter(Topic.id == topic_id, Topic.user_id == current_user.id)
+        .first()
+    )
 
     if not topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
-    user_topic = db.query(UserTopic).filter(
-        UserTopic.user_id == current_user.id,
-        UserTopic.topic_id == topic.id
-    ).first()
+    user_topic = (
+        db.query(UserTopic)
+        .filter(UserTopic.user_id == current_user.id, UserTopic.topic_id == topic.id)
+        .first()
+    )
 
     if user_topic:
         user_topic = subtract_topic_xp(db, current_user.id, topic.id)
@@ -562,28 +595,27 @@ def get_topic(
         "tree_type": topic.tree_type,
         "rarity": topic.rarity,
         "image_url": get_tree_image_url(
-             topic.image_url,
-            user_topic.tree_state if user_topic else "seed",
-            is_dry
+            topic.image_url, user_topic.tree_state if user_topic else "seed", is_dry
         ),
         "is_dry": is_dry,
         "tree_state": user_topic.tree_state if user_topic else "seed",
         "review_count": user_topic.review_count if user_topic else 0,
-
         **progress_data,
     }
 
+
 @app.put("/topics/update/{topic_id}", response_model=schemas.TopicResponse)
 def update_topic(
-        topic_id: int,
-        topic: schemas.TopicUpdate,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    topic_id: int,
+    topic: schemas.TopicUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    db_topic = db.query(Topic).filter(
-        Topic.id == topic_id,
-        Topic.user_id == current_user.id
-    ).first()
+    db_topic = (
+        db.query(Topic)
+        .filter(Topic.id == topic_id, Topic.user_id == current_user.id)
+        .first()
+    )
 
     if not db_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
@@ -610,10 +642,11 @@ def update_topic(
     db.commit()
     db.refresh(db_topic)
 
-    user_topic = db.query(UserTopic).filter(
-        UserTopic.user_id == current_user.id,
-        UserTopic.topic_id == db_topic.id
-    ).first()
+    user_topic = (
+        db.query(UserTopic)
+        .filter(UserTopic.user_id == current_user.id, UserTopic.topic_id == db_topic.id)
+        .first()
+    )
 
     progress_data = get_topic_progress_data(user_topic)
     is_dry = is_user_topic_dry(user_topic)
@@ -637,29 +670,29 @@ def update_topic(
         **progress_data,
     }
 
+
 @app.delete("/topics/delete/{topic_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_topic(
     topic_id: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    db_topic = db.query(Topic).filter(
-        Topic.id == topic_id,
-        Topic.user_id == current_user.id
-    ).first()
+    db_topic = (
+        db.query(Topic)
+        .filter(Topic.id == topic_id, Topic.user_id == current_user.id)
+        .first()
+    )
 
     if not db_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
 
-    user_topic = db.query(UserTopic).filter(
-        UserTopic.topic_id == topic_id,
-        UserTopic.user_id == current_user.id
-    ).first()
+    db.query(ReviewHistory).filter(
+        ReviewHistory.topic_id == topic_id, ReviewHistory.user_id == current_user.id
+    ).delete(synchronize_session=False)
 
-    if user_topic:
-
-        db.delete(user_topic)
-        db.flush()
+    db.query(UserTopic).filter(
+        UserTopic.topic_id == topic_id, UserTopic.user_id == current_user.id
+    ).delete(synchronize_session=False)
 
     db.delete(db_topic)
     db.commit()
@@ -669,19 +702,21 @@ def delete_topic(
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
 
+
 @app.put("/users/me/update", response_model=schemas.UserResponse)
 def update_my_profile(
     payload: schemas.UserProfileUpdate,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     if payload.username:
         username = payload.username.strip()
 
-        existing = db.query(User).filter(
-            User.username == username,
-            User.id != current_user.id
-        ).first()
+        existing = (
+            db.query(User)
+            .filter(User.username == username, User.id != current_user.id)
+            .first()
+        )
 
         if existing:
             raise HTTPException(status_code=400, detail="Username already taken")
@@ -701,17 +736,19 @@ def update_my_profile(
 def search_users(
     query: str,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     search = query.strip()
 
     if not search:
         return []
 
-    users = db.query(User).filter(
-        User.username.ilike(f"{search}%"),
-        User.id != current_user.id
-    ).limit(10).all()
+    users = (
+        db.query(User)
+        .filter(User.username.ilike(f"{search}%"), User.id != current_user.id)
+        .limit(10)
+        .all()
+    )
 
     return [
         {
@@ -723,22 +760,24 @@ def search_users(
         for user in users
     ]
 
+
 @app.get("/")
 def root():
     return {"message": "Garden is running"}
 
+
 @app.post("/reviews/{user_topic_id}", response_model=schemas.ReviewResultResponse)
 def create_review_endpoint(
-        user_topic_id: int,
-        review: schemas.ReviewCreate,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    user_topic_id: int,
+    review: schemas.ReviewCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     result = crud.create_review(
         db=db,
         user_id=current_user.id,
         user_topic_id=user_topic_id,
-        success=review.success
+        success=review.success,
     )
     if not result:
         raise HTTPException(status_code=404, detail="UserTopic not found")
@@ -747,24 +786,17 @@ def create_review_endpoint(
 
 @app.get("/reviews/due", response_model=List[schemas.UserTopicResponse])
 def get_due_topics_endpoint(
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    due_topics = crud.get_due_topics(
-        db=db,
-        user_id=current_user.id
-    )
+    due_topics = crud.get_due_topics(db=db, user_id=current_user.id)
     return due_topics
+
 
 @app.get("/users/me/stats", response_model=schemas.UserStats)
 def get_user_stats_endpoint(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    stats=crud.get_user_stats(
-        db=db,
-        user_id=current_user.id
-    )
+    stats = crud.get_user_stats(db=db, user_id=current_user.id)
     if not stats:
         raise HTTPException(status_code=404, detail="UserStats not found")
     return stats
@@ -772,9 +804,9 @@ def get_user_stats_endpoint(
 
 @app.get("/reviews/history", response_model=List[schemas.ReviewHistoryResponse])
 def get_review_history_endpoint(
-        limit: int = 50,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    limit: int = 50,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     history = crud.get_review_history(db=db, limit=limit, user_id=current_user.id)
     return history
@@ -782,9 +814,9 @@ def get_review_history_endpoint(
 
 @app.post("/friendships/request", status_code=status.HTTP_201_CREATED)
 def send_friend_request(
-        request: schemas.FriendshipRequestCreate,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    request: schemas.FriendshipRequestCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
     friend = db.query(User).filter(User.username == request.friend_username).first()
     if not friend:
@@ -792,18 +824,32 @@ def send_friend_request(
     if friend.id == current_user.id:
         raise HTTPException(status_code=400, detail="Cannot add yourself")
 
-    existing = db.query(Friendship).filter(
-        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend.id)) & (Friendship.status.in_(["pending", "accepted"])) |
-        ((Friendship.user_id == friend.id) & (Friendship.friend_id == current_user.id)) & (Friendship.status.in_(["pending", "accepted"]))
-    ).first()
+    existing = (
+        db.query(Friendship)
+        .filter(
+            (
+                (Friendship.user_id == current_user.id)
+                & (Friendship.friend_id == friend.id)
+            )
+            & (Friendship.status.in_(["pending", "accepted"]))
+            | (
+                (Friendship.user_id == friend.id)
+                & (Friendship.friend_id == current_user.id)
+            )
+            & (Friendship.status.in_(["pending", "accepted"]))
+        )
+        .first()
+    )
 
     if existing:
-        if existing.status == 'pending':
+        if existing.status == "pending":
             raise HTTPException(status_code=400, detail="Request already pending")
-        elif existing.status == 'accepted':
+        elif existing.status == "accepted":
             raise HTTPException(status_code=400, detail="Already friends")
 
-    new_request = Friendship(user_id=current_user.id, friend_id=friend.id, status="pending")
+    new_request = Friendship(
+        user_id=current_user.id, friend_id=friend.id, status="pending"
+    )
     db.add(new_request)
     db.commit()
     return {"message": f"Friend request sent to {friend.username}"}
@@ -811,30 +857,42 @@ def send_friend_request(
 
 @app.get("/friendships/pending")
 def get_pending_requests(
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    requests = db.query(Friendship, User).join(User, Friendship.user_id == User.id).filter(
-        Friendship.friend_id == current_user.id,
-        Friendship.status == "pending"
-    ).all()
+    requests = (
+        db.query(Friendship, User)
+        .join(User, Friendship.user_id == User.id)
+        .filter(Friendship.friend_id == current_user.id, Friendship.status == "pending")
+        .all()
+    )
 
     return [
-        {"id": req.id, "user_id": user.id, "username": user.username, "email": user.email, "created_at": req.created_at}
-        for req, user in requests]
+        {
+            "id": req.id,
+            "user_id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "created_at": req.created_at,
+        }
+        for req, user in requests
+    ]
 
 
 @app.put("/friendships/accept/{request_id}")
 def accept_friend_request(
-        request_id: int,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    friendship = db.query(Friendship).filter(
-        Friendship.id == request_id,
-        Friendship.friend_id == current_user.id,
-        Friendship.status == "pending"
-    ).first()
+    friendship = (
+        db.query(Friendship)
+        .filter(
+            Friendship.id == request_id,
+            Friendship.friend_id == current_user.id,
+            Friendship.status == "pending",
+        )
+        .first()
+    )
     if not friendship:
         raise HTTPException(status_code=404, detail="Request not found")
 
@@ -852,15 +910,19 @@ def accept_friend_request(
 
 @app.put("/friendships/reject/{request_id}")
 def reject_friend_request(
-        request_id: int,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    request_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    friendship = db.query(Friendship).filter(
-        Friendship.id == request_id,
-        Friendship.friend_id == current_user.id,
-        Friendship.status == "pending"
-    ).first()
+    friendship = (
+        db.query(Friendship)
+        .filter(
+            Friendship.id == request_id,
+            Friendship.friend_id == current_user.id,
+            Friendship.status == "pending",
+        )
+        .first()
+    )
     if not friendship:
         raise HTTPException(status_code=404, detail="Request not found")
 
@@ -871,13 +933,19 @@ def reject_friend_request(
 
 @app.get("/friends")
 def get_friends(
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    friendships = db.query(Friendship).filter(
-        ((Friendship.user_id == current_user.id) | (Friendship.friend_id == current_user.id)),
-        Friendship.status == "accepted"
-    ).all()
+    friendships = (
+        db.query(Friendship)
+        .filter(
+            (
+                (Friendship.user_id == current_user.id)
+                | (Friendship.friend_id == current_user.id)
+            ),
+            Friendship.status == "accepted",
+        )
+        .all()
+    )
 
     result = []
     for f in friendships:
@@ -887,30 +955,42 @@ def get_friends(
         total_xp = friend.total_xp or 0
         level = calculate_account_level(total_xp)
 
-        result.append({
-            "id": friend.id,
-            "username": friend.username,
-            "email": friend.email,
-            "total_xp": total_xp,
-            "level": level,
-            "joined_at": friend.created_at
-        })
+        result.append(
+            {
+                "id": friend.id,
+                "username": friend.username,
+                "email": friend.email,
+                "total_xp": total_xp,
+                "level": level,
+                "joined_at": friend.created_at,
+            }
+        )
 
     return result
 
 
 @app.delete("/friends/{friend_id}")
 def remove_friend(
-        friend_id: int,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    friend_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
 
-    friendship = db.query(Friendship).filter(
-        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend_id)) |
-        ((Friendship.friend_id == current_user.id) & (Friendship.user_id == friend_id)),
-        Friendship.status == "accepted"
-    ).first()
+    friendship = (
+        db.query(Friendship)
+        .filter(
+            (
+                (Friendship.user_id == current_user.id)
+                & (Friendship.friend_id == friend_id)
+            )
+            | (
+                (Friendship.friend_id == current_user.id)
+                & (Friendship.user_id == friend_id)
+            ),
+            Friendship.status == "accepted",
+        )
+        .first()
+    )
 
     if not friendship:
         raise HTTPException(status_code=404, detail="Friendship not found")
@@ -923,21 +1003,25 @@ def remove_friend(
 
 @app.get("/friends/leaderboard")
 def friends_leaderboard(
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
 
-
-    friendships = db.query(Friendship).filter(
-        ((Friendship.user_id == current_user.id) | (Friendship.friend_id == current_user.id)),
-        Friendship.status == "accepted"
-    ).all()
+    friendships = (
+        db.query(Friendship)
+        .filter(
+            (
+                (Friendship.user_id == current_user.id)
+                | (Friendship.friend_id == current_user.id)
+            ),
+            Friendship.status == "accepted",
+        )
+        .all()
+    )
 
     friends_ids = []
     for f in friendships:
         friend_id = f.friend_id if f.user_id == current_user.id else f.user_id
         friends_ids.append(friend_id)
-
 
     friends_ids.append(current_user.id)
 
@@ -947,13 +1031,15 @@ def friends_leaderboard(
         total_xp = user.total_xp or 0
         level = calculate_account_level(total_xp)
 
-        result.append({
-            "user_id": uid,
-            "username": user.username,
-            "total_xp": total_xp,
-            "level": level,
-            "is_me": uid == current_user.id
-        })
+        result.append(
+            {
+                "user_id": uid,
+                "username": user.username,
+                "total_xp": total_xp,
+                "level": level,
+                "is_me": uid == current_user.id,
+            }
+        )
 
     result.sort(key=lambda x: x["total_xp"], reverse=True)
 
@@ -965,19 +1051,31 @@ def friends_leaderboard(
 
 @app.get("/friends/{friend_id}/progress")
 def get_friend_progress(
-        friend_id: int,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
+    friend_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
 
-    friendship = db.query(Friendship).filter(
-        ((Friendship.user_id == current_user.id) & (Friendship.friend_id == friend_id)) |
-        ((Friendship.friend_id == current_user.id) & (Friendship.user_id == friend_id)),
-        Friendship.status == "accepted"
-    ).first()
+    friendship = (
+        db.query(Friendship)
+        .filter(
+            (
+                (Friendship.user_id == current_user.id)
+                & (Friendship.friend_id == friend_id)
+            )
+            | (
+                (Friendship.friend_id == current_user.id)
+                & (Friendship.user_id == friend_id)
+            ),
+            Friendship.status == "accepted",
+        )
+        .first()
+    )
 
     if not friendship:
-        raise HTTPException(status_code=403, detail="You are not friends with this user")
+        raise HTTPException(
+            status_code=403, detail="You are not friends with this user"
+        )
 
     friend = db.query(User).filter(User.id == friend_id).first()
 
@@ -988,18 +1086,21 @@ def get_friend_progress(
 
     topics_progress = []
     for topic in topics:
-        user_topic = db.query(UserTopic).filter(
-            UserTopic.user_id == friend_id,
-            UserTopic.topic_id == topic.id
-        ).first()
+        user_topic = (
+            db.query(UserTopic)
+            .filter(UserTopic.user_id == friend_id, UserTopic.topic_id == topic.id)
+            .first()
+        )
 
-        topics_progress.append({
-            "id": topic.id,
-            "name": topic.name,
-            "xp": user_topic.xp if user_topic else 0,
-            "level": user_topic.level if user_topic else 1,
-            "review_count": user_topic.review_count if user_topic else 0
-        })
+        topics_progress.append(
+            {
+                "id": topic.id,
+                "name": topic.name,
+                "xp": user_topic.xp if user_topic else 0,
+                "level": user_topic.level if user_topic else 1,
+                "review_count": user_topic.review_count if user_topic else 0,
+            }
+        )
 
     return {
         "friend_id": friend_id,
@@ -1007,10 +1108,8 @@ def get_friend_progress(
         "total_xp": total_xp,
         "total_level": total_level,
         "topics_count": len(topics),
-        "topics": topics_progress
+        "topics": topics_progress,
     }
-
-
 
 
 @app.get("/health")
@@ -1020,27 +1119,36 @@ def health_check(db: Session = Depends(get_db)):
         return {
             "status": "healthy",
             "database": "connected",
-            "message": "API is running"
+            "message": "API is running",
         }
     except Exception as e:
         raise HTTPException(status_code=503, detail=f"Database error: {str(e)}")
 
 
 @app.get("/users/me/achievements", response_model=List[schemas.UserAchievementResponse])
-def get_my_achievements(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    achievements=db.query(UserAchievement).filter(UserAchievement.user_id == current_user.id).all()
+def get_my_achievements(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+):
+    achievements = (
+        db.query(UserAchievement)
+        .filter(UserAchievement.user_id == current_user.id)
+        .all()
+    )
     return achievements
 
 
 @app.get("/achievements", response_model=List[schemas.AchievementResponse])
 def get_all_achievements(db: Session = Depends(get_db)):
-    achievements=db.query(Achievement).all()
+    achievements = db.query(Achievement).all()
     return achievements
 
-@app.get("/users/me/achievements/progress", response_model=List[schemas.AchievementProgressResponse])
+
+@app.get(
+    "/users/me/achievements/progress",
+    response_model=List[schemas.AchievementProgressResponse],
+)
 def get_my_achievements_progress(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
 
     check_and_unlock_achievements(db, current_user.id)
@@ -1052,20 +1160,22 @@ def add_xp_to_topic(
     topic_id: int,
     payload: schemas.TopicXPAdd,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    user_topic = db.query(UserTopic).filter(
-        UserTopic.topic_id == topic_id,
-        UserTopic.user_id == current_user.id
-    ).first()
+    user_topic = (
+        db.query(UserTopic)
+        .filter(UserTopic.topic_id == topic_id, UserTopic.user_id == current_user.id)
+        .first()
+    )
 
     if not user_topic:
         raise HTTPException(status_code=404, detail="UserTopic not found")
 
-    topic = db.query(Topic).filter(
-        Topic.id == topic_id,
-        Topic.user_id == current_user.id
-    ).first()
+    topic = (
+        db.query(Topic)
+        .filter(Topic.id == topic_id, Topic.user_id == current_user.id)
+        .first()
+    )
 
     xp_to_add = max(0, payload.xp)
     now = datetime.now()
@@ -1074,12 +1184,14 @@ def add_xp_to_topic(
     user_topic.last_reviewed = now
     user_topic.last_xp_penalty_at = None
 
-    db.add(ReviewHistory(
-        user_id=current_user.id,
-        topic_id=user_topic.topic_id,
-        success=True,
-        reviewed_at=now,
-    ))
+    db.add(
+        ReviewHistory(
+            user_id=current_user.id,
+            topic_id=user_topic.topic_id,
+            success=True,
+            reviewed_at=now,
+        )
+    )
 
     if xp_to_add > 0:
         user_topic.xp = (user_topic.xp or 0) + xp_to_add
@@ -1106,16 +1218,12 @@ def add_xp_to_topic(
 
     new_achievements = check_and_unlock_achievements(db, current_user.id)
     new_level_rewards = check_and_unlock_level_rewards(
-        db,
-        current_user.id,
-        previous_account_level=old_account_level
+        db, current_user.id, previous_account_level=old_account_level
     )
 
     is_dry = is_user_topic_dry(user_topic)
     image_url = get_tree_image_url(
-        topic.image_url if topic else None,
-        user_topic.tree_state,
-        is_dry
+        topic.image_url if topic else None, user_topic.tree_state, is_dry
     )
 
     db.commit()
@@ -1161,34 +1269,44 @@ def get_tree_image_url(image_url: str | None, tree_state: str, is_dry: bool = Fa
 
 @app.get("/level-rewards")
 def get_my_level_rewards(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
 ):
     return get_level_rewards_progress(db, current_user.id)
+
 
 @app.post("/topics/{topic_id}/study-time")
 def add_topic_xp_by_time(
     topic_id: int,
     duration_seconds: int,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    user_topic = db.query(UserTopic).filter(UserTopic.user_id == current_user.id, UserTopic.topic_id == topic_id).first()
+    user_topic = (
+        db.query(UserTopic)
+        .filter(UserTopic.user_id == current_user.id, UserTopic.topic_id == topic_id)
+        .first()
+    )
     if not user_topic:
         raise HTTPException(status_code=404, detail="Topic not found")
-    topic = db.query(Topic).filter(Topic.id == topic_id, Topic.user_id == current_user.id).first()
+    topic = (
+        db.query(Topic)
+        .filter(Topic.id == topic_id, Topic.user_id == current_user.id)
+        .first()
+    )
     xp_earned = calculate_topic_xp_by_time(duration_seconds)
     now = datetime.now()
     user_topic.xp = (user_topic.xp or 0) + xp_earned
     user_topic.review_count = (user_topic.review_count or 0) + 1
     user_topic.last_reviewed = now
     user_topic.last_xp_penalty_at = None
-    db.add(ReviewHistory(
-        user_id=current_user.id,
-        topic_id=user_topic.topic_id,
-        success=True,
-        reviewed_at=now,
-    ))
+    db.add(
+        ReviewHistory(
+            user_id=current_user.id,
+            topic_id=user_topic.topic_id,
+            success=True,
+            reviewed_at=now,
+        )
+    )
     old_account_level = 0
     user = db.get(User, current_user.id)
     if user:
@@ -1206,15 +1324,11 @@ def add_topic_xp_by_time(
     db.flush()
     new_achievements = check_and_unlock_achievements(db, current_user.id)
     new_level_rewards = check_and_unlock_level_rewards(
-        db,
-        current_user.id,
-        previous_account_level=old_account_level
+        db, current_user.id, previous_account_level=old_account_level
     )
     is_dry = is_user_topic_dry(user_topic)
     image_url = get_tree_image_url(
-        topic.image_url if topic else None,
-        user_topic.tree_state,
-        is_dry
+        topic.image_url if topic else None, user_topic.tree_state, is_dry
     )
     db.commit()
     db.refresh(user_topic)
@@ -1234,6 +1348,8 @@ def add_topic_xp_by_time(
         "new_level_rewards": new_level_rewards,
     }
 
+
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="127.0.0.1", port=8000)

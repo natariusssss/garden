@@ -19,7 +19,7 @@
   overflow: hidden;
   cursor: pointer;
   border-radius: 19px;
-  background: rgba(58, 56, 53, 0.54);
+  background: rgba(65, 63, 58, 0.54);
   border: 2px solid rgba(62, 57, 53, 0.36);
   box-shadow:
     0 0 55px rgba(0, 0, 0, 0.15),
@@ -205,7 +205,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(58, 56, 53, 0.54);
+  background: rgba(101, 98, 94, 0.54);
   border: 2px solid rgba(62, 57, 53, 0.36);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }

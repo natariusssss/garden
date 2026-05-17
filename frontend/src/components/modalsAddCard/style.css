@@ -21,7 +21,7 @@
   height: 908px;
   overflow: hidden;
   border-radius: 24px;
-  background: rgba(52, 51, 51, 0.516);
+  background: rgba(71, 64, 63, 0.5);
   border: 2px solid rgba(62, 57, 53, 0.36);
   box-shadow:
     0 0 55px rgba(0, 0, 0, 0.15),
@@ -132,7 +132,7 @@
   width: 2px;
   height: 800px;
   border-radius: 999px;
-  background: rgba(62, 57, 53, 0.46);
+  background: rgba(62, 57, 53, 0.755);
   box-shadow:
     inset 1px 0 0 rgba(255, 255, 255, 0.025),
     0 0 22px rgba(0, 0, 0, 0.12);
@@ -428,7 +428,7 @@
   overflow: hidden;
   border: 2px solid rgba(177, 202, 126, 0.34);
   border-radius: 19px;
-  background: rgb(59, 57, 54);
+  background: rgba(54, 52, 49, 0.446);
   box-shadow:
     0 0 55px rgba(0, 0, 0, 0.15),
     0 0 26px rgba(177, 202, 126, 0.06),
