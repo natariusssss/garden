@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/header/Header";
-import { getMe, getFriends, getUserStats, updateProfile } from "../../api/auth";
+import {
+  getMe,
+  getFriends,
+  getUserStats,
+  updateProfile,
+  getAchievementsProgress,
+  getLevelRewardsProgress,
+} from "../../api/auth";
 import EditProfileModal from "../../components/modalsEditProfile/EditProfileModal";
 import "./profile.css";
 
@@ -9,6 +16,7 @@ export default function ProfilePage() {
   const [user, setUser] = useState(null);
   const [friends, setFriends] = useState([]);
   const [stats, setStats] = useState(null);
+  const [latestAchievements, setLatestAchievements] = useState([]);
   const [message, setMessage] = useState("Загрузка профиля...");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
 
@@ -17,13 +25,56 @@ export default function ProfilePage() {
 
     async function fetchProfileData() {
       try {
-        const me = await getMe(token);
-        const friendsData = await getFriends(token);
-        const statsData = await getUserStats(token);
+        const [me, friendsData, statsData, achievementsData, levelRewardsData] =
+          await Promise.all([
+            getMe(token),
+            getFriends(token),
+            getUserStats(token),
+            getAchievementsProgress(),
+            getLevelRewardsProgress(),
+          ]);
 
         setUser(me);
         setFriends(friendsData);
         setStats(statsData);
+        const achievements = Array.isArray(achievementsData)
+          ? achievementsData
+          : [];
+
+        const levelRewards = Array.isArray(levelRewardsData)
+          ? levelRewardsData
+          : [];
+
+        const unlockedAchievements = achievements
+          .filter((item) => item.is_unlocked)
+          .map((item) => ({
+            id: `achievement-${item.id}`,
+            title: item.title,
+            description: item.description,
+            type: "achievement",
+            xp:
+              item.rewards?.find((reward) => reward.type === "xp")?.value ?? 0,
+          }));
+
+        const unlockedLevelRewards = levelRewards
+          .filter((item) => item.is_unlocked)
+          .map((item) => ({
+            id: `level-${item.id}`,
+            title: `${item.level} уровень аккаунта`,
+            description: item.plant?.name
+              ? `Открыто растение ${item.plant.name}`
+              : "Открыта награда за уровень",
+            type: "plant",
+            xp: 0,
+            image_url: item.plant?.image_url,
+            rarity: item.plant?.rarity,
+          }));
+
+        setLatestAchievements(
+          [...unlockedAchievements, ...unlockedLevelRewards]
+            .slice(-4)
+            .reverse(),
+        );
         setMessage("");
       } catch (error) {
         setMessage(error.message || "Ошибка загрузки профиля");
@@ -172,7 +223,50 @@ export default function ProfilePage() {
             </section>
 
             <section className="profile-bottom-grid">
-              <article className="profile-panel profile-section-card profile-achievements-card"></article>
+              <article className="profile-panel profile-section-card profile-achievements-card">
+                <div className="profile-section-header">
+                  <h2>Последние достижения</h2>
+                </div>
+
+                <div className="profile-achievements-list">
+                  {latestAchievements.length > 0 ? (
+                    latestAchievements.map((achievement) => (
+                      <div
+                        key={achievement.id}
+                        className="profile-achievement-item"
+                      >
+                        <div className="profile-achievement-icon">
+                          {achievement.image_url ? (
+                            <img src={achievement.image_url} alt="" />
+                          ) : (
+                            <span>XP</span>
+                          )}
+                        </div>
+
+                        <div className="profile-achievement-info">
+                          <div className="profile-achievement-top">
+                            <h3>{achievement.title}</h3>
+
+                            {achievement.xp > 0 && (
+                              <span className="profile-achievement-xp">
+                                +{achievement.xp} XP
+                              </span>
+                            )}
+                          </div>
+
+                          <p>{achievement.description}</p>
+
+                          <span className="profile-achievement-status">
+                            Получено
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="profile-friends-empty">Достижений пока нет</p>
+                  )}
+                </div>
+              </article>
 
               <aside className="profile-panel profile-section-card profile-rating-card">
                 <div className="profile-section-header">
