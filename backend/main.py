@@ -1,5 +1,7 @@
 import sys
 import os
+from schemas import ActionRequest
+from llm_service import llm_service
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from setconf import settings
@@ -1346,6 +1348,44 @@ def add_topic_xp_by_time(
         "progress_width": progress_data["progress_width"],
         "new_achievements": new_achievements,
         "new_level_rewards": new_level_rewards,
+    }
+
+
+@app.post("/add-xp")
+async def add_xp_for_action(
+    request: ActionRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    context = {"topic": "обучение", "level": 1}
+
+    if request.topic_id:
+        user_topic = (
+            db.query(UserTopic)
+            .filter(
+                UserTopic.topic_id == request.topic_id,
+                UserTopic.user_id == current_user.id,
+            )
+            .first()
+        )
+
+        if user_topic:
+            topic = db.query(Topic).filter(Topic.id == request.topic_id).first()
+            context["topic"] = topic.name if topic else "обучение"
+            context["level"] = user_topic.level + 1
+
+    xp_amount = await llm_service.get_xp_amount(
+        action_description=request.action,
+        context=context,
+    )
+
+    current_user.total_xp = (current_user.total_xp or 0) + xp_amount
+
+    db.commit()
+
+    return {
+        "xp_added": xp_amount,
+        "new_total_xp": current_user.total_xp,
     }
 
 

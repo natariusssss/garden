@@ -249,3 +249,8 @@ class TopicXPResponse(BaseModel):
     last_reviewed: Optional[datetime] = None
     new_achievements: list[AchievementProgressResponse] = []
     new_level_rewards: list[dict] = []
+
+
+class ActionRequest(BaseModel):
+    action: str
+    topic_id: Optional[int] = None
