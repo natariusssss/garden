@@ -69,7 +69,6 @@ export default function ProfilePage() {
             image_url: item.plant?.image_url,
             rarity: item.plant?.rarity,
           }));
-
         setLatestAchievements(
           [...unlockedAchievements, ...unlockedLevelRewards]
             .slice(-4)
