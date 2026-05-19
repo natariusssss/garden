@@ -1354,58 +1354,100 @@ def add_topic_xp_by_time(
 @app.post("/add-xp")
 @limiter.limit("20/hour")
 async def add_xp_for_action(
-        request: Request,
-        action_req: ActionRequest,
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db),
+    request: Request,
+    action_req: ActionRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    context = {"topic": "обучение", "level": 1}
+    if not action_req.topic_id:
+        raise HTTPException(status_code=400, detail="topic_id is required")
 
-    user_topic = None
-    if action_req.topic_id:
-        user_topic = (
-            db.query(UserTopic)
-            .filter(
-                UserTopic.topic_id == action_req.topic_id,
-                UserTopic.user_id == current_user.id,
-            )
-            .first()
+    user_topic = (
+        db.query(UserTopic)
+        .filter(
+            UserTopic.topic_id == action_req.topic_id,
+            UserTopic.user_id == current_user.id,
         )
+        .first()
+    )
 
-        if user_topic:
-            topic = db.query(Topic).filter(Topic.id == action_req.topic_id).first()
-            context["topic"] = topic.name if topic else "обучение"
-            context["level"] = user_topic.level + 1
+    if not user_topic:
+        raise HTTPException(status_code=404, detail="Topic not found")
+
+    topic = db.query(Topic).filter(Topic.id == action_req.topic_id).first()
+
+    context = {
+        "topic": topic.name if topic else "обучение",
+        "level": user_topic.level + 1
+    }
 
     xp_amount = await llm_service.get_xp_amount(
         action_description=action_req.action,
         context=context,
     )
 
+    now = datetime.now()
+    old_account_level = calculate_account_level(current_user.total_xp or 0)
+
     current_user.total_xp = (current_user.total_xp or 0) + xp_amount
 
-    if user_topic:
-        user_topic.xp = (user_topic.xp or 0) + xp_amount
-        user_topic.review_count = (user_topic.review_count or 0) + 1
-        user_topic.last_reviewed = datetime.now()
+    user_topic.xp = (user_topic.xp or 0) + xp_amount
+    user_topic.review_count = (user_topic.review_count or 0) + 1
+    user_topic.last_reviewed = now
+    user_topic.last_xp_penalty_at = None
 
-        new_level = user_topic.xp // 100
-        if new_level > user_topic.level:
-            user_topic.level = new_level
+    progress_data = calculate_topic_progress_data(user_topic.xp)
+    user_topic.level = progress_data["level"]
 
-        user_topic.next_review_date = get_next_review_date(user_topic.level)
+    if user_topic.level >= 20:
+        user_topic.tree_state = "adult"
+    elif user_topic.level >= 10:
+        user_topic.tree_state = "young"
+    else:
+        user_topic.tree_state = "seed"
+
+    user_topic.next_review_date = get_next_review_date(user_topic.level)
+
+    review = ReviewHistory(
+        user_id=current_user.id,
+        topic_id=user_topic.topic_id,
+        success=xp_amount >= 15,
+        reviewed_at=now,
+    )
+    db.add(review)
+
+    db.flush()
+
+    new_achievements = check_and_unlock_achievements(db, current_user.id)
+    new_level_rewards = check_and_unlock_level_rewards(
+        db, current_user.id, previous_account_level=old_account_level
+    )
 
     db.commit()
+    db.refresh(user_topic)
+
+    is_dry = is_user_topic_dry(user_topic)
+    image_url = get_tree_image_url(
+        topic.image_url if topic else None,
+        user_topic.tree_state,
+        is_dry
+    )
 
     return {
         "xp_added": xp_amount,
-        "new_total_xp": current_user.total_xp,
-        "topic_id": action_req.topic_id,
-        "topic_xp": user_topic.xp if user_topic else None,
-        "topic_level": user_topic.level if user_topic else None,
+        "xp": user_topic.xp,
+        "level": user_topic.level,
+        "tree_state": user_topic.tree_state,
+        "image_url": image_url,
+        "is_dry": is_dry,
+        "review_count": user_topic.review_count,
+        "last_reviewed": user_topic.last_reviewed,
+        "current_max_xp": progress_data["current_max_xp"],
+        "current_progress_xp": progress_data["current_progress_xp"],
+        "progress_width": progress_data["progress_width"],
+        "new_achievements": new_achievements,
+        "new_level_rewards": new_level_rewards,
     }
-
-
 if __name__ == "__main__":
     import uvicorn
 
