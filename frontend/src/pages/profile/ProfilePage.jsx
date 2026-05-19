@@ -95,7 +95,7 @@ export default function ProfilePage() {
         setLatestAchievements(
           [...unlockedAchievements, ...unlockedLevelRewards]
             .sort((a, b) => getAchievementDate(b) - getAchievementDate(a))
-            .slice(0, 4),
+            .slice(0, 5),
         );
         setMessage("");
       } catch (error) {
@@ -294,13 +294,8 @@ export default function ProfilePage() {
                         <div className="profile-achievement-info">
                           <div className="profile-achievement-top">
                             <h3>{achievement.title}</h3>
-
-                            {achievement.xp > 0 && (
-                              <span className="profile-achievement-xp">
-                                +{achievement.xp} XP
-                              </span>
-                            )}
                           </div>
+
                           <p>
                             {achievement.description}{" "}
                             {achievement.plantName && (
@@ -312,20 +307,27 @@ export default function ProfilePage() {
                             )}
                           </p>
 
-                          {achievement.plantName && (
-                            <div className="profile-achievement-badges">
-                              <span className="profile-achievement-badge profile-achievement-badge--plant">
-                                Растение
-                              </span>
-
-                              <span
-                                className={`profile-achievement-badge profile-achievement-badge--${achievement.rarity}`}
-                              >
-                                {getRarityLabel(achievement.rarity)}
-                              </span>
-                            </div>
-                          )}
                         </div>
+
+                        {(achievement.plantName || achievement.xp > 0) && (
+                          <div className="profile-achievement-rewards">
+                            {achievement.plantName && (
+                              <div className="profile-achievement-badges">
+                                <span
+                                  className={`profile-achievement-badge profile-achievement-badge--${achievement.rarity}`}
+                                >
+                                  {getRarityLabel(achievement.rarity)}
+                                </span>
+                              </div>
+                            )}
+
+                            {achievement.xp > 0 && (
+                              <span className="profile-achievement-xp">
+                                +{achievement.xp} XP
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))
                   ) : (

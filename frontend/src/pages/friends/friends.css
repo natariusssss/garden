@@ -406,7 +406,7 @@
 .friends-notifications-items {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 23px;
 }
 
 .friends-item,
@@ -416,9 +416,19 @@
   align-items: center;
   gap: 18px;
   padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(76, 71, 65, 0.22);
-  border: 1px solid #46423d;
+  border-radius: 19px;
+  background: #34313182;
+  border: 2px solid rgba(62, 57, 53, 0.36);
+  box-shadow:
+    0 0 55px rgba(0, 0, 0, 0.087),
+    0 8px 18px rgba(0, 0, 0, 0.155),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  backdrop-filter: blur(20px);
+}
+
+.friends-item + .friends-item,
+.friends-request-item + .friends-request-item {
+  margin-top: 10px;
 }
 
 .friends-item-icon,

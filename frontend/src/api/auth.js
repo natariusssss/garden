@@ -11,7 +11,7 @@ function emitAchievementNotifications(data) {
   window.dispatchEvent(
     new CustomEvent(ACHIEVEMENT_UNLOCK_EVENT, {
       detail: { achievements },
-    })
+    }),
   );
 }
 
@@ -360,7 +360,7 @@ export async function searchUsers(token, query) {
       headers: {
         Authorization: `Bearer ${token}`,
       },
-    }
+    },
   );
 
   const data = await response.json();
