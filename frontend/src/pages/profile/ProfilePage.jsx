@@ -47,32 +47,55 @@ export default function ProfilePage() {
 
         const unlockedAchievements = achievements
           .filter((item) => item.is_unlocked)
-          .map((item) => ({
-            id: `achievement-${item.id}`,
-            title: item.title,
-            description: item.description,
-            type: "achievement",
-            xp:
-              item.rewards?.find((reward) => reward.type === "xp")?.value ?? 0,
-          }));
+          .map((item) => {
+            const xpReward = item.rewards?.find(
+              (reward) => reward.type === "xp",
+            );
+            const plantReward = item.rewards?.find(
+              (reward) => reward.type === "plant",
+            );
+            const plant = plantReward?.plant;
+
+            return {
+              id: `achievement-${item.id}`,
+              title: item.title,
+              description: plant ? "Открыто растение" : item.description,
+              plantName: plant?.name || "",
+              type: plant ? "plant" : "xp",
+              xp: xpReward?.value ?? 0,
+              image_url: plant?.image_url,
+              rarity: plant?.rarity || "common",
+              date:
+                item.unlocked_at ||
+                item.earned_at ||
+                item.received_at ||
+                item.created_at ||
+                null,
+            };
+          });
 
         const unlockedLevelRewards = levelRewards
           .filter((item) => item.is_unlocked)
           .map((item) => ({
             id: `level-${item.id}`,
             title: `${item.level} уровень аккаунта`,
-            description: item.plant?.name
-              ? `Открыто растение ${item.plant.name}`
-              : "Открыта награда за уровень",
+            description: "Открыто растение",
+            plantName: item.plant?.name || "",
             type: "plant",
             xp: 0,
             image_url: item.plant?.image_url,
-            rarity: item.plant?.rarity,
+            rarity: item.plant?.rarity || "common",
+            date:
+              item.unlocked_at ||
+              item.earned_at ||
+              item.received_at ||
+              item.created_at ||
+              null,
           }));
         setLatestAchievements(
           [...unlockedAchievements, ...unlockedLevelRewards]
-            .slice(-4)
-            .reverse(),
+            .sort((a, b) => getAchievementDate(b) - getAchievementDate(a))
+            .slice(0, 4),
         );
         setMessage("");
       } catch (error) {
@@ -105,11 +128,33 @@ export default function ProfilePage() {
     localStorage.removeItem("token");
     navigate("/");
   };
+
   const level = stats?.level ?? 0;
   const totalXp = stats?.total_xp ?? 0;
   const currentXp = stats?.current_progress_xp ?? 0;
   const maxXp = stats?.current_max_xp ?? 100;
   const progressWidth = `${Math.min((currentXp / maxXp) * 100, 100)}%`;
+
+  const getAchievementDate = (item) => {
+    return new Date(
+      item.unlocked_at ||
+        item.earned_at ||
+        item.received_at ||
+        item.created_at ||
+        0,
+    ).getTime();
+  };
+
+  const getRarityLabel = (rarity) => {
+    const labels = {
+      common: "Обычное",
+      rare: "Редкое",
+      epic: "Эпическое",
+      legendary: "Легендарная",
+    };
+
+    return labels[rarity] || "Обычное";
+  };
 
   return (
     <div className="profile-page">
@@ -232,7 +277,11 @@ export default function ProfilePage() {
                     latestAchievements.map((achievement) => (
                       <div
                         key={achievement.id}
-                        className="profile-achievement-item"
+                        className={`profile-achievement-item ${
+                          achievement.type === "plant"
+                            ? `profile-achievement-item--${achievement.rarity}`
+                            : "profile-achievement-item--xp"
+                        }`}
                       >
                         <div className="profile-achievement-icon">
                           {achievement.image_url ? (
@@ -252,12 +301,30 @@ export default function ProfilePage() {
                               </span>
                             )}
                           </div>
+                          <p>
+                            {achievement.description}{" "}
+                            {achievement.plantName && (
+                              <span
+                                className={`profile-achievement-plant-name profile-achievement-plant-name--${achievement.rarity}`}
+                              >
+                                {achievement.plantName}
+                              </span>
+                            )}
+                          </p>
 
-                          <p>{achievement.description}</p>
+                          {achievement.plantName && (
+                            <div className="profile-achievement-badges">
+                              <span className="profile-achievement-badge profile-achievement-badge--plant">
+                                Растение
+                              </span>
 
-                          <span className="profile-achievement-status">
-                            Получено
-                          </span>
+                              <span
+                                className={`profile-achievement-badge profile-achievement-badge--${achievement.rarity}`}
+                              >
+                                {getRarityLabel(achievement.rarity)}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))

@@ -869,3 +869,117 @@
   font-size: 13px;
   font-weight: 900;
 }
+.profile-achievement-plant-name {
+  font-weight: 900;
+}
+
+.profile-achievement-plant-name--common {
+  color: #b1ca7e;
+}
+
+.profile-achievement-plant-name--rare {
+  color: #5fa8ff;
+}
+
+.profile-achievement-plant-name--epic {
+  color: #a66cff;
+}
+
+.profile-achievement-plant-name--legendary {
+  color: #ff6f9f;
+}
+.profile-achievement-item--xp {
+  border-color: rgba(243, 200, 66, 0.35);
+}
+
+.profile-achievement-item--common {
+  border-color: rgba(177, 202, 126, 0.35);
+}
+
+.profile-achievement-item--rare {
+  border-color: rgba(95, 168, 255, 0.55);
+}
+
+.profile-achievement-item--epic {
+  border-color: rgba(166, 108, 255, 0.55);
+}
+
+.profile-achievement-item--legendary {
+  border-color: rgba(255, 111, 159, 0.6);
+}
+
+.profile-achievement-plant-name {
+  display: inline-block;
+  font-weight: 900;
+}
+
+.profile-achievement-plant-name--common {
+  color: #b1ca7e;
+}
+
+.profile-achievement-plant-name--rare {
+  color: #5fa8ff;
+}
+
+.profile-achievement-plant-name--epic {
+  color: #a66cff;
+}
+
+.profile-achievement-plant-name--legendary {
+  color: #ff6f9f;
+}
+
+.profile-achievement-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.profile-achievement-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.profile-achievement-badge--plant {
+  color: #b1ca7e;
+  background: rgba(177, 202, 126, 0.16);
+}
+
+.profile-achievement-badge--common {
+  color: #ffffff;
+  background: #699606;
+}
+
+.profile-achievement-badge--rare {
+  color: #ffffff;
+  background: #538fea;
+}
+
+.profile-achievement-badge--epic {
+  color: #ffffff;
+  background: #7851a9;
+}
+
+.profile-achievement-badge--legendary {
+  color: #ffffff;
+  background: #e75480;
+}
+.profile-achievement-badges{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+    min-height:28px;
+}
+
+.profile-achievement-status{
+    display:none;
+}
