@@ -352,6 +352,31 @@ export async function addXpToTopic(topicId, xp) {
   return data;
 }
 
+export async function addLlmXpToTopic(topicId, action) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(`${API_URL}/add-xp`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      action,
+      topic_id: Number(topicId),
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to add LLM XP");
+  }
+
+  emitAchievementNotifications(data);
+  return data;
+}
+
 export async function searchUsers(token, query) {
   const response = await fetch(
     `${API_URL}/users/search?query=${encodeURIComponent(query)}`,

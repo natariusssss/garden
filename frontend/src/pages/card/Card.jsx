@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { addXpToTopic, deleteTopicById, getTopicById } from "../../api/auth";
+import {
+  addLlmXpToTopic,
+  addXpToTopic,
+  deleteTopicById,
+  getTopicById,
+} from "../../api/auth";
 import ModalAddTopic from "../../components/modalsAddCard/ModalAddTopic";
 import Header from "../../components/header/Header";
 import plants from "../../data/plants.js";
@@ -116,60 +121,84 @@ const Card = () => {
   const [accountLevelRewardInfo, setAccountLevelRewardInfo] = useState(null);
   const [accountLevelRewardQueue, setAccountLevelRewardQueue] = useState([]);
   const [pendingPlantStateModal, setPendingPlantStateModal] = useState(false);
+  const applyXpResult = (updated, notification) => {
+    const isPlantStateChanged = updated.tree_state !== infoPlant.tree_state;
+    const newLevelRewards = Array.isArray(updated.new_level_rewards)
+      ? updated.new_level_rewards
+      : [];
+    const hasTopicLevelUp = updated.level > infoPlant.level;
+    const hasAccountLevelReward = newLevelRewards.length > 0;
+
+    setNotificationXp(notification);
+    setAccountLevelRewardQueue(newLevelRewards);
+    setAccountLevelRewardInfo(newLevelRewards[0] || null);
+    setPendingPlantStateModal(isPlantStateChanged);
+
+    if (hasTopicLevelUp) {
+      setLevelUpInfo({
+        oldLevel: infoPlant.level,
+        newLevel: updated.level,
+        currentMaxXp: updated.current_max_xp,
+        currentProgress: updated.current_progress_xp,
+      });
+
+      setFlagStateChange(isPlantStateChanged);
+      setIsModalLevelUpOpen(true);
+    } else if (hasAccountLevelReward) {
+      setIsModalAccountLevelUpOpen(true);
+    } else if (isPlantStateChanged) {
+      setIsModalNewPlantState(true);
+    }
+
+    setInfoPlant((prev) => ({
+      ...prev,
+      xp: updated.xp,
+      level: updated.level,
+      tree_state: updated.tree_state,
+      current_max_xp: updated.current_max_xp,
+      current_progress_xp: updated.current_progress_xp,
+      progress_width: updated.progress_width,
+      image_url: updated.image_url,
+      is_dry: updated.is_dry,
+      review_count: updated.review_count,
+      last_reviewed: updated.last_reviewed,
+    }));
+  };
+
   const handleAddXp = async (event) => {
     event.preventDefault();
 
     try {
       const xpUp = formatTimer(time).total * 2200;
       const updated = await addXpToTopic(id, xpUp);
-      const isPlantStateChanged = updated.tree_state !== infoPlant.tree_state;
-      const newLevelRewards = Array.isArray(updated.new_level_rewards)
-        ? updated.new_level_rewards
-        : [];
-      const hasTopicLevelUp = updated.level > infoPlant.level;
-      const hasAccountLevelReward = newLevelRewards.length > 0;
 
-      setNotificationXp({
+      applyXpResult(updated, {
         xp: xpUp || 0,
         text: "Выполнение задачи",
       });
 
-      setAccountLevelRewardQueue(newLevelRewards);
-      setAccountLevelRewardInfo(newLevelRewards[0] || null);
-      setPendingPlantStateModal(isPlantStateChanged);
-
-      if (hasTopicLevelUp) {
-        setLevelUpInfo({
-          oldLevel: infoPlant.level,
-          newLevel: updated.level,
-          currentMaxXp: updated.current_max_xp,
-          currentProgress: updated.current_progress_xp,
-        });
-
-        setFlagStateChange(isPlantStateChanged);
-        setIsModalLevelUpOpen(true);
-      } else if (hasAccountLevelReward) {
-        setIsModalAccountLevelUpOpen(true);
-      } else if (isPlantStateChanged) {
-        setIsModalNewPlantState(true);
-      }
-
-      setInfoPlant((prev) => ({
-        ...prev,
-        xp: updated.xp,
-        level: updated.level,
-        tree_state: updated.tree_state,
-        current_max_xp: updated.current_max_xp,
-        current_progress_xp: updated.current_progress_xp,
-        progress_width: updated.progress_width,
-        image_url: updated.image_url,
-        is_dry: updated.is_dry,
-        review_count: updated.review_count,
-        last_reviewed: updated.last_reviewed,
-      }));
       setButtonTimer("disabled");
       setTime(0);
       setSaveTime(0);
+    } catch (error) {
+      setMessage(error.message);
+    }
+  };
+
+  const handleAddLlmXp = async () => {
+    const action = aiMessage.trim();
+
+    if (!action) return;
+
+    try {
+      const updated = await addLlmXpToTopic(id, action);
+
+      applyXpResult(updated, {
+        xp: updated.xp_added || 0,
+        text: "AI запрос",
+      });
+
+      setAiMessage("");
     } catch (error) {
       setMessage(error.message);
     }
@@ -380,6 +409,7 @@ const Card = () => {
                   className="topic-ai-panel__send"
                   type="button"
                   aria-label="Отправить AI запрос"
+                  onClick={handleAddLlmXp}
                 >
                   <img
                     className="topic-icon topic-icon--send-green"
