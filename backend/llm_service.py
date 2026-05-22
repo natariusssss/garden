@@ -55,14 +55,14 @@ class LLMService:
             if response.status_code == 200:
                 result = response.json()
                 response_text = result.get("response", "")
-                print(f"DEBUG: Ollama response: {response_text[:200]}")  # для отладки
+                print(f"DEBUG: Ollama response: {response_text[:200]}")  
 
                 numbers = re.findall(r'\d+', response_text)
                 if numbers:
                     return int(numbers[0])
 
             print(f"WARNING: No number found, status={response.status_code}")
-            return 10
+            return 0
 
     def _fallback_xp(self, action: str) -> int:
         if len(action) < 20:

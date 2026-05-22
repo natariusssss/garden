@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   addLlmXpToTopic,
-  addXpToTopic,
+  addStudyTimeToTopic,
   deleteTopicById,
   getTopicById,
 } from "../../api/auth";
@@ -168,15 +168,19 @@ const Card = () => {
   const handleAddXp = async (event) => {
     event.preventDefault();
 
+    const durationSeconds = formatTimer(time).total;
+
+    if (durationSeconds <= 0) return;
+
     try {
-      const xpUp = formatTimer(time).total * 2200;
-      const updated = await addXpToTopic(id, xpUp);
+      const updated = await addStudyTimeToTopic(id, durationSeconds);
 
       applyXpResult(updated, {
-        xp: xpUp || 0,
-        text: "Выполнение задачи",
+        xp: updated.xp_earned || 0,
+        text: "Фокусировка",
       });
 
+      setMessage("");
       setButtonTimer("disabled");
       setTime(0);
       setSaveTime(0);
@@ -192,12 +196,18 @@ const Card = () => {
 
     try {
       const updated = await addLlmXpToTopic(id, action);
+      const xpAdded = updated.xp_added || 0;
 
       applyXpResult(updated, {
-        xp: updated.xp_added || 0,
+        xp: xpAdded,
         text: "AI запрос",
       });
 
+      setMessage(
+        xpAdded > 0
+          ? ""
+          : "AI не начислил XP: действие не связано с темой или не засчитано.",
+      );
       setAiMessage("");
     } catch (error) {
       setMessage(error.message);
@@ -419,6 +429,8 @@ const Card = () => {
                   />
                 </button>
               </div>
+
+              {message && <p className="topic-ai-panel__message">{message}</p>}
             </section>
           </section>
 

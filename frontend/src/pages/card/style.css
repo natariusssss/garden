@@ -1533,3 +1533,16 @@
     overflow-x: auto;
   }
 }
+
+.topic-ai-panel__message {
+  position: absolute;
+  left: 0;
+  top: 100px;
+  margin: 0;
+  max-width: 748px;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 150%;
+  color: rgba(255, 255, 255, 0.55);
+}

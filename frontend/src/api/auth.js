@@ -352,6 +352,30 @@ export async function addXpToTopic(topicId, xp) {
   return data;
 }
 
+
+export async function addStudyTimeToTopic(topicId, durationSeconds) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch(
+    `${API_URL}/topics/${topicId}/study-time?duration_seconds=${Math.floor(durationSeconds)}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.detail || "Failed to add study time XP");
+  }
+
+  emitAchievementNotifications(data);
+  return data;
+}
+
 export async function addLlmXpToTopic(topicId, action) {
   const token = localStorage.getItem("token");
 
