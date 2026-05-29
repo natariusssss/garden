@@ -19,7 +19,13 @@ export default function ProfilePage() {
   const [latestAchievements, setLatestAchievements] = useState([]);
   const [message, setMessage] = useState("Загрузка профиля...");
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
-
+  useEffect(() => {
+    console.log("Raw stats from API:", stats);
+    console.log("current_progress_xp:", stats?.current_progress_xp);
+    console.log("current_max_xp:", stats?.current_max_xp);
+    console.log("progress_width:", stats?.progress_width);
+    console.log("level:", stats?.level);
+  }, [stats]);
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -130,11 +136,11 @@ export default function ProfilePage() {
   };
 
   const level = stats?.level ?? 0;
-  const totalXp = stats?.total_xp ?? 0;
+  const totalXp = user?.total_xp ?? 0;
   const currentXp = stats?.current_progress_xp ?? 0;
   const maxXp = stats?.current_max_xp ?? 100;
-  const progressWidth = `${Math.min((currentXp / maxXp) * 100, 100)}%`;
 
+  const progressWidth = stats?.progress_width ?? "0%";
   const getAchievementDate = (item) => {
     return new Date(
       item.unlocked_at ||
@@ -221,12 +227,11 @@ export default function ProfilePage() {
                     <span className="lvl-tit">уровень</span>
                   </div>
                   <div className="profile-xp-bar" aria-hidden="true">
-                    <span style={{ width: stats?.progress_width || "0%" }} />
+                    <span style={{ width: progressWidth }} />
                   </div>
 
                   <small>
-                    {stats?.current_progress_xp ?? 0} /{" "}
-                    {stats?.current_max_xp ?? 100} XP
+                    {currentXp} / {maxXp} XP
                   </small>
                 </div>
               </article>
@@ -306,7 +311,6 @@ export default function ProfilePage() {
                               </span>
                             )}
                           </p>
-
                         </div>
 
                         {(achievement.plantName || achievement.xp > 0) && (
